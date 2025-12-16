@@ -1,8 +1,9 @@
 "use client";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
-import { usePathname } from "next/navigation";
-import { Input } from "@/components/ui/input";
+import { usePathname, useRouter } from "next/navigation";
+import { ArrowLeft } from "lucide-react";
+// import { Input } from "@/components/ui/input";
 
 const Links = [
   { href: "/", label: "Principal" },
@@ -12,14 +13,15 @@ const Links = [
 
 export default function Header() {
   const currentPath = usePathname();
+  const router = useRouter();
 
   const isActive = (path: string) => currentPath === path;
 
   const showNav = Links.some((link) => link.href === currentPath);
 
   return (
-    <header className="container mx-auto py-6">
-      <div className="flex items-center justify-between mx-8">
+    <header className=" py-4 border-b border-gray-800">
+      <div className="container mx-auto flex items-center justify-between">
         <Link href="/" className="text-xl font-bold tracking-tighter">
           Dev<span className="text-blue-500">Book</span>
         </Link>
@@ -40,12 +42,28 @@ export default function Header() {
             ))}
           </nav>
         )}
-        <div className="flex items-center space-x-6">
-          <Input type="text" placeholder="Buscar..." className="max-w-sm" />
-          <Button className="bg-blue-600 text-white hover:bg-blue-600/90 transition-colors">
-            Login
-          </Button>
-        </div>
+        {showNav && (
+          <div className="flex items-center space-x-6">
+            <Button
+              className="bg-blue-600 text-white hover:bg-blue-600/90 transition-colors"
+              asChild
+            >
+              <Link href="/admin">Entrar</Link>
+            </Button>
+          </div>
+        )}
+        {!showNav && (
+          <div className="flex items-center space-x-6">
+            <Button
+              variant="link"
+              onClick={() => router.back()}
+              className="text-gray-400 hover:text-white mb-8"
+            >
+              <ArrowLeft className="h-4 w-4 mr-2" />
+              Voltar para Tecnologias
+            </Button>
+          </div>
+        )}
       </div>
     </header>
   );

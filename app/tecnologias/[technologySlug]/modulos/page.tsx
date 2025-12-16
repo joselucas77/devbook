@@ -36,17 +36,6 @@ export default function Page() {
 
   return (
     <section className="max-w-3xl mx-auto mb-20">
-      <div className="flex items-center mb-8">
-        <Button
-          variant="link"
-          onClick={() => router.back()}
-          className="inline-flex items-center text-gray-400 hover:text-white mb-8"
-        >
-          <ArrowLeft className="h-4 w-4 mr-2" />
-          Voltar para Tecnologias
-        </Button>
-      </div>
-
       {/* Header */}
       <div className="mb-10">
         <div className="flex items-center gap-4 mb-4">
