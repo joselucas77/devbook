@@ -6,14 +6,27 @@ import Link from "next/link";
 import { useParams, useRouter } from "next/navigation";
 import { useEffect } from "react";
 import { toast } from "sonner";
-import ReactMarkdown from "react-markdown";
-import remarkGfm from "remark-gfm";
 import { postsByModuleListMock } from "@/mocks/post";
 import { CodeBlock } from "@/components/app/post/codeBock";
+
+type ContentBlock =
+  | { type: "heading"; level: 2 | 3; text: string }
+  | { type: "paragraph"; text: string }
+  | { type: "list"; style: "bullet" | "numbered"; items: string[] }
+  | {
+      type: "code";
+      language?: string;
+      filename?: string;
+      code: string;
+      highlightLines?: number[];
+      explanation?: string;
+    }
+  | { type: "summary"; text: string };
 
 export default function Page() {
   const params = useParams<{ postSlug: string }>();
   const slug = params.postSlug;
+
   const data = postsByModuleListMock.find((item) => item.slug === slug);
 
   const router = useRouter();
@@ -24,7 +37,7 @@ export default function Page() {
         description: "O post que você está tentando acessar não existe.",
       });
     }
-  }, [data, toast]);
+  }, [data]);
 
   if (!data) {
     return (
@@ -41,6 +54,9 @@ export default function Page() {
       </main>
     );
   }
+  const published = data.publishedAt ? new Date(data.publishedAt) : "";
+
+  const blocks: ContentBlock[] = (data as any)?.content?.blocks ?? [];
 
   return (
     <section className="max-w-3xl mx-auto mb-20">
@@ -60,49 +76,62 @@ export default function Page() {
       {data.publishedAt && (
         <div className="flex items-center gap-1 text-sm text-gray-400 mb-8">
           <Calendar className="w-4 h-4" />{" "}
-          <span>{data.publishedAt.toLocaleDateString()}</span>
+          <span>{published ? published.toLocaleDateString() : ""}</span>
         </div>
       )}
 
       <article className="prose prose-invert prose-purple max-w-none">
-        <ReactMarkdown
-          remarkPlugins={[remarkGfm]}
-          components={{
-            // inline code: `isso aqui`
-            code({ children, className, ...props }) {
-              return (
-                <code className={className} {...props}>
-                  {children}
-                </code>
+        {blocks.map((block, index) => {
+          switch (block.type) {
+            case "heading":
+              return block.level === 2 ? (
+                <h2 key={index}>{block.text}</h2>
+              ) : (
+                <h3 key={index}>{block.text}</h3>
               );
-            },
 
-            // blocos de código: ```php ... ```
-            pre({ children }) {
-              const child = children as any;
-              const codeElement = Array.isArray(child) ? child[0] : child;
+            case "paragraph":
+              return <p key={index}>{block.text}</p>;
 
-              const codeText = String(
-                codeElement?.props?.children || ""
-              ).replace(/\n$/, "");
-
-              const className = codeElement?.props?.className || "";
-              const match = /language-(\w+)/.exec(className);
-              const language = match?.[1] ?? "txt";
-
-              return (
-                <CodeBlock
-                  code={codeText}
-                  language={language}
-                  // se quiser, pode passar um filename fixo ou vindo do post
-                  // filename={`${data.slug}.php`}
-                />
+            case "list":
+              return block.style === "numbered" ? (
+                <ol key={index}>
+                  {block.items.map((item, i) => (
+                    <li key={i}>{item}</li>
+                  ))}
+                </ol>
+              ) : (
+                <ul key={index}>
+                  {block.items.map((item, i) => (
+                    <li key={i}>{item}</li>
+                  ))}
+                </ul>
               );
-            },
-          }}
-        >
-          {data.content ?? ""}
-        </ReactMarkdown>
+
+            case "code":
+              return (
+                <div key={index}>
+                  <CodeBlock
+                    code={block.code}
+                    language={block.language ?? "txt"}
+                    filename={block.filename ?? "index.html"}
+                    highlightLines={block.highlightLines}
+                  />
+                  {block.explanation ? <p>{block.explanation}</p> : null}
+                </div>
+              );
+
+            case "summary":
+              return (
+                <p key={index} className="font-semibold">
+                  {block.text}
+                </p>
+              );
+
+            default:
+              return null;
+          }
+        })}
       </article>
     </section>
   );

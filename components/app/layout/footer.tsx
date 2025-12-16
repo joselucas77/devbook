@@ -1,4 +1,4 @@
-import { Youtube, Linkedin, Github } from "lucide-react";
+import { Linkedin, Github } from "lucide-react";
 import Link from "next/link";
 
 export default function Footer() {
@@ -15,10 +15,16 @@ export default function Footer() {
             impulsione sua carreira!
           </p>
           <div className="flex justify-center space-x-4">
-            <Link href="#" className="text-gray-400 hover:text-white">
+            <Link
+              href="https://github.com/joselucas77/devbook"
+              className="text-gray-400 hover:text-white"
+            >
               <Github className="h-5 w-5" />
             </Link>
-            <Link href="#" className="text-gray-400 hover:text-white">
+            <Link
+              href="https://www.linkedin.com/in/jose-lucas-dev"
+              className="text-gray-400 hover:text-white"
+            >
               <Linkedin className="h-5 w-5" />
             </Link>
           </div>

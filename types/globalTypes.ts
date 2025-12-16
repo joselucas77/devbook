@@ -1,36 +1,36 @@
-export type PostStatus = "RASCUNHO" | "PUBLICADO" | "ARQUIVADO";
+export type PostContentBlock =
+  | {
+      type: "heading";
+      level: 2 | 3;
+      text: string;
+    }
+  | {
+      type: "paragraph";
+      text: string;
+    }
+  | {
+      type: "list";
+      style: "bullet" | "numbered";
+      items: string[];
+    }
+  | {
+      type: "code";
+      language: string; // "php", "js", etc.
+      filename?: string; // opcional: "index.php"
+      code: string;
+      explanation?: string;
+    }
+  | {
+      type: "summary";
+      text: string; // resumo/conclusão do conteúdo
+    };
 
-export interface Category {
-  id: number;
-  name: string;
-  slug: string;
-  icon: string;
-  createdAt: Date;
-  updatedAt: Date;
+// Conteúdo completo do post
+export interface PostContent {
+  blocks: PostContentBlock[];
 }
 
-export interface Technology {
-  id: number;
-  name: string;
-  slug: string;
-  description: string;
-  image: string;
-  category: Category;
-  createdAt: Date;
-  updatedAt: Date;
-}
-
-export interface Module {
-  id: number;
-  categoryId: number;
-  name: string;
-  slug: string;
-  description: string;
-  orderIndex: number;
-  createdAt: Date;
-  updatedAt: Date;
-}
-
+// Seu Post atual, adaptado
 export interface Post {
   id: number;
   categoryId: number;
@@ -38,20 +38,11 @@ export interface Post {
   title: string;
   slug: string;
   concept: string;
-  content: string;
+  content: PostContent; // <-- mudou aqui
   summary: string;
-
   isPublic: boolean;
-  status: PostStatus;
-
-  createdAt: Date;
-  updatedAt: Date;
-  publishedAt?: Date | null;
-}
-
-// Tipo específico para a página de post
-export interface PostPageData {
-  technology: Technology;
-  module: Module;
-  post: Post;
+  status: "DRAFT" | "PUBLISHED" | "ARCHIVED"; // exemplo
+  publishedAt: Date | string | null;
+  createdAt: Date | string;
+  updatedAt: Date | string;
 }
