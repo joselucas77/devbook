@@ -24,7 +24,7 @@ export default function Home() {
       <div className="grid md:grid-cols-3 gap-6">
         {tech.map((item) => {
           const IconComponent =
-            categoryIconMap[item.category.slug ?? item.category.slug] ?? Code;
+            categoryIconMap[item.category ?? item.category] ?? Code;
           return (
             <FeaturedCard
               key={item.slug}
@@ -32,7 +32,7 @@ export default function Home() {
               description={item.description}
               image={item.image}
               date={item.updatedAt.toLocaleDateString("pt-BR")}
-              category={item.category.name}
+              category={item.category}
               icon={createElement(IconComponent, {
                 className: "h-5 w-5",
               })}

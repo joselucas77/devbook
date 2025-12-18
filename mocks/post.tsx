@@ -2,7 +2,6 @@ import { Post } from "@/types/globalTypes";
 
 export const postsByModuleMock: Post = {
   id: 1,
-  categoryId: 1,
   moduleId: 2,
   title: "Variáveis em PHP",
   slug: "variaveis-em-php",

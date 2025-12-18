@@ -7,13 +7,12 @@ import { useEffect, useState } from "react";
 import FeaturedCardSkeleton from "@/components/app/tecnologias/featuredCardSkeleton";
 
 export default function Home() {
-  // Emular um loading inicial de busca de dados para demomstração do skeleton
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
     const timer = setTimeout(() => {
       setIsLoading(false);
-    }, 2000); // Simula um loading de 1 segundo
+    }, 2000);
     return () => clearTimeout(timer);
   }, []);
 

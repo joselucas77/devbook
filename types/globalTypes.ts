@@ -33,15 +33,14 @@ export interface PostContent {
 // Seu Post atual, adaptado
 export interface Post {
   id: number;
-  categoryId: number;
-  moduleId: number;
   title: string;
   slug: string;
   concept: string;
-  content: PostContent; // <-- mudou aqui
   summary: string;
+  content: PostContent;
   isPublic: boolean;
-  status: "DRAFT" | "PUBLISHED" | "ARCHIVED"; // exemplo
+  status: "DRAFT" | "PUBLISHED" | "ARCHIVED";
+  moduleId: number;
   publishedAt: Date | string | null;
   createdAt: Date | string;
   updatedAt: Date | string;

@@ -1,0 +1,59 @@
+generator client {
+  provider = "prisma-client"
+  output   = "../lib/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+enum PostStatus {
+  DRAFT
+  PUBLISHED
+  ARCHIVED
+}
+
+model Technology {
+  id          Int       @id @default(autoincrement())
+  name        String
+  slug        String    @unique
+  description String
+  image       String?
+  category    String
+  modules      Module[]
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+}
+
+model Module {
+  id           Int        @id @default(autoincrement())
+  title        String
+  slug         String
+  technologyId Int
+  technology   Technology @relation(fields: [technologyId], references: [id])
+  posts        Post[]
+  createdAt    DateTime   @default(now())
+  updatedAt    DateTime   @updatedAt
+
+  @@unique([technologyId, slug])
+  @@index([technologyId])
+}
+
+model Post {
+  id          Int        @id @default(autoincrement())
+  title       String
+  slug        String
+  concept     String
+  summary     String
+  content     Json
+  isPublic    Boolean    @default(true)
+  status      PostStatus @default(DRAFT)
+  publishedAt DateTime?
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt
+  moduleId    Int
+  module      Module     @relation(fields: [moduleId], references: [id])
+
+  @@unique([moduleId, slug])
+  @@index([moduleId])
+}
