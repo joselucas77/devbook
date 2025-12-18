@@ -3,7 +3,6 @@ import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { usePathname, useRouter } from "next/navigation";
 import { ArrowLeft } from "lucide-react";
-// import { Input } from "@/components/ui/input";
 
 const Links = [
   { href: "/", label: "Principal" },
@@ -53,14 +52,14 @@ export default function Header() {
           </div>
         )}
         {!showNav && (
-          <div className="flex items-center space-x-6">
+          <div className="flex items-center justify-center space-x-6">
             <Button
               variant="link"
               onClick={() => router.back()}
-              className="text-gray-400 hover:text-white mb-8"
+              className="text-gray-400 hover:text-white"
             >
-              <ArrowLeft className="h-4 w-4 mr-2" />
-              Voltar para Tecnologias
+              <ArrowLeft className="h-4 w-4" />
+              Voltar
             </Button>
           </div>
         )}

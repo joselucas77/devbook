@@ -1,6 +1,4 @@
-import { Category, Technology } from "@/types/globalTypes";
-
-export const linguagensCategory: Category = {
+export const linguagensCategory = {
   id: 1,
   name: "Linguagem",
   slug: "linguagem",
@@ -10,7 +8,7 @@ export const linguagensCategory: Category = {
 };
 
 // ✅ tecnologia PHP (para /tecnologias e para o resto)
-export const phpTechnology: Technology = {
+export const phpTechnology = {
   id: 1,
   name: "PHP",
   slug: "php",
@@ -24,4 +22,4 @@ export const phpTechnology: Technology = {
 };
 
 // lista para página /tecnologias
-export const technologiesMock: Technology[] = [phpTechnology];
+export const technologiesMock = [phpTechnology];

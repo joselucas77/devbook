@@ -1,8 +1,7 @@
 "use client";
 
-import { useEffect, useMemo } from "react";
+import { useEffect } from "react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
 import { z } from "zod";
 import { useForm, useFieldArray, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -20,7 +19,6 @@ import {
   Sparkles,
   Save,
 } from "lucide-react";
-
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -51,8 +49,6 @@ function slugify(value: string) {
 }
 
 export default function Page() {
-  const router = useRouter();
-
   const form = useForm<CreatePostValues>({
     resolver: zodResolver(CreatePostSchema),
     defaultValues: {
@@ -87,7 +83,6 @@ export default function Page() {
   const title = watch("title");
   const slug = watch("slug");
 
-  // ✅ Auto-gerar slug (sem forçar: só preenche se slug estiver vazio)
   useEffect(() => {
     if (!title) return;
     if (slug?.length) return;
@@ -147,16 +142,6 @@ export default function Page() {
 
   return (
     <section className="max-w-3xl mx-auto mb-20">
-      {/* Voltar (mesmo estilo do seu design) */}
-      <Button
-        variant="link"
-        onClick={() => router.back()}
-        className="inline-flex items-center text-gray-400 hover:text-white mb-8"
-      >
-        <ArrowLeft className="h-4 w-4 mr-2" />
-        Voltar
-      </Button>
-
       <div className="flex items-center justify-between gap-4 mb-8">
         <div>
           <h1 className="text-3xl md:text-4xl lg:text-5xl font-bold leading-tight mb-2">
@@ -178,7 +163,6 @@ export default function Page() {
       </div>
 
       <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
-        {/* Metadados */}
         <Card className="p-4 space-y-4">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="space-y-2">
@@ -306,7 +290,6 @@ export default function Page() {
           </div>
         </Card>
 
-        {/* Conteúdo (Blocks) */}
         <div className="flex items-center justify-between">
           <h2 className="text-xl font-bold">Conteúdo</h2>
 
@@ -412,7 +395,6 @@ export default function Page() {
                   </div>
                 </div>
 
-                {/* Render por tipo */}
                 {type === "heading" && (
                   <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
                     <Controller
@@ -610,9 +592,6 @@ export default function Page() {
   );
 }
 
-/**
- * Editor de bloco do tipo list com sub-itens (useFieldArray aninhado).
- */
 function ListBlockEditor({
   control,
   register,

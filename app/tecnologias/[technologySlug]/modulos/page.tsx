@@ -2,18 +2,14 @@
 
 import ModuleFolder from "@/components/app/modulos/moduleFolder";
 import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
 import { technologies } from "@/mocks/modulos";
-import { ArrowLeft, BookOpen, Code, Layers } from "lucide-react";
+import { BookOpen, Code, Layers } from "lucide-react";
 import Link from "next/link";
-import { useParams, useRouter } from "next/navigation";
+import { useParams } from "next/navigation";
 
 export default function Page() {
   const params = useParams<{ technologySlug: string }>();
   const slug = params.technologySlug;
-
-  const router = useRouter();
-
   const technology = technologies.find((tech) => tech.slug === slug);
 
   if (!technology) {
@@ -36,7 +32,6 @@ export default function Page() {
 
   return (
     <section className="max-w-3xl mx-auto mb-20">
-      {/* Header */}
       <div className="mb-10">
         <div className="flex items-center gap-4 mb-4">
           <h1 className="text-3xl md:text-4xl lg:text-5xl font-bold leading-tight">
@@ -47,7 +42,6 @@ export default function Page() {
           {technology.description}
         </p>
 
-        {/* Stats */}
         <div className="w-full flex items-center justify-between gap-6">
           <div className="flex w-full items-center gap-6">
             <div className="flex items-center gap-2 text-sm text-blue-500">
@@ -66,7 +60,6 @@ export default function Page() {
         </div>
       </div>
 
-      {/* Modules */}
       <div className="grid gap-4 grid-cols-1">
         {technology.modules.map((mod, index) => (
           <ModuleFolder

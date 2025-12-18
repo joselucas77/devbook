@@ -1,9 +1,9 @@
 "use client";
 
+import { createElement } from "react";
 import { BookOpen, Code, Cog, LucideIcon, Wrench } from "lucide-react";
 import FeaturedCard from "@/components/app/tecnologias/featuredCard";
 import { technologiesMock } from "@/mocks/tecnologias";
-import { createElement } from "react";
 
 const categoryIconMap: Record<string, LucideIcon> = {
   linguagens: Code,
