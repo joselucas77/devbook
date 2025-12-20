@@ -13,6 +13,18 @@ enum PostStatus {
   ARCHIVED
 }
 
+enum AdminRole {
+  ADMIN
+  EDITOR
+}
+
+model AdminUser {
+  id         Int      @id @default(autoincrement())
+  neonUserId String   @unique  // Neon Auth user.id
+  role       AdminRole @default(ADMIN)
+  createdAt  DateTime @default(now())
+}
+
 model Technology {
   id          Int       @id @default(autoincrement())
   name        String
@@ -48,6 +60,9 @@ model Post {
   content     Json
   isPublic    Boolean    @default(true)
   status      PostStatus @default(DRAFT)
+  authorId    String?
+  authorName  String?
+  authorEmail String?
   publishedAt DateTime?
   createdAt   DateTime   @default(now())
   updatedAt   DateTime   @updatedAt
