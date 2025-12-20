@@ -1,6 +1,6 @@
 generator client {
   provider = "prisma-client"
-  output   = "../lib/generated/prisma"
+  output   = "../lib/prisma"
 }
 
 datasource db {
@@ -13,28 +13,32 @@ enum PostStatus {
   ARCHIVED
 }
 
-enum AdminRole {
+enum UserRole {
   ADMIN
   EDITOR
 }
 
-model AdminUser {
-  id         Int      @id @default(autoincrement())
-  neonUserId String   @unique  // Neon Auth user.id
-  role       AdminRole @default(ADMIN)
-  createdAt  DateTime @default(now())
+model Users {
+  id        Int      @id @default(autoincrement())
+  name      String
+  email     String   @unique
+  password  String
+  role      UserRole @default(ADMIN)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  posts     Post[]   @relation("UserPosts")
 }
 
 model Technology {
-  id          Int       @id @default(autoincrement())
+  id          Int      @id @default(autoincrement())
   name        String
-  slug        String    @unique
+  slug        String   @unique
   description String
   image       String?
   category    String
-  modules      Module[]
-  createdAt   DateTime  @default(now())
-  updatedAt   DateTime  @updatedAt
+  modules     Module[]
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
 }
 
 model Module {
@@ -60,9 +64,8 @@ model Post {
   content     Json
   isPublic    Boolean    @default(true)
   status      PostStatus @default(DRAFT)
-  authorId    String?
-  authorName  String?
-  authorEmail String?
+  authorId    Int?
+  author      Users?     @relation("UserPosts", fields: [authorId], references: [id])
   publishedAt DateTime?
   createdAt   DateTime   @default(now())
   updatedAt   DateTime   @updatedAt
@@ -71,4 +74,5 @@ model Post {
 
   @@unique([moduleId, slug])
   @@index([moduleId])
+  @@index([authorId])
 }
