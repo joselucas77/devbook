@@ -50,9 +50,7 @@ const PostContentSchema = z.object({
 });
 
 export const CreatePostSchema = z.object({
-  categoryId: z.number().int().positive("categoryId inválido."),
   moduleId: z.number().int().positive("moduleId inválido."),
-
   title: z.string().min(3),
   slug: z
     .string()

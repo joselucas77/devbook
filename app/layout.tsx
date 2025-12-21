@@ -19,7 +19,7 @@ export default function RootLayout({
     <html lang="pt-BR" className="dark">
       <body className={`${inter.className} antialiased bg-black text-white`}>
         {children}
-        <Toaster />
+        <Toaster position="top-right" />
       </body>
     </html>
   );
