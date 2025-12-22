@@ -45,9 +45,10 @@ export async function PATCH(
 
 export async function DELETE(
   _: Request,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
-  const id = Number(params.id);
+  const { id: idParam } = await params;
+  const id = Number(idParam);
   await prisma.technology.delete({ where: { id } });
   return NextResponse.json({ ok: true });
 }
