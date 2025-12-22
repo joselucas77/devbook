@@ -309,7 +309,7 @@ export function ModulesTable({
         </div>
 
         {/* Table */}
-        <div className="rounded-md border border-zinc-800">
+        <div className="rounded-md border border-zinc-800 overflow-hidden">
           <Table>
             <TableHeader>
               {table.getHeaderGroups().map((headerGroup) => (

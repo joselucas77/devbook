@@ -176,7 +176,7 @@ export function TechnologiesTable({ data }: { data: Row[] }) {
 
                   <DropdownMenuItem asChild>
                     <Link
-                      href={`/admin/tecnologias/${t.id}/modulos`}
+                      href={`/admin/tecnologias/${t.slug}/modulos`}
                       className="gap-2"
                     >
                       <ExternalLink className="h-4 w-4" />
@@ -313,7 +313,7 @@ export function TechnologiesTable({ data }: { data: Row[] }) {
         </div>
 
         {/* Table */}
-        <div className="rounded-md border border-zinc-800">
+        <div className="rounded-md border border-zinc-800 overflow-hidden">
           <Table>
             <TableHeader>
               {table.getHeaderGroups().map((headerGroup) => (

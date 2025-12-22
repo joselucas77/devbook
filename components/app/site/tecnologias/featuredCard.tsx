@@ -33,7 +33,7 @@ export default function FeaturedCard({
   slug,
 }: FeaturedCardProps) {
   return (
-    <Card className="transition-colors border border-transparent hover:border-blue-950">
+    <Card className="overflow-hidden transition-colors border border-transparent hover:border-blue-950">
       <div className="relative h-48 w-full">
         <Image
           src={image || "/placeholder.svg"}

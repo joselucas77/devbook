@@ -29,10 +29,14 @@ async function deletePost(id: number) {
 
 export function PostsTable({
   technologyId,
+  tecnologySlug,
   moduleId,
+  moduleSlug,
   data,
 }: {
   technologyId: number;
+  tecnologySlug: string;
+  moduleSlug: string;
   moduleId: number;
   data: Row[];
 }) {
@@ -88,7 +92,7 @@ export function PostsTable({
               <DropdownMenuItem asChild>
                 {/* Ajuste para sua rota pública do post, se tiver */}
                 <Link
-                  href={`/tecnologias/${technologyId}/modulos/${moduleId}/post/${p.slug}`}
+                  href={`/tecnologias/${tecnologySlug}/modulos/${moduleSlug}/post/${p.slug}`}
                 >
                   Ver no site
                 </Link>
@@ -96,7 +100,6 @@ export function PostsTable({
 
               <DropdownMenuItem asChild>
                 <Link
-                  // href={`/admin/posts/novo?edit=${p.id}&moduleId=${moduleId}`}
                   href={`/admin/tecnologias/${technologyId}/modulos/${moduleId}/posts/novo?edit=${p.id}`}
                 >
                   Editar

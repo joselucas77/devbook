@@ -89,6 +89,8 @@ export default async function Page({
 
         <PostsTable
           technologyId={technologyId}
+          tecnologySlug={technology.slug}
+          moduleSlug={module.slug}
           moduleId={moduleId}
           data={data}
         />
