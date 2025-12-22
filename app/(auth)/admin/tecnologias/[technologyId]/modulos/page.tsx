@@ -1,7 +1,7 @@
 import { prisma } from "@/lib/prisma";
 import { ModulesTable } from "./modules-table";
 
-export default async function AdminModulesPage({
+export default async function Page({
   params,
 }: {
   params: Promise<{ technologyId: string }>;

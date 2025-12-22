@@ -1,16 +1,43 @@
-"use client";
-
 import ModuleFolder from "@/components/app/site/modulos/moduleFolder";
 import { Badge } from "@/components/ui/badge";
-import { technologies } from "@/mocks/modulos";
+import { prisma } from "@/lib/prisma";
 import { BookOpen, Code, Layers } from "lucide-react";
 import Link from "next/link";
-import { useParams } from "next/navigation";
 
-export default function Page() {
-  const params = useParams<{ technologySlug: string }>();
-  const slug = params.technologySlug;
-  const technology = technologies.find((tech) => tech.slug === slug);
+export default async function Page({
+  params,
+}: {
+  params: Promise<{ technologySlug: string }>;
+}) {
+  const { technologySlug: slug } = await params;
+
+  const technology = await prisma.technology.findUnique({
+    where: { slug },
+    select: {
+      id: true,
+      slug: true,
+      name: true,
+      category: true,
+      description: true,
+      modules: {
+        orderBy: { createdAt: "asc" },
+        select: {
+          id: true,
+          title: true,
+          slug: true,
+          posts: {
+            where: { isPublic: true, status: "PUBLISHED" },
+            orderBy: { createdAt: "asc" },
+            select: {
+              id: true,
+              title: true,
+              slug: true,
+            },
+          },
+        },
+      },
+    },
+  });
 
   if (!technology) {
     return (
@@ -38,6 +65,7 @@ export default function Page() {
             {technology.name}
           </h1>
         </div>
+
         <p className="text-muted-foreground max-w-2xl mb-6">
           {technology.description}
         </p>
@@ -53,6 +81,7 @@ export default function Page() {
               <span>{totalTopics} tópicos</span>
             </div>
           </div>
+
           <Badge className="bg-blue-500 text-white dark:bg-blue-950">
             <Code className="h-5 w-5" />
             {technology.category}
@@ -61,12 +90,13 @@ export default function Page() {
       </div>
 
       <div className="grid gap-4 grid-cols-1">
-        {technology.modules.map((mod, index) => (
+        {technology.modules.map((mod) => (
           <ModuleFolder
-            key={index}
-            module={mod.module}
+            key={mod.id}
+            technologySlug={technology.slug}
+            moduleTitle={mod.title}
+            moduleSlug={mod.slug}
             posts={mod.posts}
-            slug={technology.slug}
           />
         ))}
       </div>

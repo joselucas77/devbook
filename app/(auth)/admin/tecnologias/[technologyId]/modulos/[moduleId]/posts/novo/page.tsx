@@ -1,7 +1,7 @@
 import { prisma } from "@/lib/prisma";
 import { PostForm } from "./post-form";
 
-export default async function AdminPostNewPage({
+export default async function Page({
   searchParams,
 }: {
   searchParams: Promise<{ moduleId: string; edit?: string }>;

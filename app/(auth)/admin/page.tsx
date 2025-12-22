@@ -1,7 +1,7 @@
 import { prisma } from "@/lib/prisma";
 import { TechnologiesTable } from "./technologies-table";
 
-export default async function AdminTechnologiesPage() {
+export default async function Page() {
   const technologies = await prisma.technology.findMany({
     orderBy: { createdAt: "desc" },
     select: {

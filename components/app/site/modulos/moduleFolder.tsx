@@ -11,20 +11,26 @@ import Link from "next/link";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 
-interface ModuleFolderProps {
-  module: string;
-  posts: string[];
+type ModulePostItem = {
+  id: number;
+  title: string;
   slug: string;
+};
+
+interface ModuleFolderProps {
+  technologySlug: string;
+  moduleTitle: string;
+  moduleSlug: string;
+  posts: ModulePostItem[];
 }
 
 export default function ModuleFolder({
-  module,
+  moduleTitle,
+  moduleSlug,
   posts,
-  slug,
+  technologySlug,
 }: ModuleFolderProps) {
   const [isOpen, setIsOpen] = useState(false);
-
-  // const moduleSlug = module.toLowerCase().replace(/\s+/g, "-");
 
   return (
     <Card>
@@ -39,15 +45,17 @@ export default function ModuleFolder({
                   <Folder className="h-6 w-6" />
                 )}
               </div>
+
               <div className="text-left">
                 <h3 className="font-semibold text-foreground group-hover:text-primary transition-colors">
-                  {module}
+                  {moduleTitle}
                 </h3>
                 <p className="text-sm text-muted-foreground">
                   {posts.length} {posts.length === 1 ? "Post" : "Posts"}
                 </p>
               </div>
             </div>
+
             <ChevronRight
               className={`h-5 w-5 text-muted-foreground transition-transform duration-200 ${
                 isOpen ? "rotate-90" : ""
@@ -55,28 +63,31 @@ export default function ModuleFolder({
             />
           </div>
         </CollapsibleTrigger>
+
         <CollapsibleContent>
           <div className="px-4 pb-4">
             <div className="border-l-2 border-border ml-5 pl-6 space-y-1">
-              {posts.map((post, postIndex) => {
-                // const postSlug = post.toLowerCase().replace(/\s+/g, "-");
-                return (
-                  <Button
-                    asChild
-                    key={postIndex}
-                    variant="ghost"
-                    className="w-full flex items-center justify-start"
+              {posts.map((post) => (
+                <Button
+                  asChild
+                  key={post.id}
+                  variant="ghost"
+                  className="w-full flex items-center justify-start"
+                >
+                  <Link
+                    href={`/tecnologias/${technologySlug}/modulos/${moduleSlug}/post/${post.slug}`}
                   >
-                    <Link
-                      // href={`/tecnologias/${slug}/modulos/${module}/post/${post}`}
-                      href={`/tecnologias/${slug}/modulos/${module}/post/variaveis-em-php`}
-                    >
-                      <FileText className="h-4 w-4 text-primary/70" />
-                      <span>{post}</span>
-                    </Link>
-                  </Button>
-                );
-              })}
+                    <FileText className="h-4 w-4 text-primary/70" />
+                    <span>{post.title}</span>
+                  </Link>
+                </Button>
+              ))}
+
+              {posts.length === 0 && (
+                <p className="text-sm text-muted-foreground py-2">
+                  Ainda não há posts publicados neste módulo.
+                </p>
+              )}
             </div>
           </div>
         </CollapsibleContent>

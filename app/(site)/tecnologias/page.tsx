@@ -33,7 +33,7 @@ function normalizeCategoryKey(category: string) {
   return value;
 }
 
-export default async function TecnologyHome() {
+export default async function Page() {
   const tech = await prisma.technology.findMany({
     orderBy: { updatedAt: "desc" },
     select: {
