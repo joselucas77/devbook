@@ -1,13 +1,9 @@
-"use client";
-
 import { Button } from "@/components/ui/button";
 import { Calendar } from "lucide-react";
 import Link from "next/link";
-import { useParams, useRouter } from "next/navigation";
-import { useEffect } from "react";
-import { toast } from "sonner";
-import { postsByModuleListMock } from "@/mocks/post";
+import { prisma } from "@/lib/prisma";
 import { CodeBlock } from "@/components/app/site/post/codeBock";
+import { formatDatePtBR } from "@/lib/formatDate";
 
 type ContentBlock =
   | { type: "heading"; level: 2 | 3; text: string }
@@ -23,23 +19,24 @@ type ContentBlock =
     }
   | { type: "summary"; text: string };
 
-export default function Page() {
-  const params = useParams<{ postSlug: string }>();
-  const slug = params.postSlug;
+export default async function Page({
+  params,
+}: {
+  params: Promise<{
+    technologySlug: string;
+    moduleSlug: string;
+    postSlug: string;
+  }>;
+}) {
+  const { technologySlug, moduleSlug, postSlug } = await params;
 
-  const data = postsByModuleListMock.find((item) => item.slug === slug);
+  // 1) acha a tecnologia
+  const technology = await prisma.technology.findUnique({
+    where: { slug: technologySlug },
+    select: { id: true },
+  });
 
-  const router = useRouter();
-
-  useEffect(() => {
-    if (!data) {
-      toast.error("Post não encontrado", {
-        description: "O post que você está tentando acessar não existe.",
-      });
-    }
-  }, [data]);
-
-  if (!data) {
+  if (!technology) {
     return (
       <main className="container mx-auto px-4 py-12">
         <div className="text-center">
@@ -54,9 +51,77 @@ export default function Page() {
       </main>
     );
   }
-  const published = data.publishedAt ? new Date(data.publishedAt) : "";
 
-  const blocks: ContentBlock[] = (data as any)?.content?.blocks ?? [];
+  // 2) acha o módulo dentro da tecnologia
+  const moduleItem = await prisma.module.findUnique({
+    where: {
+      technologyId_slug: {
+        technologyId: technology.id,
+        slug: moduleSlug,
+      },
+    },
+    select: { id: true },
+  });
+
+  if (!moduleItem) {
+    return (
+      <main className="container mx-auto px-4 py-12">
+        <div className="text-center">
+          <h1 className="text-3xl font-bold mb-4">Post não encontrado</h1>
+          <p className="mb-6">
+            O post que você está tentando acessar não existe ou foi movido.
+          </p>
+          <Button asChild>
+            <Link href="/">Voltar para a página inicial</Link>
+          </Button>
+        </div>
+      </main>
+    );
+  }
+
+  // 3) acha o post pelo slug + moduleId
+  const data = await prisma.post.findUnique({
+    where: {
+      moduleId_slug: {
+        moduleId: moduleItem.id,
+        slug: postSlug,
+      },
+    },
+    select: {
+      id: true,
+      title: true,
+      slug: true,
+      publishedAt: true,
+      content: true,
+      isPublic: true,
+      status: true,
+    },
+  });
+
+  // Regra para público: só mostra publicados e públicos
+  const canShow = data && data.isPublic && data.status === "PUBLISHED";
+
+  if (!canShow) {
+    return (
+      <main className="container mx-auto px-4 py-12">
+        <div className="text-center">
+          <h1 className="text-3xl font-bold mb-4">Post não encontrado</h1>
+          <p className="mb-6">
+            O post que você está tentando acessar não existe ou foi movido.
+          </p>
+          <Button asChild>
+            <Link href="/">Voltar para a página inicial</Link>
+          </Button>
+        </div>
+      </main>
+    );
+  }
+
+  const published = data.publishedAt ? formatDatePtBR(data.publishedAt) : "";
+
+  // content é Json no Prisma → garante shape esperado
+  const blocks: ContentBlock[] =
+    ((data.content as any)?.blocks as ContentBlock[]) ?? [];
 
   return (
     <section className="max-w-3xl mx-auto mb-20">
@@ -66,8 +131,7 @@ export default function Page() {
 
       {data.publishedAt && (
         <div className="flex items-center gap-1 text-sm text-gray-400 mb-8">
-          <Calendar className="w-4 h-4" />{" "}
-          <span>{published ? published.toLocaleDateString() : ""}</span>
+          <Calendar className="w-4 h-4" /> <span>{published}</span>
         </div>
       )}
 

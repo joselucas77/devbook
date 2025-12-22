@@ -5,3 +5,9 @@ export function formatDateBR(iso: string) {
   const yyyy = d.getFullYear();
   return `${dd}/${mm}/${yyyy}`;
 }
+
+export function formatDatePtBR(date: Date) {
+  return new Intl.DateTimeFormat("pt-BR", {
+    timeZone: "America/Maceio",
+  }).format(date);
+}

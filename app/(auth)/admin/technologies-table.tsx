@@ -313,7 +313,7 @@ export function TechnologiesTable({ data }: { data: Row[] }) {
         </div>
 
         {/* Table */}
-        <div className="rounded-md border border-zinc-800 overflow-hidden">
+        <div className="rounded-md border border-zinc-800">
           <Table>
             <TableHeader>
               {table.getHeaderGroups().map((headerGroup) => (

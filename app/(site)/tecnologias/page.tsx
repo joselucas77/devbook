@@ -2,6 +2,7 @@ import { createElement } from "react";
 import { BookOpen, Code, Cog, LucideIcon, Wrench } from "lucide-react";
 import FeaturedCard from "@/components/app/site/tecnologias/featuredCard";
 import { prisma } from "@/lib/prisma";
+import { formatDatePtBR } from "@/lib/formatDate";
 
 const categoryIconMap: Record<string, LucideIcon> = {
   linguagens: Code,
@@ -9,15 +10,6 @@ const categoryIconMap: Record<string, LucideIcon> = {
   bibliotecas: BookOpen,
   ferramentas: Wrench,
 };
-
-// ✅ formata no server p/ evitar hydration mismatch no client
-function formatDatePtBR(date: Date) {
-  // usa um timezone fixo pra não depender de ambiente/server
-  const fmt = new Intl.DateTimeFormat("pt-BR", {
-    timeZone: "America/Maceio",
-  });
-  return fmt.format(date);
-}
 
 // ✅ normaliza a chave do ícone com base na categoria salva no banco
 function normalizeCategoryKey(category: string) {
