@@ -14,7 +14,7 @@ export default function Header() {
   const currentPath = usePathname();
   const router = useRouter();
 
-  const isActive = (path: string) => currentPath === path;
+  // const isActive = (path: string) => currentPath === path;
 
   const showNav = Links.some((link) => link.href === currentPath);
 
@@ -24,7 +24,7 @@ export default function Header() {
         <Link href="/" className="text-xl font-bold tracking-tighter">
           Dev<span className="text-blue-500">Book</span>
         </Link>
-        {showNav && (
+        {/* {showNav && (
           <nav className="hidden md:flex items-center space-x-6 text-sm">
             {Links.map(({ href, label }) => (
               <Link
@@ -40,7 +40,7 @@ export default function Header() {
               </Link>
             ))}
           </nav>
-        )}
+        )} */}
         {showNav && (
           <div className="flex items-center space-x-6">
             <Button
