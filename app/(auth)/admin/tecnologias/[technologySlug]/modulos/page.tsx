@@ -4,23 +4,23 @@ import { ModulesTable } from "./modules-table";
 export default async function Page({
   params,
 }: {
-  params: Promise<{ technologyId: string }>;
+  params: Promise<{ technologySlug: string }>;
 }) {
-  const { technologyId: technologyIdParam } = await params;
-  const technologyId = Number(technologyIdParam);
+  const { technologySlug: technologySlugParam } = await params;
+  const technologySlug = technologySlugParam;
 
-  if (!Number.isFinite(technologyId)) {
+  if (!technologySlug) {
     return (
       <main className="container mx-auto px-4 py-12">
         <section className="max-w-5xl mx-auto">
-          <p className="text-gray-400">ID de tecnologia inválido.</p>
+          <p className="text-gray-400">Slug de tecnologia inválido.</p>
         </section>
       </main>
     );
   }
 
   const technology = await prisma.technology.findUnique({
-    where: { id: technologyId },
+    where: { slug: technologySlug },
     select: { id: true, name: true, slug: true },
   });
 
@@ -35,7 +35,7 @@ export default async function Page({
   }
 
   const modules = await prisma.module.findMany({
-    where: { technologyId },
+    where: { technologyId: technology.id },
     orderBy: { createdAt: "desc" },
     select: {
       id: true,
@@ -67,11 +67,12 @@ export default async function Page({
         <ModulesTable
           technologyId={technology.id}
           technologyName={technology.name}
+          technologySlug={technology.slug}
           data={modules.map((m) => ({
             id: m.id,
             title: m.title,
             slug: m.slug,
-            technologyId,
+            technologyId: technology.id,
             postsCount: m._count.posts,
             createdAt: m.createdAt.toISOString(),
             updatedAt: m.updatedAt.toISOString(),

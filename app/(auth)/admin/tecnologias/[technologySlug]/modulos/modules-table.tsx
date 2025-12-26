@@ -75,10 +75,12 @@ type Row = {
 export function ModulesTable({
   technologyId,
   technologyName,
+  technologySlug,
   data,
 }: {
   technologyId: number;
   technologyName: string;
+  technologySlug: string;
   data: Row[];
 }) {
   const router = useRouter();
@@ -149,7 +151,6 @@ export function ModulesTable({
         accessorKey: "updatedAt",
         header: "Atualizado",
         cell: ({ row }) => {
-          // const d = new Date(row.original.updatedAt);
           return (
             <span className="text-sm text-gray-300">
               {formatDateBR(row.original.updatedAt)}
@@ -177,7 +178,7 @@ export function ModulesTable({
 
                   <DropdownMenuItem asChild>
                     <Link
-                      href={`/admin/tecnologias/${technologyId}/modulos/${m.id}/posts`}
+                      href={`/admin/tecnologias/${technologySlug}/modulos/${m.slug}/posts`}
                       className="gap-2"
                     >
                       <FileText className="h-4 w-4" />

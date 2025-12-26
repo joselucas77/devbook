@@ -4,24 +4,14 @@ import { PostsTable } from "./posts-table";
 export default async function Page({
   params,
 }: {
-  params: Promise<{ moduleId: string; technologyId: string }>;
+  params: Promise<{ moduleSlug: string; technologySlug: string }>;
 }) {
-  const { moduleId: moduleIdParam, technologyId: technologyIdParam } =
+  const { moduleSlug: moduleSlugParam, technologySlug: technologySlugParam } =
     await params;
-  const moduleId = Number(moduleIdParam);
-  const technologyId = Number(technologyIdParam);
+  const moduleSlug = moduleSlugParam;
+  const technologySlug = technologySlugParam;
 
-  if (!Number.isFinite(moduleId)) {
-    return (
-      <main className="container mx-auto px-4 py-12">
-        <section className="max-w-5xl mx-auto">
-          <p className="text-gray-400">ID de módulo inválido.</p>
-        </section>
-      </main>
-    );
-  }
-
-  if (!Number.isFinite(technologyId)) {
+  if (!technologySlug) {
     return (
       <main className="container mx-auto px-4 py-12">
         <section className="max-w-5xl mx-auto">
@@ -32,7 +22,7 @@ export default async function Page({
   }
 
   const technology = await prisma.technology.findUnique({
-    where: { id: technologyId },
+    where: { slug: technologySlug },
     select: { id: true, name: true, slug: true },
   });
 
@@ -46,8 +36,18 @@ export default async function Page({
     );
   }
 
-  const module = await prisma.module.findUnique({
-    where: { id: moduleId },
+  if (!moduleSlug) {
+    return (
+      <main className="container mx-auto px-4 py-12">
+        <section className="max-w-5xl mx-auto">
+          <p className="text-gray-400">ID de módulo inválido.</p>
+        </section>
+      </main>
+    );
+  }
+
+  const module = await prisma.module.findFirst({
+    where: { slug: moduleSlug },
     include: { technology: true },
   });
 
@@ -60,7 +60,7 @@ export default async function Page({
   }
 
   const posts = await prisma.post.findMany({
-    where: { moduleId },
+    where: { moduleId: module.id },
     orderBy: { createdAt: "desc" },
   });
 
@@ -82,16 +82,16 @@ export default async function Page({
               Posts
             </h1>
             <p className="text-sm text-gray-400 mt-2">
-              {module.technology.name} / {module.title}
+              {technology.name} / {module.title}
             </p>
           </div>
         </div>
 
         <PostsTable
-          technologyId={technologyId}
+          technologyId={technology.id}
           tecnologySlug={technology.slug}
-          moduleSlug={module.slug}
-          moduleId={moduleId}
+          moduleId={module.id}
+          moduleSlug={moduleSlug}
           data={data}
         />
       </section>

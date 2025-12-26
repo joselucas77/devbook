@@ -27,7 +27,6 @@ import { toast } from "sonner";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Card } from "@/components/ui/card";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -58,7 +57,7 @@ import {
 import {
   TechnologyModal,
   TechnologyRow,
-} from "@/components/app/auth/admin/tecnology/technology-modal";
+} from "@/components/app/auth/admin/technology/technology-modal";
 import { useMemo, useState } from "react";
 import { formatDateBR } from "@/lib/formatDate";
 
@@ -148,7 +147,6 @@ export function TechnologiesTable({ data }: { data: Row[] }) {
         accessorKey: "updatedAt",
         header: "Atualizado",
         cell: ({ row }) => {
-          // const d = new Date(row.original.updatedAt);
           return (
             <span className="text-sm text-gray-300">
               {formatDateBR(row.original.updatedAt)}
