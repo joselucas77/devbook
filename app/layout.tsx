@@ -21,7 +21,7 @@ export default function RootLayout({
         className={`${inter.className} antialiased bg-black text-white no-scrollbar`}
       >
         {children}
-        <Toaster position="top-right" />
+        <Toaster position="top-center" />
       </body>
     </html>
   );
