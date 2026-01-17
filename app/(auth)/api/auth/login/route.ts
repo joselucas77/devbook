@@ -30,7 +30,7 @@ export async function POST(req: Request) {
     );
   }
 
-  const ok = await bcrypt.compare(password, user.password);
+  const ok = await bcrypt.compare(password, user.password!);
   if (!ok) {
     return NextResponse.json(
       { message: "Credenciais inválidas" },
