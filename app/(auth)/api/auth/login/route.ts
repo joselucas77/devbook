@@ -16,17 +16,17 @@ export async function POST(req: Request) {
   if (!parsed.success) {
     return NextResponse.json(
       { message: "Validation error", issues: parsed.error.flatten() },
-      { status: 400 }
+      { status: 400 },
     );
   }
 
   const { email, password } = parsed.data;
 
-  const user = await prisma.users.findUnique({ where: { email } });
+  const user = await prisma.user.findUnique({ where: { email } });
   if (!user) {
     return NextResponse.json(
       { message: "Credenciais inválidas" },
-      { status: 401 }
+      { status: 401 },
     );
   }
 
@@ -34,7 +34,7 @@ export async function POST(req: Request) {
   if (!ok) {
     return NextResponse.json(
       { message: "Credenciais inválidas" },
-      { status: 401 }
+      { status: 401 },
     );
   }
 

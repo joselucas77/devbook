@@ -28,13 +28,11 @@ export type AggregatePost = {
 
 export type PostAvgAggregateOutputType = {
   id: number | null
-  authorId: number | null
   moduleId: number | null
 }
 
 export type PostSumAggregateOutputType = {
   id: number | null
-  authorId: number | null
   moduleId: number | null
 }
 
@@ -46,7 +44,7 @@ export type PostMinAggregateOutputType = {
   summary: string | null
   isPublic: boolean | null
   status: $Enums.PostStatus | null
-  authorId: number | null
+  authorId: string | null
   publishedAt: Date | null
   createdAt: Date | null
   updatedAt: Date | null
@@ -61,7 +59,7 @@ export type PostMaxAggregateOutputType = {
   summary: string | null
   isPublic: boolean | null
   status: $Enums.PostStatus | null
-  authorId: number | null
+  authorId: string | null
   publishedAt: Date | null
   createdAt: Date | null
   updatedAt: Date | null
@@ -88,13 +86,11 @@ export type PostCountAggregateOutputType = {
 
 export type PostAvgAggregateInputType = {
   id?: true
-  authorId?: true
   moduleId?: true
 }
 
 export type PostSumAggregateInputType = {
   id?: true
-  authorId?: true
   moduleId?: true
 }
 
@@ -240,7 +236,7 @@ export type PostGroupByOutputType = {
   content: runtime.JsonValue
   isPublic: boolean
   status: $Enums.PostStatus
-  authorId: number | null
+  authorId: string | null
   publishedAt: Date | null
   createdAt: Date
   updatedAt: Date
@@ -279,12 +275,12 @@ export type PostWhereInput = {
   content?: Prisma.JsonFilter<"Post">
   isPublic?: Prisma.BoolFilter<"Post"> | boolean
   status?: Prisma.EnumPostStatusFilter<"Post"> | $Enums.PostStatus
-  authorId?: Prisma.IntNullableFilter<"Post"> | number | null
+  authorId?: Prisma.StringNullableFilter<"Post"> | string | null
   publishedAt?: Prisma.DateTimeNullableFilter<"Post"> | Date | string | null
   createdAt?: Prisma.DateTimeFilter<"Post"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"Post"> | Date | string
   moduleId?: Prisma.IntFilter<"Post"> | number
-  author?: Prisma.XOR<Prisma.UsersNullableScalarRelationFilter, Prisma.UsersWhereInput> | null
+  author?: Prisma.XOR<Prisma.UserNullableScalarRelationFilter, Prisma.UserWhereInput> | null
   module?: Prisma.XOR<Prisma.ModuleScalarRelationFilter, Prisma.ModuleWhereInput>
 }
 
@@ -302,7 +298,7 @@ export type PostOrderByWithRelationInput = {
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   moduleId?: Prisma.SortOrder
-  author?: Prisma.UsersOrderByWithRelationInput
+  author?: Prisma.UserOrderByWithRelationInput
   module?: Prisma.ModuleOrderByWithRelationInput
 }
 
@@ -319,12 +315,12 @@ export type PostWhereUniqueInput = Prisma.AtLeast<{
   content?: Prisma.JsonFilter<"Post">
   isPublic?: Prisma.BoolFilter<"Post"> | boolean
   status?: Prisma.EnumPostStatusFilter<"Post"> | $Enums.PostStatus
-  authorId?: Prisma.IntNullableFilter<"Post"> | number | null
+  authorId?: Prisma.StringNullableFilter<"Post"> | string | null
   publishedAt?: Prisma.DateTimeNullableFilter<"Post"> | Date | string | null
   createdAt?: Prisma.DateTimeFilter<"Post"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"Post"> | Date | string
   moduleId?: Prisma.IntFilter<"Post"> | number
-  author?: Prisma.XOR<Prisma.UsersNullableScalarRelationFilter, Prisma.UsersWhereInput> | null
+  author?: Prisma.XOR<Prisma.UserNullableScalarRelationFilter, Prisma.UserWhereInput> | null
   module?: Prisma.XOR<Prisma.ModuleScalarRelationFilter, Prisma.ModuleWhereInput>
 }, "id" | "moduleId_slug">
 
@@ -361,7 +357,7 @@ export type PostScalarWhereWithAggregatesInput = {
   content?: Prisma.JsonWithAggregatesFilter<"Post">
   isPublic?: Prisma.BoolWithAggregatesFilter<"Post"> | boolean
   status?: Prisma.EnumPostStatusWithAggregatesFilter<"Post"> | $Enums.PostStatus
-  authorId?: Prisma.IntNullableWithAggregatesFilter<"Post"> | number | null
+  authorId?: Prisma.StringNullableWithAggregatesFilter<"Post"> | string | null
   publishedAt?: Prisma.DateTimeNullableWithAggregatesFilter<"Post"> | Date | string | null
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"Post"> | Date | string
   updatedAt?: Prisma.DateTimeWithAggregatesFilter<"Post"> | Date | string
@@ -379,7 +375,7 @@ export type PostCreateInput = {
   publishedAt?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
-  author?: Prisma.UsersCreateNestedOneWithoutPostsInput
+  author?: Prisma.UserCreateNestedOneWithoutPostsInput
   module: Prisma.ModuleCreateNestedOneWithoutPostsInput
 }
 
@@ -392,7 +388,7 @@ export type PostUncheckedCreateInput = {
   content: Prisma.JsonNullValueInput | runtime.InputJsonValue
   isPublic?: boolean
   status?: $Enums.PostStatus
-  authorId?: number | null
+  authorId?: string | null
   publishedAt?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -410,7 +406,7 @@ export type PostUpdateInput = {
   publishedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  author?: Prisma.UsersUpdateOneWithoutPostsNestedInput
+  author?: Prisma.UserUpdateOneWithoutPostsNestedInput
   module?: Prisma.ModuleUpdateOneRequiredWithoutPostsNestedInput
 }
 
@@ -423,7 +419,7 @@ export type PostUncheckedUpdateInput = {
   content?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
   status?: Prisma.EnumPostStatusFieldUpdateOperationsInput | $Enums.PostStatus
-  authorId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  authorId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   publishedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -439,7 +435,7 @@ export type PostCreateManyInput = {
   content: Prisma.JsonNullValueInput | runtime.InputJsonValue
   isPublic?: boolean
   status?: $Enums.PostStatus
-  authorId?: number | null
+  authorId?: string | null
   publishedAt?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -468,7 +464,7 @@ export type PostUncheckedUpdateManyInput = {
   content?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
   status?: Prisma.EnumPostStatusFieldUpdateOperationsInput | $Enums.PostStatus
-  authorId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  authorId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   publishedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -508,7 +504,6 @@ export type PostCountOrderByAggregateInput = {
 
 export type PostAvgOrderByAggregateInput = {
   id?: Prisma.SortOrder
-  authorId?: Prisma.SortOrder
   moduleId?: Prisma.SortOrder
 }
 
@@ -544,7 +539,6 @@ export type PostMinOrderByAggregateInput = {
 
 export type PostSumOrderByAggregateInput = {
   id?: Prisma.SortOrder
-  authorId?: Prisma.SortOrder
   moduleId?: Prisma.SortOrder
 }
 
@@ -632,24 +626,12 @@ export type PostUncheckedUpdateManyWithoutModuleNestedInput = {
   deleteMany?: Prisma.PostScalarWhereInput | Prisma.PostScalarWhereInput[]
 }
 
-export type BoolFieldUpdateOperationsInput = {
-  set?: boolean
-}
-
 export type EnumPostStatusFieldUpdateOperationsInput = {
   set?: $Enums.PostStatus
 }
 
 export type NullableDateTimeFieldUpdateOperationsInput = {
   set?: Date | string | null
-}
-
-export type NullableIntFieldUpdateOperationsInput = {
-  set?: number | null
-  increment?: number
-  decrement?: number
-  multiply?: number
-  divide?: number
 }
 
 export type PostCreateWithoutAuthorInput = {
@@ -719,7 +701,7 @@ export type PostScalarWhereInput = {
   content?: Prisma.JsonFilter<"Post">
   isPublic?: Prisma.BoolFilter<"Post"> | boolean
   status?: Prisma.EnumPostStatusFilter<"Post"> | $Enums.PostStatus
-  authorId?: Prisma.IntNullableFilter<"Post"> | number | null
+  authorId?: Prisma.StringNullableFilter<"Post"> | string | null
   publishedAt?: Prisma.DateTimeNullableFilter<"Post"> | Date | string | null
   createdAt?: Prisma.DateTimeFilter<"Post"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"Post"> | Date | string
@@ -737,7 +719,7 @@ export type PostCreateWithoutModuleInput = {
   publishedAt?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
-  author?: Prisma.UsersCreateNestedOneWithoutPostsInput
+  author?: Prisma.UserCreateNestedOneWithoutPostsInput
 }
 
 export type PostUncheckedCreateWithoutModuleInput = {
@@ -749,7 +731,7 @@ export type PostUncheckedCreateWithoutModuleInput = {
   content: Prisma.JsonNullValueInput | runtime.InputJsonValue
   isPublic?: boolean
   status?: $Enums.PostStatus
-  authorId?: number | null
+  authorId?: string | null
   publishedAt?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -849,7 +831,7 @@ export type PostCreateManyModuleInput = {
   content: Prisma.JsonNullValueInput | runtime.InputJsonValue
   isPublic?: boolean
   status?: $Enums.PostStatus
-  authorId?: number | null
+  authorId?: string | null
   publishedAt?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -866,7 +848,7 @@ export type PostUpdateWithoutModuleInput = {
   publishedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  author?: Prisma.UsersUpdateOneWithoutPostsNestedInput
+  author?: Prisma.UserUpdateOneWithoutPostsNestedInput
 }
 
 export type PostUncheckedUpdateWithoutModuleInput = {
@@ -878,7 +860,7 @@ export type PostUncheckedUpdateWithoutModuleInput = {
   content?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
   status?: Prisma.EnumPostStatusFieldUpdateOperationsInput | $Enums.PostStatus
-  authorId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  authorId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   publishedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -893,7 +875,7 @@ export type PostUncheckedUpdateManyWithoutModuleInput = {
   content?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   isPublic?: Prisma.BoolFieldUpdateOperationsInput | boolean
   status?: Prisma.EnumPostStatusFieldUpdateOperationsInput | $Enums.PostStatus
-  authorId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  authorId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   publishedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -988,7 +970,7 @@ export type PostIncludeUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensi
 export type $PostPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   name: "Post"
   objects: {
-    author: Prisma.$UsersPayload<ExtArgs> | null
+    author: Prisma.$UserPayload<ExtArgs> | null
     module: Prisma.$ModulePayload<ExtArgs>
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
@@ -1000,7 +982,7 @@ export type $PostPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs =
     content: runtime.JsonValue
     isPublic: boolean
     status: $Enums.PostStatus
-    authorId: number | null
+    authorId: string | null
     publishedAt: Date | null
     createdAt: Date
     updatedAt: Date
@@ -1399,7 +1381,7 @@ readonly fields: PostFieldRefs;
  */
 export interface Prisma__PostClient<T, Null = never, ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
   readonly [Symbol.toStringTag]: "PrismaPromise"
-  author<T extends Prisma.Post$authorArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Post$authorArgs<ExtArgs>>): Prisma.Prisma__UsersClient<runtime.Types.Result.GetResult<Prisma.$UsersPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+  author<T extends Prisma.Post$authorArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Post$authorArgs<ExtArgs>>): Prisma.Prisma__UserClient<runtime.Types.Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   module<T extends Prisma.ModuleDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.ModuleDefaultArgs<ExtArgs>>): Prisma.Prisma__ModuleClient<runtime.Types.Result.GetResult<Prisma.$ModulePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
@@ -1438,7 +1420,7 @@ export interface PostFieldRefs {
   readonly content: Prisma.FieldRef<"Post", 'Json'>
   readonly isPublic: Prisma.FieldRef<"Post", 'Boolean'>
   readonly status: Prisma.FieldRef<"Post", 'PostStatus'>
-  readonly authorId: Prisma.FieldRef<"Post", 'Int'>
+  readonly authorId: Prisma.FieldRef<"Post", 'String'>
   readonly publishedAt: Prisma.FieldRef<"Post", 'DateTime'>
   readonly createdAt: Prisma.FieldRef<"Post", 'DateTime'>
   readonly updatedAt: Prisma.FieldRef<"Post", 'DateTime'>
@@ -1843,18 +1825,18 @@ export type PostDeleteManyArgs<ExtArgs extends runtime.Types.Extensions.Internal
  */
 export type Post$authorArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   /**
-   * Select specific fields to fetch from the Users
+   * Select specific fields to fetch from the User
    */
-  select?: Prisma.UsersSelect<ExtArgs> | null
+  select?: Prisma.UserSelect<ExtArgs> | null
   /**
-   * Omit specific fields from the Users
+   * Omit specific fields from the User
    */
-  omit?: Prisma.UsersOmit<ExtArgs> | null
+  omit?: Prisma.UserOmit<ExtArgs> | null
   /**
    * Choose, which related nodes to fetch as well
    */
-  include?: Prisma.UsersInclude<ExtArgs> | null
-  where?: Prisma.UsersWhereInput
+  include?: Prisma.UserInclude<ExtArgs> | null
+  where?: Prisma.UserWhereInput
 }
 
 /**

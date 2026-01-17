@@ -18,15 +18,22 @@ enum UserRole {
   EDITOR
 }
 
-model Users {
-  id        Int      @id @default(autoincrement())
-  name      String
-  email     String   @unique
-  password  String
-  role      UserRole @default(ADMIN)
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-  posts     Post[]   @relation("UserPosts")
+model User {
+  id            String    @id
+  name          String
+  email         String
+  password      String?
+  emailVerified Boolean   @default(false)
+  image         String?
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+  role          UserRole  @default(ADMIN)
+  sessions      Session[]
+  accounts      Account[]
+  posts         Post[]    @relation("UserPosts")
+
+  @@unique([email])
+  @@map("user")
 }
 
 model Technology {
@@ -64,8 +71,8 @@ model Post {
   content     Json
   isPublic    Boolean    @default(true)
   status      PostStatus @default(DRAFT)
-  authorId    Int?
-  author      Users?     @relation("UserPosts", fields: [authorId], references: [id])
+  authorId    String?
+  author      User?      @relation("UserPosts", fields: [authorId], references: [id])
   publishedAt DateTime?
   createdAt   DateTime   @default(now())
   updatedAt   DateTime   @updatedAt
@@ -75,4 +82,52 @@ model Post {
   @@unique([moduleId, slug])
   @@index([moduleId])
   @@index([authorId])
+}
+
+model Session {
+  id        String   @id
+  expiresAt DateTime
+  token     String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  ipAddress String?
+  userAgent String?
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([token])
+  @@index([userId])
+  @@map("session")
+}
+
+model Account {
+  id                    String    @id
+  accountId             String
+  providerId            String
+  userId                String
+  user                  User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  accessToken           String?
+  refreshToken          String?
+  idToken               String?
+  accessTokenExpiresAt  DateTime?
+  refreshTokenExpiresAt DateTime?
+  scope                 String?
+  password              String?
+  createdAt             DateTime  @default(now())
+  updatedAt             DateTime  @updatedAt
+
+  @@index([userId])
+  @@map("account")
+}
+
+model Verification {
+  id         String   @id
+  identifier String
+  value      String
+  expiresAt  DateTime
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  @@index([identifier])
+  @@map("verification")
 }
