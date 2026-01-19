@@ -3,7 +3,7 @@ import { prisma } from "./prisma";
 import { prismaAdapter } from "better-auth/adapters/prisma";
 
 export const auth = betterAuth({
-  trustedOrigins: [`https://${process.env.VERCEL_URL}`],
+  trustedOrigins: ["https://devbook-eight.vercel.app"],
   database: prismaAdapter(prisma, {
     provider: "postgresql",
   }),
