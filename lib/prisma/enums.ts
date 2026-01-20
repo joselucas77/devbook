@@ -20,7 +20,8 @@ export type PostStatus = (typeof PostStatus)[keyof typeof PostStatus]
 
 export const UserRole = {
   ADMIN: 'ADMIN',
-  EDITOR: 'EDITOR'
+  EDITOR: 'EDITOR',
+  VIEWER: 'VIEWER'
 } as const
 
 export type UserRole = (typeof UserRole)[keyof typeof UserRole]

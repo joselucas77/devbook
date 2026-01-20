@@ -16,6 +16,7 @@ enum PostStatus {
 enum UserRole {
   ADMIN
   EDITOR
+  VIEWER
 }
 
 model User {
