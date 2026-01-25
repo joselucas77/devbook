@@ -61,17 +61,18 @@ export function LoginForm({
         description: data?.message ?? "Verifique email e senha.",
       });
       return;
+    } else {
+      router.push(process.env.NEXT_PUBLIC_BASE_URL + "/auth/redirect");
+      toast.success("Login realizado");
+      router.refresh();
     }
-
-    toast.success("Login realizado");
-    router.push("/admin");
-    router.refresh();
   }
 
   async function signInWithGoogle() {
     await authClient.signIn.social({
       provider: "google",
-      callbackURL: process.env.NEXT_PUBLIC_BASE_URL + "/admin",
+      callbackURL:
+        process.env.NEXT_PUBLIC_BASE_URL + "/api/auth/oauth/callback",
       fetchOptions: {
         onSuccess: () => {
           toast.success("Login realizado com Google");
@@ -86,7 +87,8 @@ export function LoginForm({
   async function signInWithGitHub() {
     await authClient.signIn.social({
       provider: "github",
-      callbackURL: process.env.NEXT_PUBLIC_BASE_URL + "/admin",
+      callbackURL:
+        process.env.NEXT_PUBLIC_BASE_URL + "/api/auth/oauth/callback",
       fetchOptions: {
         onSuccess: () => {
           toast.success("Login realizado com GitHub");

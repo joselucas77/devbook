@@ -2,7 +2,7 @@ import { SignJWT, jwtVerify } from "jose";
 
 const COOKIE_NAME = process.env.AUTH_COOKIE_NAME ?? "devbook_token";
 const secret = new TextEncoder().encode(
-  process.env.AUTH_JWT_SECRET ?? "dev-secret"
+  process.env.AUTH_JWT_SECRET ?? "dev-secret",
 );
 
 export function getAuthCookieName() {
@@ -12,7 +12,7 @@ export function getAuthCookieName() {
 export type AuthJwtPayload = {
   sub: string; // user id
   email: string;
-  role: "ADMIN" | "EDITOR";
+  role: "ADMIN" | "EDITOR" | "VIEWER";
   name: string;
 };
 
