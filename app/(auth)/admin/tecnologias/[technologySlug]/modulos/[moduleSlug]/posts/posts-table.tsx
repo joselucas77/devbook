@@ -62,9 +62,18 @@ export function PostsTable({
     {
       accessorKey: "status",
       header: "Status",
-      cell: ({ row }) => (
-        <span className="text-sm text-zinc-200">{row.original.status}</span>
-      ),
+      cell: ({ row }) => {
+        const status = row.original.status;
+        return (
+          <span className="text-sm text-zinc-200">
+            {row.original.status === "DRAFT"
+              ? "Rascunho"
+              : row.original.status === "PUBLISHED"
+                ? "Publicado"
+                : "Arquivado"}
+          </span>
+        );
+      },
     },
     {
       accessorKey: "isPublic",
