@@ -1,10 +1,10 @@
 "use client";
 
 import { z } from "zod";
-import { useForm } from "react-hook-form";
+import { Controller, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { toast } from "sonner";
-import { Save, Sparkles } from "lucide-react";
+import { CircleQuestionMark, Save, Sparkles } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -21,6 +21,56 @@ import {
 
 import { slugifySmart } from "@/lib/slugifySmart";
 import { useEffect } from "react";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import {
+  HoverCard,
+  HoverCardContent,
+  HoverCardTrigger,
+} from "@/components/ui/hover-card";
+
+const TechnologyCategories = [
+  {
+    label: "Linguagens",
+    value: "Linguagens",
+    description: "Para a base do código (ex: PHP, JavaScript, Python, SQL)",
+  },
+  {
+    label: "Markups & Estilos",
+    value: "Markups & Estilos",
+    description:
+      "Para o que define visual e estrutura (ex: HTML, CSS, Markdown)",
+  },
+  {
+    label: "Frameworks & Libs",
+    value: "Frameworks & Libs",
+    description:
+      "Ferramentas que facilitam o desenvolvimento (ex: React, Laravel, Django)",
+  },
+  {
+    label: "Infra & DevOps",
+    value: "Infra & DevOps",
+    description:
+      "Tecnologias para infraestrutura e operações (ex: Docker, Vercel, AWS)",
+  },
+  {
+    label: "Gerenciamento de Dados",
+    value: "Gerenciamento de Dados",
+    description:
+      "Bancos de dados e ferramentas de manipulação de dados (ex: MySQL, MongoDB, Supabase)",
+  },
+  {
+    label: "Ferramentas & Utilitários",
+    value: "Ferramentas & Utilitários",
+    description:
+      "Ferramentas auxiliares para desenvolvimento (ex: Git, Webpack, Postman)",
+  },
+];
 
 const TechnologySchema = z.object({
   name: z.string().min(2, "Nome obrigatório"),
@@ -72,15 +122,11 @@ export function TechnologyModal({
   const {
     register,
     handleSubmit,
-    watch,
     setValue,
     getValues,
     reset,
     formState: { errors, isSubmitting, isValid },
   } = form;
-
-  const name = watch("name");
-  const slug = watch("slug");
 
   useEffect(() => {
     // quando abrir modal com initial, reseta o form
@@ -94,13 +140,6 @@ export function TechnologyModal({
     });
   }, [open, initial, reset]);
 
-  useEffect(() => {
-    if (!open) return;
-    if (!name) return;
-    if (slug?.length) return;
-    setValue("slug", slugifySmart(getValues("name")), { shouldValidate: true });
-  }, [open, name, slug, setValue, getValues]);
-
   async function onSubmit(values: TechnologyFormValues) {
     try {
       const res = await fetch(
@@ -111,7 +150,7 @@ export function TechnologyModal({
           method: isEdit ? "PATCH" : "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify(values),
-        }
+        },
       );
 
       if (!res.ok) {
@@ -173,8 +212,44 @@ export function TechnologyModal({
           </div>
 
           <div className="space-y-2">
-            <Label>Categoria</Label>
-            <Input placeholder="Ex: Backend" {...register("category")} />
+            <div className="flex gap-1">
+              <Label>Categoria</Label>
+              <HoverCard>
+                <HoverCardTrigger>
+                  <CircleQuestionMark className="w-4 h-4 cursor-pointer" />
+                </HoverCardTrigger>
+                <HoverCardContent className="flex w-full flex-col gap-0.5">
+                  {TechnologyCategories.map((cat, index) => (
+                    <div
+                      key={index}
+                      className="text-muted-foreground mt-1 text-sm"
+                    >
+                      <strong>{cat.label}</strong>: {cat.description}
+                    </div>
+                  ))}
+                </HoverCardContent>
+              </HoverCard>
+            </div>
+            <Controller
+              control={form.control}
+              name="category"
+              render={({ field }) => (
+                <Select value={field.value} onValueChange={field.onChange}>
+                  <SelectTrigger className="w-full">
+                    <SelectValue placeholder="Selecione a categoria" />
+                  </SelectTrigger>
+
+                  <SelectContent>
+                    {TechnologyCategories.map((cat, index) => (
+                      <SelectItem key={index} value={cat.value}>
+                        {cat.label}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              )}
+            />
+
             {errors.category?.message && (
               <p className="text-sm text-red-500">{errors.category.message}</p>
             )}

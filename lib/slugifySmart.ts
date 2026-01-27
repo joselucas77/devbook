@@ -56,7 +56,7 @@ function removeDiacritics(input: string) {
  * - "Variáveis em Python" -> "variaveis-python"
  * - "Introdução à POO em PHP" -> "introducao-poo-php"
  */
-export function slugifySmart(title: string, fallback = "post") {
+export function slugifySmart(title: string, fallback = "") {
   const cleaned = removeDiacritics(title)
     .toLowerCase()
     .replace(/&/g, " e ") // trata "&" como "e" (depois cai em stopword)

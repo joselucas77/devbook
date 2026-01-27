@@ -60,6 +60,13 @@ import {
 } from "@/components/app/auth/admin/technology/technology-modal";
 import { useMemo, useState } from "react";
 import { formatDateBR } from "@/lib/formatDate";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 type Row = {
   id: number;
@@ -72,6 +79,15 @@ type Row = {
   createdAt: string;
   updatedAt: string;
 };
+
+const TechnologyCategories = [
+  "Linguagens",
+  "Markups & Estilos",
+  "Frameworks & Libs",
+  "Infra & DevOps",
+  "Gerenciamento de Dados",
+  "Ferramentas & Utilitários",
+];
 
 export function TechnologiesTable({ data }: { data: Row[] }) {
   const router = useRouter();
@@ -130,10 +146,14 @@ export function TechnologiesTable({ data }: { data: Row[] }) {
       {
         accessorKey: "category",
         header: "Categoria",
+        filterFn: (row, columnId, filterValue) => {
+          return row.getValue(columnId) === filterValue;
+        },
         cell: ({ row }) => (
           <span className="text-sm text-zinc-200">{row.original.category}</span>
         ),
       },
+
       {
         accessorKey: "modulesCount",
         header: "Módulos",
@@ -216,7 +236,7 @@ export function TechnologiesTable({ data }: { data: Row[] }) {
         },
       },
     ],
-    []
+    [],
   );
 
   // table state
@@ -224,6 +244,7 @@ export function TechnologiesTable({ data }: { data: Row[] }) {
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
   const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({});
   const [rowSelection, setRowSelection] = useState({});
+  const [categoryFilter, setCategoryFilter] = useState<string>("all");
 
   const table = useReactTable({
     data,
@@ -261,6 +282,33 @@ export function TechnologiesTable({ data }: { data: Row[] }) {
               className="w-full md:w-[320px]"
             />
 
+            <Select
+              value={categoryFilter}
+              onValueChange={(value) => {
+                setCategoryFilter(value);
+
+                if (value === "all") {
+                  table.getColumn("category")?.setFilterValue(undefined);
+                } else {
+                  table.getColumn("category")?.setFilterValue(value);
+                }
+              }}
+            >
+              <SelectTrigger className="w-55">
+                <SelectValue placeholder="Filtrar por categoria" />
+              </SelectTrigger>
+
+              <SelectContent>
+                <SelectItem value="all">Todas as categorias</SelectItem>
+
+                {TechnologyCategories.map((cat) => (
+                  <SelectItem key={cat} value={cat}>
+                    {cat}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <Button variant="secondary" className="gap-2">
@@ -284,14 +332,14 @@ export function TechnologiesTable({ data }: { data: Row[] }) {
                       {column.id === "modulesCount"
                         ? "módulos"
                         : column.id === "updatedAt"
-                        ? "atualizado"
-                        : column.id === "category"
-                        ? "categoria"
-                        : column.id === "name"
-                        ? "nome"
-                        : column.id === "actions"
-                        ? "ações"
-                        : column.id}
+                          ? "atualizado"
+                          : column.id === "category"
+                            ? "categoria"
+                            : column.id === "name"
+                              ? "nome"
+                              : column.id === "actions"
+                                ? "ações"
+                                : column.id}
                     </DropdownMenuCheckboxItem>
                   ))}
               </DropdownMenuContent>
@@ -322,7 +370,7 @@ export function TechnologiesTable({ data }: { data: Row[] }) {
                         ? null
                         : flexRender(
                             header.column.columnDef.header,
-                            header.getContext()
+                            header.getContext(),
                           )}
                     </TableHead>
                   ))}
@@ -338,7 +386,7 @@ export function TechnologiesTable({ data }: { data: Row[] }) {
                       <TableCell key={cell.id} className="align-top">
                         {flexRender(
                           cell.column.columnDef.cell,
-                          cell.getContext()
+                          cell.getContext(),
                         )}
                       </TableCell>
                     ))}
