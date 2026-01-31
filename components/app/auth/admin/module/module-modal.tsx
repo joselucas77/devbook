@@ -1,6 +1,5 @@
 "use client";
 
-import * as React from "react";
 import { z } from "zod";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -20,6 +19,7 @@ import {
 } from "@/components/ui/dialog";
 
 import { slugifySmart } from "@/lib/slugifySmart";
+import { useEffect } from "react";
 
 const ModuleSchema = z.object({
   title: z.string().min(2, "Título obrigatório"),
@@ -67,29 +67,16 @@ export function ModuleModal({
   const {
     register,
     handleSubmit,
-    watch,
     setValue,
     getValues,
     reset,
     formState: { errors, isSubmitting, isValid },
   } = form;
 
-  const title = watch("title");
-  const slug = watch("slug");
-
-  React.useEffect(() => {
+  useEffect(() => {
     if (!open) return;
     reset({ title: initial?.title ?? "", slug: initial?.slug ?? "" });
   }, [open, initial, reset]);
-
-  React.useEffect(() => {
-    if (!open) return;
-    if (!title) return;
-    if (slug?.length) return;
-    setValue("slug", slugifySmart(getValues("title")), {
-      shouldValidate: true,
-    });
-  }, [open, title, slug, setValue, getValues]);
 
   async function onSubmit(values: ModuleFormValues) {
     try {
@@ -101,7 +88,7 @@ export function ModuleModal({
           method: isEdit ? "PATCH" : "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify(payload),
-        }
+        },
       );
 
       if (!res.ok) {
