@@ -19,6 +19,17 @@ async function getUserFromToken(token: string) {
 export default async function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
+  const token = request.cookies.get(getAuthCookieName())?.value;
+
+  if (pathname.startsWith("/login") && token) {
+    try {
+      await getUserFromToken(token);
+      return NextResponse.redirect(new URL("/admin", request.url));
+    } catch {
+      // token inválido → segue fluxo normal
+    }
+  }
+
   // Rotas públicas
   if (
     pathname === "/" ||
@@ -29,9 +40,6 @@ export default async function proxy(request: NextRequest) {
     return NextResponse.next();
   }
 
-  const token = request.cookies.get(getAuthCookieName())?.value;
-
-  // ❌ Não logado
   if (!token) {
     return NextResponse.redirect(new URL("/login", request.url));
   }
