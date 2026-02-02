@@ -6,7 +6,19 @@ export type PostContentBlock =
     }
   | {
       type: "paragraph";
-      text: string;
+      content: {
+        type: "doc";
+        children: Array<
+          | {
+              type: "text";
+              text: string;
+              marks?: ("bold" | "italic" | "underline")[];
+            }
+          | { type: "link"; href: string; children: any[] }
+          | { type: "code"; text: string }
+          | { type: "quote"; text: string }
+        >;
+      };
     }
   | {
       type: "list";

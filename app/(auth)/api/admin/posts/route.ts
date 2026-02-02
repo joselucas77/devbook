@@ -1,6 +1,8 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { CreatePostSchema } from "@/zod/schemas/post-schema";
+import { sanitizeParagraphHtml } from "@/lib/sanitizeHtml";
+import { htmlToParagraphJson } from "@/lib/htmlToParagraphJson";
 
 export async function POST(req: Request) {
   const body = await req.json();
@@ -9,11 +11,22 @@ export async function POST(req: Request) {
   if (!parsed.success) {
     return NextResponse.json(
       { message: "Validation error", issues: parsed.error.flatten() },
-      { status: 400 }
+      { status: 400 },
     );
   }
 
   const data = parsed.data;
+
+  const content = data.content.blocks.map((block: any) => {
+    if (block.type === "paragraph") {
+      const safeHtml = sanitizeParagraphHtml(block.text);
+      return {
+        type: "paragraph",
+        content: htmlToParagraphJson(safeHtml),
+      };
+    }
+    return block;
+  });
 
   const created = await prisma.post.create({
     data: {
@@ -21,7 +34,7 @@ export async function POST(req: Request) {
       slug: data.slug,
       concept: data.concept,
       summary: data.summary,
-      content: data.content as any,
+      content: content as any,
       isPublic: data.isPublic,
       status: data.status,
       moduleId: data.moduleId,

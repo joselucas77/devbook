@@ -68,7 +68,7 @@ export default async function Page({
                 summary: post.summary,
                 isPublic: post.isPublic,
                 status: post.status,
-                content: post.content as any, // Json → seu PostContent
+                content: post.content as any,
               }
             : null
         }

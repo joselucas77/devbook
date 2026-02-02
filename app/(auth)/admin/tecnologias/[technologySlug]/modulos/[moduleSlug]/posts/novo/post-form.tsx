@@ -43,6 +43,7 @@ import {
 
 import { CreatePostSchema } from "@/zod/schemas/post-schema";
 import { slugifySmart } from "@/lib/slugifySmart";
+import { RichTextEditor } from "@/components/app/auth/admin/post/rich-text-editor";
 
 type CreatePostValues = z.infer<typeof CreatePostSchema>;
 
@@ -108,27 +109,13 @@ export function PostForm({
     name: "content.blocks",
   });
 
-  const title = watch("title");
-  const slug = watch("slug");
-
-  // ✅ Auto slug só se estiver vazio (não sobrescreve ao editar)
-  useEffect(() => {
-    if (!title) return;
-    if (slug?.length) return;
-    setValue("slug", slugifySmart(getValues("title")), {
-      shouldValidate: true,
-      shouldDirty: true,
-      shouldTouch: true,
-    });
-  }, [title, slug, setValue, getValues]);
-
   // ✅ Helpers: depois de mexer nos blocos, revalida "content"
   const revalidateContent = async () => {
     await trigger("content");
   };
 
   const addBlock = async (
-    type: CreatePostValues["content"]["blocks"][number]["type"]
+    type: CreatePostValues["content"]["blocks"][number]["type"],
   ) => {
     switch (type) {
       case "paragraph":
@@ -140,7 +127,7 @@ export function PostForm({
       case "list":
         append(
           { type: "list", style: "bullet", items: [""] },
-          { shouldFocus: false }
+          { shouldFocus: false },
         );
         break;
       case "code":
@@ -152,7 +139,7 @@ export function PostForm({
             code: "",
             explanation: "",
           },
-          { shouldFocus: false }
+          { shouldFocus: false },
         );
         break;
       case "summary":
@@ -172,7 +159,7 @@ export function PostForm({
           method: isEdit ? "PATCH" : "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify(values),
-        }
+        },
       );
 
       if (!res.ok) {
@@ -185,7 +172,7 @@ export function PostForm({
       });
 
       router.push(
-        `/admin/tecnologias/${technologyId}/modulos/${moduleId}/posts`
+        `/admin/tecnologias/${technologyId}/modulos/${moduleId}/posts`,
       );
       router.refresh();
     } catch (e: any) {
@@ -441,7 +428,19 @@ export function PostForm({
                 <div className="flex items-center justify-between mb-4">
                   <div className="text-sm font-medium text-gray-200">
                     Bloco {index + 1} —{" "}
-                    <span className="text-gray-400">{type}</span>
+                    <span className="text-gray-400">
+                      {type === "heading"
+                        ? "Título"
+                        : type === "paragraph"
+                          ? "Parágrafo"
+                          : type === "list"
+                            ? "Lista"
+                            : type === "code"
+                              ? "Código"
+                              : type === "summary"
+                                ? "Conclusão"
+                                : type}
+                    </span>
                   </div>
 
                   <div className="flex items-center gap-2">
@@ -540,10 +539,16 @@ export function PostForm({
                 {type === "paragraph" && (
                   <div className="space-y-2">
                     <Label>Parágrafo</Label>
-                    <Textarea
-                      className="min-h-27.5"
-                      placeholder="Escreva o texto do parágrafo..."
-                      {...register(`content.blocks.${index}.text` as const)}
+                    <Controller
+                      control={control}
+                      name={`content.blocks.${index}.text`}
+                      render={({ field }) => (
+                        <RichTextEditor
+                          value={field.value}
+                          onChange={field.onChange}
+                          placeholder="Escreva o parágrafo..."
+                        />
+                      )}
                     />
                     {(errors.content?.blocks?.[index] as any)?.text
                       ?.message && (
@@ -635,7 +640,7 @@ export function PostForm({
                         <Input
                           placeholder="Ex: index.php"
                           {...register(
-                            `content.blocks.${index}.filename` as const
+                            `content.blocks.${index}.filename` as const,
                           )}
                         />
                       </div>
@@ -665,7 +670,7 @@ export function PostForm({
                         className="min-h-22.5"
                         placeholder="Explique o que esse código demonstra..."
                         {...register(
-                          `content.blocks.${index}.explanation` as const
+                          `content.blocks.${index}.explanation` as const,
                         )}
                       />
                     </div>

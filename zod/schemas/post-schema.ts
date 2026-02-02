@@ -8,7 +8,7 @@ const HeadingBlockSchema = z.object({
 
 const ParagraphBlockSchema = z.object({
   type: z.literal("paragraph"),
-  text: z.string().min(1, "O parágrafo não pode ficar vazio."),
+  text: z.string().min(1, "Parágrafo não pode estar vazio"),
 });
 
 const ListBlockSchema = z.object({
@@ -44,7 +44,7 @@ const PostContentSchema = z.object({
         ListBlockSchema,
         CodeBlockSchema,
         SummaryBlockSchema,
-      ])
+      ]),
     )
     .min(1, "Adicione pelo menos 1 bloco de conteúdo."),
 });

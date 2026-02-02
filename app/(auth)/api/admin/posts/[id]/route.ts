@@ -2,10 +2,12 @@ import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { CreatePostSchema } from "@/zod/schemas/post-schema";
 import { slugifySmart } from "@/lib/slugifySmart";
+import { sanitizeParagraphHtml } from "@/lib/sanitizeHtml";
+import { htmlToParagraphJson } from "@/lib/htmlToParagraphJson";
 
 export async function PATCH(
   req: Request,
-  { params }: { params: Promise<{ id: string }> }
+  { params }: { params: Promise<{ id: string }> },
 ) {
   const id = Number((await params).id);
 
@@ -20,7 +22,7 @@ export async function PATCH(
   } catch {
     return NextResponse.json(
       { message: "Body inválido: envie JSON" },
-      { status: 400 }
+      { status: 400 },
     );
   }
 
@@ -52,12 +54,12 @@ export async function PATCH(
   if (!existing) {
     return NextResponse.json(
       { message: "Post não encontrado." },
-      { status: 404 }
+      { status: 404 },
     );
   }
 
   const nextPublishedAt =
-    data.status === "PUBLISHED" ? existing.publishedAt ?? new Date() : null;
+    data.status === "PUBLISHED" ? (existing.publishedAt ?? new Date()) : null;
 
   const moduleExists = await prisma.module.findUnique({
     where: { id: data.moduleId },
@@ -67,9 +69,20 @@ export async function PATCH(
   if (!moduleExists) {
     return NextResponse.json(
       { message: "Módulo não encontrado." },
-      { status: 404 }
+      { status: 404 },
     );
   }
+
+  const content = data.content.blocks.map((block: any) => {
+    if (block.type === "paragraph") {
+      const safeHtml = sanitizeParagraphHtml(block.text);
+      return {
+        type: "paragraph",
+        content: htmlToParagraphJson(safeHtml),
+      };
+    }
+    return block;
+  });
 
   try {
     const updated = await prisma.post.update({
@@ -79,7 +92,7 @@ export async function PATCH(
         slug: data.slug,
         concept: data.concept,
         summary: data.summary,
-        content: data.content as any,
+        content: content as any,
         isPublic: data.isPublic,
         status: data.status,
         moduleId: data.moduleId,
@@ -97,7 +110,7 @@ export async function PATCH(
 
 export async function DELETE(
   _: Request,
-  { params }: { params: Promise<{ id: string }> }
+  { params }: { params: Promise<{ id: string }> },
 ) {
   const id = Number((await params).id);
 
@@ -114,7 +127,7 @@ export async function DELETE(
   if (!existing) {
     return NextResponse.json(
       { message: "Post não encontrado." },
-      { status: 404 }
+      { status: 404 },
     );
   }
 

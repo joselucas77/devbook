@@ -10,15 +10,9 @@ interface CodeBlockProps {
   filename?: string;
   code: string;
   language?: string;
-  highlightLines?: number[];
 }
 
-export function CodeBlock({
-  filename,
-  code,
-  language,
-  highlightLines,
-}: CodeBlockProps) {
+export function CodeBlock({ filename, code, language }: CodeBlockProps) {
   const [copied, setCopied] = useState(false);
   const lines = code.trimEnd().split("\n");
 
@@ -65,15 +59,11 @@ export function CodeBlock({
           <code>
             {lines.map((line, index) => {
               const lineNumber = index + 1;
-              const isHighlighted = highlightLines?.includes(lineNumber);
 
               return (
                 <div
                   key={index}
-                  className={cn(
-                    "flex gap-4 px-2 -mx-2 rounded-sm",
-                    isHighlighted && "bg-sky-900/60"
-                  )}
+                  className={cn("flex gap-4 px-2 -mx-2 rounded-sm")}
                 >
                   <span className="w-6 text-right select-none opacity-40">
                     {lineNumber}

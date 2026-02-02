@@ -4,20 +4,10 @@ import Link from "next/link";
 import { prisma } from "@/lib/prisma";
 import { CodeBlock } from "@/components/app/site/post/codeBock";
 import { formatDatePtBR } from "@/lib/formatDate";
+import { ParagraphRenderer } from "@/components/app/auth/admin/post/ParagraphRenderer";
+import { PostContentBlock } from "@/types/globalTypes";
 
-type ContentBlock =
-  | { type: "heading"; level: 2 | 3; text: string }
-  | { type: "paragraph"; text: string }
-  | { type: "list"; style: "bullet" | "numbered"; items: string[] }
-  | {
-      type: "code";
-      language?: string;
-      filename?: string;
-      code: string;
-      highlightLines?: number[];
-      explanation?: string;
-    }
-  | { type: "summary"; text: string };
+type ContentBlock = PostContentBlock;
 
 export default async function Page({
   params,
@@ -120,8 +110,12 @@ export default async function Page({
   const published = data.publishedAt ? formatDatePtBR(data.publishedAt) : "";
 
   // content é Json no Prisma → garante shape esperado
-  const blocks: ContentBlock[] =
-    ((data.content as any)?.blocks as ContentBlock[]) ?? [];
+  // const blocks: ContentBlock[] =
+  //   ((data.content as any)?.blocks as ContentBlock[]) ?? [];
+
+  const blocks = Array.isArray((data.content as any)?.blocks)
+    ? ((data.content as any).blocks as ContentBlock[])
+    : [];
 
   return (
     <section className="max-w-3xl mx-auto mb-20">
@@ -146,8 +140,9 @@ export default async function Page({
               );
 
             case "paragraph":
-              return <p key={index}>{block.text}</p>;
-
+              return <ParagraphRenderer key={index} content={block.content} />;
+            // case "paragraph":
+            //   return <ParagraphRenderer key={index} content={block.content} />;
             case "list":
               return block.style === "numbered" ? (
                 <ol key={index}>
@@ -170,7 +165,6 @@ export default async function Page({
                     code={block.code}
                     language={block.language ?? "txt"}
                     filename={block.filename ?? "index.html"}
-                    highlightLines={block.highlightLines}
                   />
                   {block.explanation ? <p>{block.explanation}</p> : null}
                 </div>
