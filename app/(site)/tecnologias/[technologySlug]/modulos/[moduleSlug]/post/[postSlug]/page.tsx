@@ -88,6 +88,8 @@ export default async function Page({
     },
   });
 
+  console.log("Post data:", data);
+
   // Regra para público: só mostra publicados e públicos
   const canShow = data && data.isPublic && data.status === "PUBLISHED";
 
@@ -109,13 +111,11 @@ export default async function Page({
 
   const published = data.publishedAt ? formatDatePtBR(data.publishedAt) : "";
 
-  // content é Json no Prisma → garante shape esperado
-  // const blocks: ContentBlock[] =
-  //   ((data.content as any)?.blocks as ContentBlock[]) ?? [];
+  // const blocks = Array.isArray((data.content as any)?.blocks)
+  //   ? ((data.content as any).blocks as ContentBlock[])
+  //   : [];
 
-  const blocks = Array.isArray((data.content as any)?.blocks)
-    ? ((data.content as any).blocks as ContentBlock[])
-    : [];
+  const blocks = (data.content as ContentBlock[]) ?? [];
 
   return (
     <section className="max-w-3xl mx-auto mb-20">
