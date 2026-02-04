@@ -111,10 +111,6 @@ export default async function Page({
 
   const published = data.publishedAt ? formatDatePtBR(data.publishedAt) : "";
 
-  // const blocks = Array.isArray((data.content as any)?.blocks)
-  //   ? ((data.content as any).blocks as ContentBlock[])
-  //   : [];
-
   const blocks = (data.content as ContentBlock[]) ?? [];
 
   return (
