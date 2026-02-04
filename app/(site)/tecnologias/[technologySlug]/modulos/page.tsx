@@ -54,7 +54,7 @@ export default async function Page({
 
   const totalTopics = technology.modules.reduce(
     (acc, mod) => acc + mod.posts.length,
-    0
+    0,
   );
 
   return (

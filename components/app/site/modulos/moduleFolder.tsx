@@ -46,13 +46,10 @@ export default function ModuleFolder({
                 )}
               </div>
 
-              <div className="text-left">
+              <div className="text-left flex gap-2">
                 <h3 className="font-semibold text-foreground group-hover:text-primary transition-colors">
                   {moduleTitle}
                 </h3>
-                <p className="text-sm text-muted-foreground">
-                  {posts.length} {posts.length === 1 ? "Post" : "Posts"}
-                </p>
               </div>
             </div>
 
@@ -72,11 +69,9 @@ export default function ModuleFolder({
                   asChild
                   key={post.id}
                   variant="ghost"
-                  className="w-full flex items-center justify-start"
-                >
+                  className="w-full flex items-center justify-start">
                   <Link
-                    href={`/tecnologias/${technologySlug}/modulos/${moduleSlug}/post/${post.slug}`}
-                  >
+                    href={`/tecnologias/${technologySlug}/modulos/${moduleSlug}/post/${post.slug}`}>
                     <FileText className="h-4 w-4 text-primary/70" />
                     <span>{post.title}</span>
                   </Link>

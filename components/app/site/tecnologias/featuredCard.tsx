@@ -12,6 +12,7 @@ import {
 import Image from "next/image";
 import Link from "next/link";
 import { Badge } from "../../../ui/badge";
+import { Button } from "@/components/ui/button";
 
 interface FeaturedCardProps {
   title: string;
@@ -46,8 +47,7 @@ export default function FeaturedCard({
         <CardTitle className="text-xl text-white">{title}</CardTitle>
         <Badge
           variant="secondary"
-          className="bg-blue-500 text-white dark:bg-blue-950"
-        >
+          className="bg-blue-500 text-white dark:bg-blue-950">
           {icon}
           {category}
         </Badge>
@@ -57,17 +57,12 @@ export default function FeaturedCard({
           {description}
         </CardDescription>
       </CardContent>
-      <CardFooter className="flex justify-between text-sm text-gray-500 pb-6">
-        <div className="flex items-center gap-1">
-          <Clock className="h-4 w-4" />
-          <span>{date}</span>
-        </div>
-        <Link
-          href={`/tecnologias/${slug}/modulos`}
-          className="text-blue-500 hover:text-blue-400"
-        >
-          Acessar Módulos →
-        </Link>
+      <CardFooter className="flex text-sm text-gray-500 pb-6">
+        <Button
+          className="w-full bg-blue-600 text-white hover:bg-blue-600/90 transition-colors"
+          asChild>
+          <Link href={`/tecnologias/${slug}/modulos`}>Acessar módulos</Link>
+        </Button>
       </CardFooter>
     </Card>
   );
