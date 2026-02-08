@@ -65,6 +65,83 @@
   }
 }
 
+/* Theme Toggle Animations */
+@keyframes twinkle {
+  0%,
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.3;
+    transform: scale(0.6);
+  }
+}
+
+@keyframes twinkle-delayed {
+  0%,
+  100% {
+    opacity: 0.8;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.2;
+    transform: scale(0.5);
+  }
+}
+
+@keyframes twinkle-slow {
+  0%,
+  100% {
+    opacity: 0.6;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.1;
+    transform: scale(0.4);
+  }
+}
+
+@keyframes cloud-drift {
+  0%,
+  100% {
+    transform: translateX(0);
+  }
+  50% {
+    transform: translateX(3px);
+  }
+}
+
+@keyframes cloud-drift-slow {
+  0%,
+  100% {
+    transform: translateX(0);
+  }
+  50% {
+    transform: translateX(-2px);
+  }
+}
+
+.animate-twinkle {
+  animation: twinkle 2s ease-in-out infinite;
+}
+
+.animate-twinkle-delayed {
+  animation: twinkle-delayed 2.5s ease-in-out infinite 0.5s;
+}
+
+.animate-twinkle-slow {
+  animation: twinkle-slow 3s ease-in-out infinite 1s;
+}
+
+.animate-cloud-drift {
+  animation: cloud-drift 4s ease-in-out infinite;
+}
+
+.animate-cloud-drift-slow {
+  animation: cloud-drift-slow 5s ease-in-out infinite 1s;
+}
+
 :root {
   --radius: 0.625rem;
   --background: oklch(1 0 0);
