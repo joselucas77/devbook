@@ -32,7 +32,6 @@ export default async function Page() {
       id: true,
       name: true,
       slug: true,
-      description: true,
       image: true,
       category: true,
       updatedAt: true,
@@ -54,9 +53,7 @@ export default async function Page() {
             <FeaturedCard
               key={item.slug}
               title={item.name}
-              description={item.description}
               image={item.image ?? "/placeholder.svg"}
-              date={formatDatePtBR(item.updatedAt)}
               category={item.category}
               icon={createElement(IconComponent, { className: "h-5 w-5" })}
               slug={item.slug}
