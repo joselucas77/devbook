@@ -1,6 +1,5 @@
 "use client";
 
-import * as React from "react";
 import {
   Bold,
   Italic,
@@ -21,10 +20,17 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { cn } from "@/lib/utils";
+import { useCallback, useEffect, useRef, useState } from "react";
+import { EMPTY_RICH_TEXT_DOC } from "@/types/globalTypes";
+
+interface RichTextDoc {
+  type: "doc";
+  children: any[];
+}
 
 interface RichTextEditorProps {
-  value?: string;
-  onChange?: (html: string) => void;
+  value: RichTextDoc;
+  onChange: (value: RichTextDoc) => void;
   placeholder?: string;
   className?: string;
 }
@@ -35,10 +41,10 @@ export function RichTextEditor({
   placeholder = "Digite seu texto...",
   className,
 }: RichTextEditorProps) {
-  const editorRef = React.useRef<HTMLDivElement>(null);
-  const savedRange = React.useRef<Range | null>(null);
+  const editorRef = useRef<HTMLDivElement>(null);
+  const savedRange = useRef<Range | null>(null);
 
-  const [active, setActive] = React.useState({
+  const [active, setActive] = useState({
     bold: false,
     italic: false,
     underline: false,
@@ -47,17 +53,92 @@ export function RichTextEditor({
     link: false,
   });
 
-  const [linkUrl, setLinkUrl] = React.useState("");
-  const [linkOpen, setLinkOpen] = React.useState(false);
+  const [linkUrl, setLinkUrl] = useState("");
+  const [linkOpen, setLinkOpen] = useState(false);
 
-  const updateActive = React.useCallback(() => {
+  const queryState = (cmd: string) => {
+    try {
+      return document.queryCommandState(cmd);
+    } catch {
+      return false;
+    }
+  };
+
+  const execCommand = (cmd: string) => {
+    try {
+      document.execCommand(cmd);
+    } catch {}
+  };
+
+  const domToJson = (root: HTMLElement): RichTextDoc => {
+    const children = Array.from(root.childNodes).map((node) => {
+      if (node.nodeType === Node.TEXT_NODE) {
+        return { type: "text", text: node.textContent ?? "" };
+      }
+
+      if (node.nodeType === Node.ELEMENT_NODE) {
+        const el = node as HTMLElement;
+
+        if (el.tagName === "CODE") {
+          return { type: "code", text: el.textContent ?? "" };
+        }
+
+        if (el.tagName === "BLOCKQUOTE") {
+          return { type: "quote", text: el.textContent ?? "" };
+        }
+
+        if (el.tagName === "A") {
+          return {
+            type: "link",
+            href: el.getAttribute("href") ?? "",
+            children: [{ type: "text", text: el.textContent ?? "" }],
+          };
+        }
+
+        return { type: "text", text: el.textContent ?? "" };
+      }
+
+      return null;
+    });
+
+    return {
+      type: "doc",
+      children: children.filter(Boolean),
+    };
+  };
+
+  const jsonToHtml = (doc?: RichTextDoc) => {
+    if (!doc || !Array.isArray(doc.children)) return "";
+
+    return doc.children
+      .map((n: any) => {
+        if (n.type === "text") return n.text;
+
+        if (n.type === "paragraph") {
+          return `<p>${jsonToHtml({ type: "doc", children: n.children })}</p>`;
+        }
+
+        if (n.type === "code") {
+          return `<pre><code>${n.text}</code></pre>`;
+        }
+
+        if (n.type === "quote") {
+          return `<blockquote>${n.text}</blockquote>`;
+        }
+
+        return "";
+      })
+      .join("");
+  };
+
+  const updateActive = useCallback(() => {
     const sel = window.getSelection();
     const parent = sel?.anchorNode?.parentElement;
 
     setActive({
-      bold: document.queryCommandState("bold"),
-      italic: document.queryCommandState("italic"),
-      underline: document.queryCommandState("underline"),
+      bold: queryState("bold"),
+      italic: queryState("italic"),
+      underline: queryState("underline"),
       code: !!parent?.closest("code"),
       quote: !!parent?.closest("blockquote"),
       link: !!parent?.closest("a"),
@@ -66,9 +147,11 @@ export function RichTextEditor({
 
   const exec = (cmd: string) => {
     editorRef.current?.focus();
-    document.execCommand(cmd);
+    execCommand(cmd);
     updateActive();
-    onChange?.(editorRef.current?.innerHTML ?? "");
+    if (editorRef.current) {
+      onChange(domToJson(editorRef.current));
+    }
   };
 
   const toggleWrap = (tag: "code" | "blockquote") => {
@@ -88,7 +171,9 @@ export function RichTextEditor({
     }
 
     updateActive();
-    onChange?.(editorRef.current?.innerHTML ?? "");
+    if (editorRef.current) {
+      onChange(domToJson(editorRef.current));
+    }
   };
 
   const saveSelection = () => {
@@ -126,7 +211,9 @@ export function RichTextEditor({
     setLinkUrl("");
     setLinkOpen(false);
     updateActive();
-    onChange?.(editorRef.current?.innerHTML ?? "");
+    if (editorRef.current) {
+      onChange(domToJson(editorRef.current));
+    }
   };
 
   const removeLink = () => {
@@ -137,16 +224,19 @@ export function RichTextEditor({
 
     link.replaceWith(document.createTextNode(link.textContent ?? ""));
     updateActive();
-    onChange?.(editorRef.current?.innerHTML ?? "");
+    if (editorRef.current) {
+      onChange(domToJson(editorRef.current));
+    }
   };
 
-  React.useEffect(() => {
-    if (editorRef.current && value !== undefined) {
-      editorRef.current.innerHTML = value || "";
-    }
+  useEffect(() => {
+    if (!editorRef.current) return;
+
+    const safeValue = value?.children ? value : EMPTY_RICH_TEXT_DOC;
+    editorRef.current.innerHTML = jsonToHtml(safeValue);
   }, [value]);
 
-  React.useEffect(() => {
+  useEffect(() => {
     document.addEventListener("selectionchange", updateActive);
     return () => document.removeEventListener("selectionchange", updateActive);
   }, [updateActive]);
@@ -212,7 +302,11 @@ export function RichTextEditor({
       <div
         ref={editorRef}
         contentEditable
-        onInput={() => onChange?.(editorRef.current?.innerHTML ?? "")}
+        onInput={() => {
+          if (editorRef.current) {
+            onChange(domToJson(editorRef.current));
+          }
+        }}
         data-placeholder={placeholder}
         className={cn(
           "min-h-45 rounded-lg border bg-card p-4 outline-none",

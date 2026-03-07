@@ -1,3 +1,14 @@
+export type RichTextNode =
+  | { type: "text"; text: string }
+  | { type: "paragraph"; children: RichTextNode[] }
+  | { type: "code"; text: string }
+  | { type: "link"; href: string; children: RichTextNode[] };
+
+export interface RichTextDoc {
+  type: "doc";
+  children: RichTextNode[];
+}
+
 export type PostContentBlock =
   | {
       type: "heading";
@@ -6,19 +17,7 @@ export type PostContentBlock =
     }
   | {
       type: "paragraph";
-      content: {
-        type: "doc";
-        children: Array<
-          | {
-              type: "text";
-              text: string;
-              marks?: ("bold" | "italic" | "underline")[];
-            }
-          | { type: "link"; href: string; children: any[] }
-          | { type: "code"; text: string }
-          | { type: "quote"; text: string }
-        >;
-      };
+      content: RichTextDoc;
     }
   | {
       type: "list";
@@ -27,8 +26,8 @@ export type PostContentBlock =
     }
   | {
       type: "code";
-      language: string; // "php", "js", etc.
-      filename?: string; // opcional: "index.php"
+      language: string;
+      filename?: string;
       code: string;
       explanation?: string;
     }
@@ -57,3 +56,8 @@ export interface Post {
   createdAt: Date | string;
   updatedAt: Date | string;
 }
+
+export const EMPTY_RICH_TEXT_DOC = {
+  type: "doc",
+  children: [],
+};

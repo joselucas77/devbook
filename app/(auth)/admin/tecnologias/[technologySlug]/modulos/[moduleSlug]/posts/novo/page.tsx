@@ -68,7 +68,11 @@ export default async function Page({
                 summary: post.summary,
                 isPublic: post.isPublic,
                 status: post.status,
-                content: post.content as any,
+                content: {
+                  blocks: Array.isArray(post.content)
+                    ? post.content
+                    : ((post.content as any)?.blocks ?? []),
+                },
               }
             : null
         }

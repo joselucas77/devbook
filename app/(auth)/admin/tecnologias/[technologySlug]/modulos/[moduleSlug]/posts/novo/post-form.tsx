@@ -83,10 +83,19 @@ export function PostForm({
       isPublic: initialPost?.isPublic ?? true,
       status: initialPost?.status ?? "DRAFT",
       content: initialPost?.content ?? {
-        blocks: [{ type: "paragraph", text: "" }],
+        blocks: [
+          {
+            type: "paragraph",
+            content: {
+              type: "doc",
+              content: {
+                children: [{ text: "", type: "text" }],
+              },
+            },
+          },
+        ],
       },
     },
-    // ✅ mais estável com fieldArray
     mode: "onSubmit",
     reValidateMode: "onChange",
     criteriaMode: "firstError",
@@ -119,7 +128,17 @@ export function PostForm({
   ) => {
     switch (type) {
       case "paragraph":
-        append({ type: "paragraph", text: "" }, { shouldFocus: false });
+        append(
+          {
+            type: "paragraph",
+            content: {
+              type: "doc",
+              children: [{ text: "", type: "text" }],
+            },
+          },
+          { shouldFocus: false },
+        );
+
         break;
       case "heading":
         append({ type: "heading", level: 2, text: "" }, { shouldFocus: false });
@@ -541,7 +560,7 @@ export function PostForm({
                     <Label>Parágrafo</Label>
                     <Controller
                       control={control}
-                      name={`content.blocks.${index}.text`}
+                      name={`content.blocks.${index}.content`}
                       render={({ field }) => (
                         <RichTextEditor
                           value={field.value}

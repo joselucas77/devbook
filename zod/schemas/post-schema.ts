@@ -1,72 +1,64 @@
-import z from "zod";
+import { z } from "zod";
 
-const HeadingBlockSchema = z.object({
-  type: z.literal("heading"),
-  level: z.union([z.literal(2), z.literal(3)]),
-  text: z.string().min(1, "O título da seção é obrigatório."),
+const RichTextNodeSchema = z.object({
+  type: z.string(),
+  text: z.string().optional(),
+  href: z.string().optional(),
+  children: z.any().optional(),
+});
+
+const RichTextDocSchema = z.object({
+  type: z.literal("doc"),
+  children: z.array(RichTextNodeSchema),
 });
 
 const ParagraphBlockSchema = z.object({
   type: z.literal("paragraph"),
-  text: z.string().min(1, "Parágrafo não pode estar vazio"),
+  content: RichTextDocSchema,
+});
+
+const HeadingBlockSchema = z.object({
+  type: z.literal("heading"),
+  level: z.union([z.literal(2), z.literal(3)]),
+  text: z.string().min(1),
 });
 
 const ListBlockSchema = z.object({
   type: z.literal("list"),
-  style: z.union([z.literal("bullet"), z.literal("numbered")]),
-  items: z
-    .array(z.string().min(1, "Item da lista não pode ficar vazio."))
-    .min(1, "Adicione pelo menos 1 item na lista."),
+  style: z.enum(["bullet", "numbered"]),
+  items: z.array(z.string().min(1)),
 });
 
 const CodeBlockSchema = z.object({
   type: z.literal("code"),
-  language: z
-    .string()
-    .min(1, "Selecione a linguagem.")
-    .max(20, "Linguagem muito longa."),
+  language: z.string(),
   filename: z.string().optional(),
-  code: z.string().min(1, "O código não pode ficar vazio."),
+  code: z.string().min(1),
   explanation: z.string().optional(),
 });
 
 const SummaryBlockSchema = z.object({
   type: z.literal("summary"),
-  text: z.string().min(1, "O resumo final não pode ficar vazio."),
+  text: z.string().min(1),
 });
 
-const PostContentSchema = z.object({
-  blocks: z
-    .array(
+export const CreatePostSchema = z.object({
+  moduleId: z.number(),
+  title: z.string().min(1),
+  slug: z.string().min(1),
+  concept: z.string().min(1),
+  summary: z.string().min(1),
+  isPublic: z.boolean(),
+  status: z.enum(["DRAFT", "PUBLISHED", "ARCHIVED"]),
+  content: z.object({
+    blocks: z.array(
       z.discriminatedUnion("type", [
-        HeadingBlockSchema,
         ParagraphBlockSchema,
+        HeadingBlockSchema,
         ListBlockSchema,
         CodeBlockSchema,
         SummaryBlockSchema,
       ]),
-    )
-    .min(1, "Adicione pelo menos 1 bloco de conteúdo."),
-});
-
-export const CreatePostSchema = z.object({
-  moduleId: z.number().int().positive("moduleId inválido."),
-  title: z.string().min(3),
-  slug: z
-    .string()
-    .min(3)
-    .regex(/^[a-z0-9]+(?:-[a-z0-9]+)*$/),
-  concept: z.string().min(10),
-  summary: z.string().min(10),
-
-  // 🔥 deixa obrigatório no tipo do TS
-  isPublic: z.boolean(),
-
-  status: z.union([
-    z.literal("DRAFT"),
-    z.literal("PUBLISHED"),
-    z.literal("ARCHIVED"),
-  ]),
-
-  content: PostContentSchema,
+    ),
+  }),
 });
