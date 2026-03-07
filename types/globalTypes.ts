@@ -1,8 +1,22 @@
+export type RichTextTextNode = { type: "text"; text: string };
+export type RichTextCodeNode = { type: "code"; text: string };
+export type RichTextParagraphNode = {
+  type: "paragraph";
+  children: RichTextNode[];
+};
+export type RichTextQuoteNode = { type: "quote"; text: string };
+export type RichTextLinkNode = {
+  type: "link";
+  href: string;
+  children: RichTextNode[];
+};
+
 export type RichTextNode =
-  | { type: "text"; text: string }
-  | { type: "paragraph"; children: RichTextNode[] }
-  | { type: "code"; text: string }
-  | { type: "link"; href: string; children: RichTextNode[] };
+  | RichTextTextNode
+  | RichTextCodeNode
+  | RichTextQuoteNode
+  | RichTextParagraphNode
+  | RichTextLinkNode;
 
 export interface RichTextDoc {
   type: "doc";
@@ -57,7 +71,7 @@ export interface Post {
   updatedAt: Date | string;
 }
 
-export const EMPTY_RICH_TEXT_DOC = {
+export const EMPTY_RICH_TEXT_DOC: RichTextDoc = {
   type: "doc",
   children: [],
 };

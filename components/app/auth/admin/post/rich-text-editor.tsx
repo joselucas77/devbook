@@ -21,12 +21,11 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { cn } from "@/lib/utils";
 import { useCallback, useEffect, useRef, useState } from "react";
-import { EMPTY_RICH_TEXT_DOC } from "@/types/globalTypes";
-
-interface RichTextDoc {
-  type: "doc";
-  children: any[];
-}
+import {
+  EMPTY_RICH_TEXT_DOC,
+  RichTextDoc,
+  RichTextNode,
+} from "@/types/globalTypes";
 
 interface RichTextEditorProps {
   value: RichTextDoc;
@@ -71,48 +70,53 @@ export function RichTextEditor({
   };
 
   const domToJson = (root: HTMLElement): RichTextDoc => {
-    const children = Array.from(root.childNodes).map((node) => {
-      if (node.nodeType === Node.TEXT_NODE) {
-        return { type: "text", text: node.textContent ?? "" };
-      }
-
-      if (node.nodeType === Node.ELEMENT_NODE) {
-        const el = node as HTMLElement;
-
-        if (el.tagName === "CODE") {
-          return { type: "code", text: el.textContent ?? "" };
+    const children = Array.from(root.childNodes).map(
+      (node): RichTextNode | null => {
+        if (node.nodeType === Node.TEXT_NODE) {
+          return { type: "text", text: node.textContent ?? "" };
         }
 
-        if (el.tagName === "BLOCKQUOTE") {
-          return { type: "quote", text: el.textContent ?? "" };
+        if (node.nodeType === Node.ELEMENT_NODE) {
+          const el = node as HTMLElement;
+
+          if (el.tagName === "CODE") {
+            return { type: "code", text: el.textContent ?? "" };
+          }
+
+          if (el.tagName === "BLOCKQUOTE") {
+            return { type: "quote", text: el.textContent ?? "" };
+          }
+
+          if (el.tagName === "A") {
+            return {
+              type: "link",
+              href: el.getAttribute("href") ?? "",
+              children: [{ type: "text", text: el.textContent ?? "" }],
+            };
+          }
+
+          // Fallback genérico para outros elementos virarem texto
+          return { type: "text", text: el.textContent ?? "" };
         }
 
-        if (el.tagName === "A") {
-          return {
-            type: "link",
-            href: el.getAttribute("href") ?? "",
-            children: [{ type: "text", text: el.textContent ?? "" }],
-          };
-        }
-
-        return { type: "text", text: el.textContent ?? "" };
-      }
-
-      return null;
-    });
+        return null;
+      },
+    );
 
     return {
       type: "doc",
-      children: children.filter(Boolean),
+      children: children.filter((n): n is RichTextNode => n !== null),
     };
   };
 
-  const jsonToHtml = (doc?: RichTextDoc) => {
+  const jsonToHtml = (doc?: RichTextDoc): string => {
     if (!doc || !Array.isArray(doc.children)) return "";
 
     return doc.children
-      .map((n: any) => {
-        if (n.type === "text") return n.text;
+      .map((n: RichTextNode) => {
+        if (n.type === "text") {
+          return n.text;
+        }
 
         if (n.type === "paragraph") {
           return `<p>${jsonToHtml({ type: "doc", children: n.children })}</p>`;
@@ -124,6 +128,11 @@ export function RichTextEditor({
 
         if (n.type === "quote") {
           return `<blockquote>${n.text}</blockquote>`;
+        }
+
+        // Adicionei o link aqui para garantir que eles sejam renderizados!
+        if (n.type === "link") {
+          return `<a href="${n.href}" target="_blank" rel="noopener noreferrer">${jsonToHtml({ type: "doc", children: n.children })}</a>`;
         }
 
         return "";
