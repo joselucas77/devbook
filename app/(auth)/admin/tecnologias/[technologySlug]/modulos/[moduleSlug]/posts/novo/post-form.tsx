@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo } from "react";
+import { useMemo } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 
@@ -44,6 +44,7 @@ import {
 import { CreatePostSchema } from "@/zod/schemas/post-schema";
 import { slugifySmart } from "@/lib/slugifySmart";
 import { RichTextEditor } from "@/components/app/auth/admin/post/rich-text-editor";
+import { EMPTY_RICH_TEXT_DOC, RichTextDoc } from "@/types/globalTypes";
 
 type CreatePostValues = z.infer<typeof CreatePostSchema>;
 
@@ -86,12 +87,7 @@ export function PostForm({
         blocks: [
           {
             type: "paragraph",
-            content: {
-              type: "doc",
-              content: {
-                children: [{ text: "", type: "text" }],
-              },
-            },
+            content: EMPTY_RICH_TEXT_DOC,
           },
         ],
       },
@@ -131,10 +127,7 @@ export function PostForm({
         append(
           {
             type: "paragraph",
-            content: {
-              type: "doc",
-              children: [{ text: "", type: "text" }],
-            },
+            content: EMPTY_RICH_TEXT_DOC,
           },
           { shouldFocus: false },
         );
@@ -563,7 +556,7 @@ export function PostForm({
                       name={`content.blocks.${index}.content`}
                       render={({ field }) => (
                         <RichTextEditor
-                          value={field.value}
+                          value={field.value as RichTextDoc}
                           onChange={field.onChange}
                           placeholder="Escreva o parágrafo..."
                         />
