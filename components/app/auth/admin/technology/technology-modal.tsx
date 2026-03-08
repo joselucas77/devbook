@@ -4,7 +4,12 @@ import { z } from "zod";
 import { Controller, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { toast } from "sonner";
-import { CircleQuestionMark, Save, Sparkles } from "lucide-react";
+import {
+  CircleQuestionMark,
+  Save,
+  Sparkles,
+  Image as ImageIcon,
+} from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -20,7 +25,7 @@ import {
 } from "@/components/ui/dialog";
 
 import { slugifySmart } from "@/lib/slugifySmart";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import {
   Select,
   SelectContent,
@@ -34,6 +39,7 @@ import {
   HoverCardTrigger,
 } from "@/components/ui/hover-card";
 
+// (O TechnologyCategories continua igual, omiti para poupar espaço)
 const TechnologyCategories = [
   {
     label: "Linguagens",
@@ -80,6 +86,7 @@ const TechnologySchema = z.object({
     .regex(/^[a-z0-9]+(?:-[a-z0-9]+)*$/, "Slug inválido"),
   description: z.string().min(5, "Descrição obrigatória"),
   category: z.string().min(2, "Categoria obrigatória"),
+  // O schema continua igual! Vai continuar a validar o URL final.
   image: z.string().url("URL inválida").optional().or(z.literal("")),
 });
 
@@ -102,10 +109,14 @@ export function TechnologyModal({
 }: {
   open: boolean;
   onOpenChange: (v: boolean) => void;
-  initial?: TechnologyRow | null; // se tiver, é edição
-  onSaved?: () => void; // callback para refetch/refresh tabela
+  initial?: TechnologyRow | null;
+  onSaved?: () => void;
 }) {
   const isEdit = !!initial?.id;
+
+  // Novo estado para armazenar o ficheiro selecionado localmente
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const [isUploading, setIsUploading] = useState(false);
 
   const form = useForm<TechnologyFormValues>({
     resolver: zodResolver(TechnologySchema),
@@ -129,7 +140,6 @@ export function TechnologyModal({
   } = form;
 
   useEffect(() => {
-    // quando abrir modal com initial, reseta o form
     if (!open) return;
     reset({
       name: initial?.name ?? "",
@@ -138,10 +148,39 @@ export function TechnologyModal({
       category: initial?.category ?? "",
       image: initial?.image ?? "",
     });
+    // Limpamos o ficheiro sempre que o modal abre
+    setSelectedFile(null);
   }, [open, initial, reset]);
 
   async function onSubmit(values: TechnologyFormValues) {
     try {
+      let finalImageUrl = values.image; // Assume o URL atual por defeito
+
+      // Se o utilizador tiver escolhido uma imagem nova do computador
+      if (selectedFile) {
+        setIsUploading(true);
+        const formData = new FormData();
+        formData.append("file", selectedFile);
+
+        // Dispara a requisição silenciosa para a nossa rota de upload
+        const uploadRes = await fetch("/api/admin/upload", {
+          method: "POST",
+          body: formData,
+        });
+
+        if (!uploadRes.ok) {
+          throw new Error("Falha ao fazer o upload da imagem.");
+        }
+
+        const uploadData = await uploadRes.json();
+        finalImageUrl = uploadData.url; // Substituímos o valor pelo URL novo do Vercel Blob
+        setIsUploading(false);
+      }
+
+      // Agora submetemos para a sua rota antiga, com os dados normais,
+      // mas o 'image' agora contém o URL gerado!
+      const payload = { ...values, image: finalImageUrl };
+
       const res = await fetch(
         isEdit
           ? `/api/admin/technologies/${initial!.id}`
@@ -149,7 +188,7 @@ export function TechnologyModal({
         {
           method: isEdit ? "PATCH" : "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(values),
+          body: JSON.stringify(payload),
         },
       );
 
@@ -162,6 +201,7 @@ export function TechnologyModal({
       onOpenChange(false);
       onSaved?.();
     } catch (e: any) {
+      setIsUploading(false);
       toast.error("Erro ao salvar tecnologia", { description: e?.message });
       console.error(e);
     }
@@ -269,12 +309,29 @@ export function TechnologyModal({
             )}
           </div>
 
+          {/* NOVO CAMPO DE IMAGEM */}
           <div className="space-y-2">
-            <Label>Imagem (URL opcional)</Label>
-            <Input placeholder="https://..." {...register("image")} />
-            {errors.image?.message && (
-              <p className="text-sm text-red-500">{errors.image.message}</p>
-            )}
+            <Label>Imagem / Ícone</Label>
+            <div className="flex items-center gap-4">
+              <Input
+                type="file"
+                accept="image/*"
+                onChange={(e) => {
+                  const file = e.target.files?.[0];
+                  if (file) setSelectedFile(file);
+                }}
+              />
+              {/* Feedback visual caso já exista imagem registada mas nenhum ficheiro novo */}
+              {initial?.image && !selectedFile && (
+                <div className="text-xs text-green-500 flex items-center gap-1">
+                  <ImageIcon className="w-4 h-4" /> Imagem atual guardada
+                </div>
+              )}
+            </div>
+            <p className="text-xs text-gray-500">
+              Selecione um ficheiro do seu computador para fazer upload
+              automaticamente.
+            </p>
           </div>
 
           <DialogFooter className="gap-2">
@@ -287,11 +344,11 @@ export function TechnologyModal({
             </Button>
             <Button
               type="submit"
-              disabled={isSubmitting || !isValid}
+              disabled={isSubmitting || isUploading || !isValid}
               className="gap-2"
             >
               <Save className="h-4 w-4" />
-              Salvar
+              {isUploading ? "A processar imagem..." : "Salvar"}
             </Button>
           </DialogFooter>
         </form>
