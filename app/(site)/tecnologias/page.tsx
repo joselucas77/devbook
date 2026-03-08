@@ -2,7 +2,6 @@ import { createElement } from "react";
 import { BookOpen, Code, Cog, LucideIcon, Wrench } from "lucide-react";
 import FeaturedCard from "@/components/app/site/tecnologias/featuredCard";
 import { prisma } from "@/lib/prisma";
-import { formatDatePtBR } from "@/lib/formatDate";
 
 const categoryIconMap: Record<string, LucideIcon> = {
   linguagens: Code,
