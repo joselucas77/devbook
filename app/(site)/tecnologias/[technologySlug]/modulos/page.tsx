@@ -1,7 +1,7 @@
 import ModuleFolder from "@/components/app/site/modulos/moduleFolder";
 import { Badge } from "@/components/ui/badge";
 import { prisma } from "@/lib/prisma";
-import { BookOpen, Code, Layers, Tag } from "lucide-react";
+import { BookOpen, Layers, Tag } from "lucide-react";
 import Link from "next/link";
 export const revalidate = 3600;
 
