@@ -1,6 +1,7 @@
 "use client";
 
-import { useState } from "react";
+import { useTransition } from "react";
+import { useRouter } from "next/navigation";
 import {
   Card,
   CardContent,
@@ -9,7 +10,6 @@ import {
   CardTitle,
 } from "../../../ui/card";
 import Image from "next/image";
-import Link from "next/link";
 import { Badge } from "../../../ui/badge";
 import { Button } from "@/components/ui/button";
 import { Loader2 } from "lucide-react";
@@ -29,16 +29,19 @@ export default function FeaturedCard({
   icon,
   slug,
 }: FeaturedCardProps) {
-  const [isLoading, setIsLoading] = useState(false);
+  const [isPending, startTransition] = useTransition();
+  const router = useRouter();
 
-  const handleClick = () => {
-    setIsLoading(true);
+  const handleNavigation = () => {
+    startTransition(() => {
+      router.push(`/tecnologias/${slug}/modulos`);
+    });
   };
 
   return (
     <>
       {/* Overlay de loading */}
-      {isLoading && (
+      {isPending && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm">
           <div className="flex flex-col items-center gap-4">
             <div className="relative">
@@ -76,11 +79,17 @@ export default function FeaturedCard({
         <CardFooter className="flex text-sm text-gray-500 pb-6">
           <Button
             className="w-full bg-blue-600 text-white hover:bg-blue-600/90 transition-colors"
-            asChild
+            onClick={handleNavigation}
+            disabled={isPending}
           >
-            <Link href={`/tecnologias/${slug}/modulos`} onClick={handleClick}>
-              Acessar módulos
-            </Link>
+            {isPending ? (
+              <>
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                Carregando...
+              </>
+            ) : (
+              "Acessar módulos"
+            )}
           </Button>
         </CardFooter>
       </Card>
