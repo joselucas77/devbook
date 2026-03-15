@@ -6,6 +6,7 @@ import { CodeBlock } from "@/components/app/site/post/codeBock";
 import { formatDatePtBR } from "@/lib/formatDate";
 import { ParagraphRenderer } from "@/components/app/auth/admin/post/ParagraphRenderer";
 import { PostContentBlock } from "@/types/globalTypes";
+export const revalidate = 3600;
 
 type ContentBlock = PostContentBlock;
 

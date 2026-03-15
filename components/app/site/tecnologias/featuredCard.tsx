@@ -8,15 +8,15 @@ import {
   CardTitle,
 } from "../../../ui/card";
 import Image from "next/image";
-import Link from "next/link";
 import { Badge } from "../../../ui/badge";
 import { Button } from "@/components/ui/button";
+import Link from "next/link";
+import { Tag } from "lucide-react";
 
 interface FeaturedCardProps {
   title: string;
   image: string;
   category: string;
-  icon: React.ReactNode;
   slug: string;
 }
 
@@ -24,12 +24,11 @@ export default function FeaturedCard({
   title,
   image,
   category,
-  icon,
   slug,
 }: FeaturedCardProps) {
   return (
     <Card className="overflow-hidden transition-colors border border-transparent hover:border-blue-950">
-      <CardHeader className="relative h-48 w-full">
+      <CardHeader className="relative h-60 w-full">
         <Image
           src={image || "/placeholder.svg"}
           alt={title}
@@ -39,11 +38,8 @@ export default function FeaturedCard({
       </CardHeader>
       <CardContent className="flex justify-between">
         <CardTitle className="text-xl text-white">{title}</CardTitle>
-        <Badge
-          variant="default"
-          // className="bg-blue-500 text-white dark:bg-blue-950"
-        >
-          {icon}
+        <Badge variant="outline">
+          <Tag className="h-5 w-5" />
           {category}
         </Badge>
       </CardContent>

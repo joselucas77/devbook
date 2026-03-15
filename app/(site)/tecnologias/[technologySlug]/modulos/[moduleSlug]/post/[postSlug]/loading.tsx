@@ -16,7 +16,7 @@ export default function Loading() {
 
         <div className="text-center space-y-1">
           <h2 className="text-xl font-semibold text-white">
-            Carregando os dados
+            Carregando o post
           </h2>
           <p className="text-sm text-gray-400">Aguarde um momento...</p>
         </div>

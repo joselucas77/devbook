@@ -1,8 +1,9 @@
 import ModuleFolder from "@/components/app/site/modulos/moduleFolder";
 import { Badge } from "@/components/ui/badge";
 import { prisma } from "@/lib/prisma";
-import { BookOpen, Code, Layers } from "lucide-react";
+import { BookOpen, Code, Layers, Tag } from "lucide-react";
 import Link from "next/link";
+export const revalidate = 3600;
 
 export default async function Page({
   params,
@@ -72,18 +73,18 @@ export default async function Page({
 
         <div className="w-full flex items-center justify-between gap-6">
           <div className="flex w-full items-center gap-6">
-            <div className="flex items-center gap-2 text-sm text-blue-500">
-              <Layers className="h-4 w-4 text-blue-500" />
+            <div className="flex items-center gap-2 text-sm text-blue-400">
+              <Layers className="h-4 w-4" />
               <span>{technology.modules.length} módulos</span>
             </div>
-            <div className="flex items-center gap-2 text-sm text-blue-500">
-              <BookOpen className="h-4 w-4 text-blue-500" />
-              <span>{totalTopics} tópicos</span>
+            <div className="flex items-center gap-2 text-sm text-blue-400">
+              <BookOpen className="h-4 w-4" />
+              <span>{totalTopics} posts</span>
             </div>
           </div>
 
-          <Badge className="bg-blue-500 text-white dark:bg-blue-950">
-            <Code className="h-5 w-5" />
+          <Badge variant="outline">
+            <Tag className="h-5 w-5" />
             {technology.category}
           </Badge>
         </div>

@@ -1,14 +1,7 @@
-import { createElement } from "react";
-import { BookOpen, Code, Cog, LucideIcon, Wrench } from "lucide-react";
 import FeaturedCard from "@/components/app/site/tecnologias/featuredCard";
 import { prisma } from "@/lib/prisma";
-
-const categoryIconMap: Record<string, LucideIcon> = {
-  linguagens: Code,
-  frameworks: Cog,
-  bibliotecas: BookOpen,
-  ferramentas: Wrench,
-};
+// e será revalidada (atualizada no banco) em background no máximo a cada 1 hora (3600 segundos).
+export const revalidate = 3600;
 
 // ✅ normaliza a chave do ícone com base na categoria salva no banco
 function normalizeCategoryKey(category: string) {
@@ -46,7 +39,6 @@ export default async function Page() {
       <div className="grid md:grid-cols-3 gap-6">
         {tech.map((item) => {
           const key = normalizeCategoryKey(item.category);
-          const IconComponent = categoryIconMap[key] ?? Code;
 
           return (
             <FeaturedCard
@@ -54,7 +46,6 @@ export default async function Page() {
               title={item.name}
               image={item.image ?? "/placeholder.svg"}
               category={item.category}
-              icon={createElement(IconComponent, { className: "h-5 w-5" })}
               slug={item.slug}
             />
           );
