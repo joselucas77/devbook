@@ -3,6 +3,7 @@ import { Geist, Geist_Mono } from "next/font/google";
 import { Toaster } from "sonner";
 import { PWAUpdater } from "@/components/pwa-updater";
 import { ThemeColorUpdater } from "@/components/theme-color-updater";
+import { ThemeProvider } from "@/components/layout/theme-provider";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -16,8 +17,8 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Zelo Base Template",
-  description: "Template Base Boilerplate Fullstack Next.js + Prisma + PWA",
+  title: "DevBook",
+  description: "Sua documentação não oficial favorita.",
   manifest: "/site.webmanifest",
 };
 
@@ -38,11 +39,18 @@ export default function RootLayout({
       suppressHydrationWarning
       className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
     >
-      <body className="min-h-full flex flex-col bg-background text-foreground">
-        <ThemeColorUpdater />
-        <PWAUpdater />
-        {children}
-        <Toaster richColors position="top-right" />
+      <body className="min-h-full flex flex-col bg-background text-foreground no-scrollbar">
+        <ThemeProvider
+          attribute="class"
+          defaultTheme="dark"
+          enableSystem
+          disableTransitionOnChange={false}
+        >
+          <ThemeColorUpdater />
+          <PWAUpdater />
+          {children}
+          <Toaster richColors position="top-center" />
+        </ThemeProvider>
       </body>
     </html>
   );

@@ -1,0 +1,467 @@
+"use client";
+
+import Link from "next/link";
+import { useRouter } from "next/navigation";
+import {
+  ColumnDef,
+  flexRender,
+  getCoreRowModel,
+  getFilteredRowModel,
+  getPaginationRowModel,
+  getSortedRowModel,
+  SortingState,
+  ColumnFiltersState,
+  VisibilityState,
+  useReactTable,
+} from "@tanstack/react-table";
+import { toast } from "sonner";
+import { useMemo, useState } from "react";
+
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+  DropdownMenuCheckboxItem,
+  DropdownMenuLabel,
+} from "@/components/ui/dropdown-menu";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
+import {
+  TechnologyModal,
+  type TechnologyRow,
+} from "@/components/admin/technology-modal";
+import { formatDateBR } from "@/lib/format-date";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+
+export type Row = {
+  id: number;
+  name: string;
+  slug: string;
+  category: string;
+  description: string;
+  image: string | null;
+  modulesCount: number;
+  createdAt: string;
+  updatedAt: string;
+};
+
+const TechnologyCategories = [
+  "Linguagens",
+  "Markups & Estilos",
+  "Frameworks & Libs",
+  "Infra & DevOps",
+  "Gerenciamento de Dados",
+  "Ferramentas & Utilitários",
+];
+
+export function TechnologiesTable({ data }: { data: Row[] }) {
+  const router = useRouter();
+
+  // modal
+  const [openModal, setOpenModal] = useState(false);
+  const [editing, setEditing] = useState<TechnologyRow | null>(null);
+
+  // delete confirm
+  const [deleting, setDeleting] = useState<Row | null>(null);
+  const [isDeleting, setIsDeleting] = useState(false);
+
+  async function handleDelete(row: Row) {
+    try {
+      setIsDeleting(true);
+      const res = await fetch(`/api/admin/technologies/${row.id}`, {
+        method: "DELETE",
+      });
+
+      if (!res.ok) {
+        const err = await res.json().catch(() => ({}));
+        throw new Error(err?.message ?? "Falha ao deletar tecnologia");
+      }
+
+      toast.success("Tecnologia deletada");
+      setDeleting(null);
+      router.refresh();
+    } catch (e: any) {
+      toast.error("Erro ao deletar", { description: e?.message });
+      console.error(e);
+    } finally {
+      setIsDeleting(false);
+    }
+  }
+
+  const columns = useMemo<ColumnDef<Row>[]>(
+    () => [
+      {
+        accessorKey: "name",
+        header: ({ column }) => (
+          <Button
+            variant="ghost"
+            className="-ml-3 gap-1 font-semibold"
+            onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+          >
+            Nome <i className="bx bx-sort text-sm ml-1" />
+          </Button>
+        ),
+        cell: ({ row }) => (
+          <div className="space-y-0.5">
+            <div className="font-medium text-foreground">{row.original.name}</div>
+            <div className="text-xs text-muted-foreground">{row.original.slug}</div>
+          </div>
+        ),
+      },
+      {
+        accessorKey: "category",
+        header: "Categoria",
+        filterFn: (row, columnId, filterValue) => {
+          return row.getValue(columnId) === filterValue;
+        },
+        cell: ({ row }) => (
+          <span className="text-sm text-muted-foreground">{row.original.category}</span>
+        ),
+      },
+      {
+        accessorKey: "modulesCount",
+        header: "Módulos",
+        cell: ({ row }) => (
+          <span className="text-sm font-mono text-muted-foreground">
+            {row.original.modulesCount}
+          </span>
+        ),
+      },
+      {
+        accessorKey: "updatedAt",
+        header: "Atualizado",
+        cell: ({ row }) => {
+          return (
+            <span className="text-sm text-muted-foreground">
+              {formatDateBR(row.original.updatedAt)}
+            </span>
+          );
+        },
+      },
+      {
+        id: "actions",
+        header: "",
+        cell: ({ row }) => {
+          const t = row.original;
+
+          return (
+            <div className="flex justify-end">
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button variant="ghost" size="icon" className="h-8 w-8">
+                    <i className="bx bx-dots-horizontal-rounded text-lg" />
+                  </Button>
+                </DropdownMenuTrigger>
+
+                <DropdownMenuContent align="end" className="w-48">
+                  <DropdownMenuLabel>Ações</DropdownMenuLabel>
+
+                  <DropdownMenuItem asChild>
+                    <Link
+                      href={`/admin/tecnologias/${t.slug}/modulos`}
+                      className="gap-2 cursor-pointer"
+                    >
+                      <i className="bx bx-link-external text-base mr-1.5" />
+                      Acessar módulos
+                    </Link>
+                  </DropdownMenuItem>
+
+                  <DropdownMenuSeparator />
+
+                  <DropdownMenuItem
+                    className="gap-2 cursor-pointer"
+                    onSelect={() => {
+                      setEditing({
+                        id: t.id,
+                        name: t.name,
+                        slug: t.slug,
+                        category: t.category,
+                        description: t.description,
+                        image: t.image,
+                      });
+                      setOpenModal(true);
+                    }}
+                  >
+                    <i className="bx bx-pencil text-base mr-1.5" />
+                    Editar
+                  </DropdownMenuItem>
+
+                  <DropdownMenuItem
+                    className="gap-2 text-rose-500 focus:text-rose-500 cursor-pointer"
+                    onSelect={() => setDeleting(t)}
+                  >
+                    <i className="bx bx-trash text-base mr-1.5 text-rose-500" />
+                    Deletar
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+            </div>
+          );
+        },
+      },
+    ],
+    []
+  );
+
+  // table state
+  const [sorting, setSorting] = useState<SortingState>([]);
+  const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
+  const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({});
+  const [rowSelection, setRowSelection] = useState({});
+  const [categoryFilter, setCategoryFilter] = useState<string>("all");
+
+  const table = useReactTable({
+    data,
+    columns,
+    state: {
+      sorting,
+      columnFilters,
+      columnVisibility,
+      rowSelection,
+    },
+    onSortingChange: setSorting,
+    onColumnFiltersChange: setColumnFilters,
+    onColumnVisibilityChange: setColumnVisibility,
+    onRowSelectionChange: setRowSelection,
+    getCoreRowModel: getCoreRowModel(),
+    getSortedRowModel: getSortedRowModel(),
+    getFilteredRowModel: getFilteredRowModel(),
+    getPaginationRowModel: getPaginationRowModel(),
+  });
+
+  return (
+    <>
+      <div className="space-y-4">
+        {/* Toolbar */}
+        <div className="flex flex-col md:flex-row md:items-center justify-between gap-3 mb-4">
+          <div className="flex flex-wrap items-center gap-2">
+            <Input
+              placeholder="Buscar por nome..."
+              value={
+                (table.getColumn("name")?.getFilterValue() as string) ?? ""
+              }
+              onChange={(event) =>
+                table.getColumn("name")?.setFilterValue(event.target.value)
+              }
+              className="w-full sm:w-64"
+            />
+
+            <Select
+              value={categoryFilter}
+              onValueChange={(value) => {
+                setCategoryFilter(value);
+
+                if (value === "all") {
+                  table.getColumn("category")?.setFilterValue(undefined);
+                } else {
+                  table.getColumn("category")?.setFilterValue(value);
+                }
+              }}
+            >
+              <SelectTrigger className="w-56">
+                <SelectValue placeholder="Filtrar por categoria" />
+              </SelectTrigger>
+
+              <SelectContent>
+                <SelectItem value="all">Todas as categorias</SelectItem>
+                {TechnologyCategories.map((cat) => (
+                  <SelectItem key={cat} value={cat}>
+                    {cat}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="secondary" className="gap-2">
+                  <i className="bx bx-slider-alt text-base" />
+                  Colunas
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="start" className="w-52">
+                {table
+                  .getAllColumns()
+                  .filter((column) => column.getCanHide())
+                  .map((column) => (
+                    <DropdownMenuCheckboxItem
+                      key={column.id}
+                      className="capitalize"
+                      checked={column.getIsVisible()}
+                      onCheckedChange={(value) =>
+                        column.toggleVisibility(!!value)
+                      }
+                    >
+                      {column.id === "modulesCount"
+                        ? "módulos"
+                        : column.id === "updatedAt"
+                        ? "atualizado"
+                        : column.id === "category"
+                        ? "categoria"
+                        : column.id === "name"
+                        ? "nome"
+                        : column.id === "actions"
+                        ? "ações"
+                        : column.id}
+                    </DropdownMenuCheckboxItem>
+                  ))}
+              </DropdownMenuContent>
+            </DropdownMenu>
+          </div>
+
+          <Button
+            className="gap-2 bg-blue-600 hover:bg-blue-600/90 text-white shrink-0"
+            onClick={() => {
+              setEditing(null);
+              setOpenModal(true);
+            }}
+          >
+            <i className="bx bx-plus text-base" />
+            Nova Tecnologia
+          </Button>
+        </div>
+
+        {/* Table */}
+        <div className="rounded-md border border-border bg-card overflow-hidden">
+          <Table>
+            <TableHeader>
+              {table.getHeaderGroups().map((headerGroup) => (
+                <TableRow key={headerGroup.id} className="border-border">
+                  {headerGroup.headers.map((header) => (
+                    <TableHead key={header.id} className="text-muted-foreground font-semibold">
+                      {header.isPlaceholder
+                        ? null
+                        : flexRender(
+                            header.column.columnDef.header,
+                            header.getContext()
+                          )}
+                    </TableHead>
+                  ))}
+                </TableRow>
+              ))}
+            </TableHeader>
+
+            <TableBody>
+              {table.getRowModel().rows?.length ? (
+                table.getRowModel().rows.map((row) => (
+                  <TableRow key={row.id} className="border-border hover:bg-muted/30">
+                    {row.getVisibleCells().map((cell) => (
+                      <TableCell key={cell.id} className="align-middle">
+                        {flexRender(
+                          cell.column.columnDef.cell,
+                          cell.getContext()
+                        )}
+                      </TableCell>
+                    ))}
+                  </TableRow>
+                ))
+              ) : (
+                <TableRow className="border-border">
+                  <TableCell
+                    colSpan={columns.length}
+                    className="h-24 text-center text-muted-foreground"
+                  >
+                    Nenhuma tecnologia encontrada.
+                  </TableCell>
+                </TableRow>
+              )}
+            </TableBody>
+          </Table>
+        </div>
+
+        {/* Pagination */}
+        <div className="flex items-center justify-between gap-3 mt-4">
+          <div className="text-sm text-muted-foreground">
+            {table.getFilteredRowModel().rows.length} resultado(s)
+          </div>
+
+          <div className="flex items-center gap-2">
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => table.previousPage()}
+              disabled={!table.getCanPreviousPage()}
+            >
+              <i className="bx bx-chevron-left text-base mr-1" />
+              Anterior
+            </Button>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => table.nextPage()}
+              disabled={!table.getCanNextPage()}
+            >
+              Próxima
+              <i className="bx bx-chevron-right text-base ml-1" />
+            </Button>
+          </div>
+        </div>
+      </div>
+
+      {/* Create/Edit Modal */}
+      <TechnologyModal
+        open={openModal}
+        onOpenChange={setOpenModal}
+        initial={editing}
+        onSaved={() => router.refresh()}
+      />
+
+      {/* Delete Confirm */}
+      <AlertDialog
+        open={!!deleting}
+        onOpenChange={(v) => !v && setDeleting(null)}
+      >
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Deletar tecnologia?</AlertDialogTitle>
+            <AlertDialogDescription>
+              Isso vai remover a tecnologia{" "}
+              <span className="font-semibold text-foreground">
+                {deleting?.name}
+              </span>{" "}
+              e todos os seus módulos e posts vinculados.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter className="gap-2">
+            <AlertDialogCancel disabled={isDeleting}>
+              Cancelar
+            </AlertDialogCancel>
+            <AlertDialogAction
+              disabled={isDeleting || !deleting}
+              onClick={() => deleting && handleDelete(deleting)}
+              className="bg-rose-600 hover:bg-rose-600/90 text-white"
+            >
+              {isDeleting ? "Deletando..." : "Deletar"}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+    </>
+  );
+}

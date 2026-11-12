@@ -1,0 +1,408 @@
+"use client";
+
+import { Controller, useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { toast } from "sonner";
+import { useEffect, useState } from "react";
+
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
+import { Label } from "@/components/ui/label";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+  DialogFooter,
+} from "@/components/ui/dialog";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import {
+  HoverCard,
+  HoverCardContent,
+  HoverCardTrigger,
+} from "@/components/ui/hover-card";
+
+import { slugifySmart } from "@/lib/slugify";
+import {
+  CreateTechnologySchema,
+  type CreateTechnologyValues,
+} from "@/lib/validations/technology";
+
+const TechnologyCategories = [
+  {
+    label: "Linguagens",
+    value: "Linguagens",
+    description: "Para a base do código (ex: PHP, JavaScript, Python, SQL)",
+  },
+  {
+    label: "Markups & Estilos",
+    value: "Markups & Estilos",
+    description: "Para o que define visual e estrutura (ex: HTML, CSS, Markdown)",
+  },
+  {
+    label: "Frameworks & Libs",
+    value: "Frameworks & Libs",
+    description: "Ferramentas que facilitam o desenvolvimento (ex: React, Laravel, Django)",
+  },
+  {
+    label: "Infra & DevOps",
+    value: "Infra & DevOps",
+    description: "Tecnologias para infraestrutura e operações (ex: Docker, Vercel, AWS)",
+  },
+  {
+    label: "Gerenciamento de Dados",
+    value: "Gerenciamento de Dados",
+    description: "Bancos de dados e ferramentas de manipulação de dados (ex: MySQL, MongoDB, Neon)",
+  },
+  {
+    label: "Ferramentas & Utilitários",
+    value: "Ferramentas & Utilitários",
+    description: "Ferramentas auxiliares para desenvolvimento (ex: Git, Webpack, Postman)",
+  },
+];
+
+export type TechnologyRow = {
+  id: number;
+  name: string;
+  slug: string;
+  description: string;
+  category: string;
+  image: string | null;
+};
+
+export function TechnologyModal({
+  open,
+  onOpenChange,
+  initial,
+  onSaved,
+}: {
+  open: boolean;
+  onOpenChange: (v: boolean) => void;
+  initial?: TechnologyRow | null;
+  onSaved?: () => void;
+}) {
+  const isEdit = !!initial?.id;
+  const [imageMode, setImageMode] = useState<"file" | "url">("file");
+  const [isUploading, setIsUploading] = useState(false);
+
+  const form = useForm<CreateTechnologyValues>({
+    resolver: zodResolver(CreateTechnologySchema),
+    defaultValues: {
+      name: initial?.name ?? "",
+      slug: initial?.slug ?? "",
+      description: initial?.description ?? "",
+      category: initial?.category ?? "",
+      image: initial?.image ?? "",
+    },
+    mode: "onChange",
+  });
+
+  const {
+    register,
+    handleSubmit,
+    setValue,
+    getValues,
+    watch,
+    reset,
+    formState: { errors, isSubmitting, isValid },
+  } = form;
+
+  const currentImage = watch("image");
+
+  useEffect(() => {
+    if (!open) return;
+    reset({
+      name: initial?.name ?? "",
+      slug: initial?.slug ?? "",
+      description: initial?.description ?? "",
+      category: initial?.category ?? "",
+      image: initial?.image ?? "",
+    });
+    setImageMode(initial?.image ? "url" : "file");
+  }, [open, initial, reset]);
+
+  async function handleFileUpload(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    setIsUploading(true);
+    try {
+      const formData = new FormData();
+      formData.append("file", file);
+
+      const res = await fetch("/api/admin/upload", {
+        method: "POST",
+        body: formData,
+      });
+
+      if (!res.ok) {
+        const err = await res.json().catch(() => ({}));
+        throw new Error(err?.message || "Falha no upload");
+      }
+
+      const data = await res.json();
+      setValue("image", data.url, { shouldValidate: true, shouldDirty: true });
+      toast.success("Imagem enviada com sucesso para o Neon Storage!");
+    } catch (err: any) {
+      toast.error("Erro no upload", { description: err?.message });
+    } finally {
+      setIsUploading(false);
+    }
+  }
+
+  async function onSubmit(values: CreateTechnologyValues) {
+    try {
+      const res = await fetch(
+        isEdit
+          ? `/api/admin/technologies/${initial!.id}`
+          : "/api/admin/technologies",
+        {
+          method: isEdit ? "PATCH" : "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(values),
+        }
+      );
+
+      if (!res.ok) {
+        const err = await res.json().catch(() => ({}));
+        throw new Error(err?.message ?? "Falha ao salvar tecnologia");
+      }
+
+      toast.success(isEdit ? "Tecnologia atualizada" : "Tecnologia criada");
+      onOpenChange(false);
+      onSaved?.();
+    } catch (e: any) {
+      toast.error("Erro ao salvar tecnologia", { description: e?.message });
+    }
+  }
+
+  return (
+    <Dialog open={open} onOpenChange={onOpenChange}>
+      <DialogContent className="sm:max-w-xl z-200">
+        <DialogHeader>
+          <DialogTitle className="text-xl font-bold">
+            {isEdit ? "Editar Tecnologia" : "Nova Tecnologia"}
+          </DialogTitle>
+          <DialogDescription className="text-muted-foreground">
+            Preencha as informações básicas da tecnologia.
+          </DialogDescription>
+        </DialogHeader>
+
+        <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+          <div className="space-y-2">
+            <Label>Nome</Label>
+            <Input placeholder="Ex: PHP" {...register("name")} />
+            {errors.name?.message && (
+              <p className="text-xs text-destructive">{errors.name.message}</p>
+            )}
+          </div>
+
+          <div className="space-y-2">
+            <Label>Slug</Label>
+            <div className="flex gap-2">
+              <Input placeholder="ex: php" {...register("slug")} />
+              <Button
+                type="button"
+                variant="secondary"
+                onClick={() =>
+                  setValue("slug", slugifySmart(getValues("name")), {
+                    shouldValidate: true,
+                  })
+                }
+                className="gap-2 shrink-0"
+              >
+                <i className="bx bx-sparkles text-base" />
+                Gerar
+              </Button>
+            </div>
+            {errors.slug?.message && (
+              <p className="text-xs text-destructive">{errors.slug.message}</p>
+            )}
+          </div>
+
+          <div className="space-y-2">
+            <div className="flex items-center gap-1.5">
+              <Label>Categoria</Label>
+              <HoverCard>
+                <HoverCardTrigger asChild>
+                  <i className="bx bx-help-circle text-base text-muted-foreground cursor-pointer hover:text-foreground" />
+                </HoverCardTrigger>
+                <HoverCardContent className="flex w-80 flex-col gap-1 text-xs">
+                  {TechnologyCategories.map((cat, index) => (
+                    <div key={index} className="text-muted-foreground mt-1">
+                      <strong className="text-foreground">{cat.label}</strong>: {cat.description}
+                    </div>
+                  ))}
+                </HoverCardContent>
+              </HoverCard>
+            </div>
+            <Controller
+              control={form.control}
+              name="category"
+              render={({ field }) => (
+                <Select value={field.value} onValueChange={field.onChange}>
+                  <SelectTrigger className="w-full">
+                    <SelectValue placeholder="Selecione a categoria" />
+                  </SelectTrigger>
+
+                  <SelectContent>
+                    {TechnologyCategories.map((cat, index) => (
+                      <SelectItem key={index} value={cat.value}>
+                        {cat.label}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              )}
+            />
+            {errors.category?.message && (
+              <p className="text-xs text-destructive">{errors.category.message}</p>
+            )}
+          </div>
+
+          <div className="space-y-2">
+            <Label>Descrição</Label>
+            <Textarea
+              className="min-h-24 resize-none"
+              placeholder="Descrição breve..."
+              {...register("description")}
+            />
+            {errors.description?.message && (
+              <p className="text-xs text-destructive">
+                {errors.description.message}
+              </p>
+            )}
+          </div>
+
+          {/* Imagem com opção de Upload e URL Externa */}
+          <div className="space-y-2">
+            <div className="flex items-center justify-between">
+              <Label>Imagem / Ícone</Label>
+              <div className="flex items-center gap-1">
+                <Button
+                  type="button"
+                  variant={imageMode === "file" ? "secondary" : "ghost"}
+                  size="sm"
+                  className="h-7 text-xs px-2 gap-1"
+                  onClick={() => setImageMode("file")}
+                >
+                  <i className="bx bx-upload text-sm" /> Upload do PC
+                </Button>
+                <Button
+                  type="button"
+                  variant={imageMode === "url" ? "secondary" : "ghost"}
+                  size="sm"
+                  className="h-7 text-xs px-2 gap-1"
+                  onClick={() => setImageMode("url")}
+                >
+                  <i className="bx bx-link text-sm" /> Via URL
+                </Button>
+              </div>
+            </div>
+
+            {imageMode === "file" ? (
+              <div className="space-y-1">
+                <Input
+                  type="file"
+                  accept="image/*"
+                  disabled={isUploading}
+                  onChange={handleFileUpload}
+                  className="cursor-pointer file:cursor-pointer"
+                />
+                <p className="text-[11px] text-muted-foreground">
+                  Selecione um arquivo de imagem do computador. O upload para o Neon Storage é automático.
+                </p>
+              </div>
+            ) : (
+              <div className="space-y-1">
+                <Input
+                  placeholder="https://exemplo.com/logo.png"
+                  {...register("image")}
+                />
+                <p className="text-[11px] text-muted-foreground">
+                  Cole uma URL pública de imagem.
+                </p>
+              </div>
+            )}
+
+            {isUploading && (
+              <div className="flex items-center gap-2 text-xs text-blue-500 py-1">
+                <i className="bx bx-loader-alt animate-spin text-base" />
+                Enviando imagem para o Neon Object Storage...
+              </div>
+            )}
+
+            {currentImage && (
+              <div className="flex items-center gap-3 p-2.5 rounded-lg border border-border bg-muted/30">
+                <img
+                  src={currentImage}
+                  alt="Prévia"
+                  className="h-10 w-10 rounded-md object-contain border border-border bg-background p-1 shrink-0"
+                  onError={(e) => {
+                    (e.target as HTMLElement).style.display = "none";
+                  }}
+                />
+                <div className="flex-1 min-w-0">
+                  <p className="text-xs font-medium truncate">{currentImage}</p>
+                  <p className="text-[10px] text-emerald-500 flex items-center gap-1">
+                    <i className="bx bx-check-circle text-xs" /> Imagem vinculada
+                  </p>
+                </div>
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="icon"
+                  className="h-7 w-7 text-rose-500 hover:text-rose-600 hover:bg-rose-500/10 shrink-0"
+                  onClick={() =>
+                    setValue("image", "", {
+                      shouldValidate: true,
+                      shouldDirty: true,
+                    })
+                  }
+                  title="Remover imagem"
+                >
+                  <i className="bx bx-trash text-base" />
+                </Button>
+              </div>
+            )}
+          </div>
+
+          <DialogFooter className="gap-2 pt-2">
+            <Button
+              type="button"
+              variant="outline"
+              onClick={() => onOpenChange(false)}
+            >
+              Cancelar
+            </Button>
+            <Button
+              type="submit"
+              disabled={isSubmitting || isUploading || !isValid}
+              className="gap-2 bg-blue-600 hover:bg-blue-600/90 text-white"
+            >
+              {isSubmitting ? (
+                <>
+                  <i className="bx bx-loader-alt animate-spin text-base" />
+                  Salvando...
+                </>
+              ) : (
+                <>
+                  <i className="bx bx-save text-base" />
+                  Salvar
+                </>
+              )}
+            </Button>
+          </DialogFooter>
+        </form>
+      </DialogContent>
+    </Dialog>
+  );
+}

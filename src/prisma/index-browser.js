@@ -120,49 +120,89 @@ exports.Prisma.TransactionIsolationLevel = makeStrictEnum({
   Serializable: 'Serializable'
 });
 
-exports.Prisma.TenantScalarFieldEnum = {
-  id: 'id',
-  name: 'name',
-  slug: 'slug',
-  active: 'active',
-  createdAt: 'createdAt',
-  updatedAt: 'updatedAt',
-  deletedAt: 'deletedAt'
-};
-
-exports.Prisma.AccessGroupScalarFieldEnum = {
-  id: 'id',
-  name: 'name',
-  description: 'description',
-  permissions: 'permissions',
-  tenantId: 'tenantId',
-  createdAt: 'createdAt',
-  updatedAt: 'updatedAt',
-  deletedAt: 'deletedAt'
-};
-
 exports.Prisma.UserScalarFieldEnum = {
   id: 'id',
   name: 'name',
   email: 'email',
   password: 'password',
-  active: 'active',
-  tenantId: 'tenantId',
-  accessGroupId: 'accessGroupId',
+  emailVerified: 'emailVerified',
+  image: 'image',
+  role: 'role',
   createdAt: 'createdAt',
-  updatedAt: 'updatedAt',
-  deletedAt: 'deletedAt'
+  updatedAt: 'updatedAt'
 };
 
-exports.Prisma.AuditLogScalarFieldEnum = {
+exports.Prisma.TechnologyScalarFieldEnum = {
   id: 'id',
-  action: 'action',
-  entity: 'entity',
-  entityId: 'entityId',
-  details: 'details',
+  name: 'name',
+  slug: 'slug',
+  description: 'description',
+  image: 'image',
+  category: 'category',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+};
+
+exports.Prisma.ModuleScalarFieldEnum = {
+  id: 'id',
+  title: 'title',
+  slug: 'slug',
+  technologyId: 'technologyId',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+};
+
+exports.Prisma.PostScalarFieldEnum = {
+  id: 'id',
+  title: 'title',
+  slug: 'slug',
+  concept: 'concept',
+  summary: 'summary',
+  image: 'image',
+  content: 'content',
+  isPublic: 'isPublic',
+  status: 'status',
+  authorId: 'authorId',
+  publishedAt: 'publishedAt',
+  moduleId: 'moduleId',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+};
+
+exports.Prisma.SessionScalarFieldEnum = {
+  id: 'id',
+  expiresAt: 'expiresAt',
+  token: 'token',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt',
+  ipAddress: 'ipAddress',
+  userAgent: 'userAgent',
+  userId: 'userId'
+};
+
+exports.Prisma.AccountScalarFieldEnum = {
+  id: 'id',
+  accountId: 'accountId',
+  providerId: 'providerId',
   userId: 'userId',
-  tenantId: 'tenantId',
-  createdAt: 'createdAt'
+  accessToken: 'accessToken',
+  refreshToken: 'refreshToken',
+  idToken: 'idToken',
+  accessTokenExpiresAt: 'accessTokenExpiresAt',
+  refreshTokenExpiresAt: 'refreshTokenExpiresAt',
+  scope: 'scope',
+  password: 'password',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+};
+
+exports.Prisma.VerificationScalarFieldEnum = {
+  id: 'id',
+  identifier: 'identifier',
+  value: 'value',
+  expiresAt: 'expiresAt',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
 };
 
 exports.Prisma.SortOrder = {
@@ -171,11 +211,6 @@ exports.Prisma.SortOrder = {
 };
 
 exports.Prisma.JsonNullValueInput = {
-  JsonNull: Prisma.JsonNull
-};
-
-exports.Prisma.NullableJsonNullValueInput = {
-  DbNull: Prisma.DbNull,
   JsonNull: Prisma.JsonNull
 };
 
@@ -194,13 +229,26 @@ exports.Prisma.JsonNullValueFilter = {
   JsonNull: Prisma.JsonNull,
   AnyNull: Prisma.AnyNull
 };
+exports.UserRole = exports.$Enums.UserRole = {
+  ADMIN: 'ADMIN',
+  EDITOR: 'EDITOR',
+  VIEWER: 'VIEWER'
+};
 
+exports.PostStatus = exports.$Enums.PostStatus = {
+  DRAFT: 'DRAFT',
+  PUBLISHED: 'PUBLISHED',
+  ARCHIVED: 'ARCHIVED'
+};
 
 exports.Prisma.ModelName = {
-  Tenant: 'Tenant',
-  AccessGroup: 'AccessGroup',
   User: 'User',
-  AuditLog: 'AuditLog'
+  Technology: 'Technology',
+  Module: 'Module',
+  Post: 'Post',
+  Session: 'Session',
+  Account: 'Account',
+  Verification: 'Verification'
 };
 
 /**

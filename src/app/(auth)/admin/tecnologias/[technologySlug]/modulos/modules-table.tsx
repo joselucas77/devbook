@@ -1,0 +1,419 @@
+"use client";
+
+import * as React from "react";
+import Link from "next/link";
+import { useRouter } from "next/navigation";
+import {
+  ColumnDef,
+  flexRender,
+  getCoreRowModel,
+  getFilteredRowModel,
+  getPaginationRowModel,
+  getSortedRowModel,
+  SortingState,
+  ColumnFiltersState,
+  VisibilityState,
+  useReactTable,
+} from "@tanstack/react-table";
+import { toast } from "sonner";
+
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+  DropdownMenuCheckboxItem,
+  DropdownMenuLabel,
+} from "@/components/ui/dropdown-menu";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
+import {
+  ModuleModal,
+  type ModuleRow,
+} from "@/components/admin/module-modal";
+import { formatDateBR } from "@/lib/format-date";
+
+type Row = {
+  id: number;
+  title: string;
+  slug: string;
+  technologyId: number;
+  postsCount: number;
+  createdAt: string;
+  updatedAt: string;
+};
+
+export function ModulesTable({
+  technologyId,
+  technologyName,
+  technologySlug,
+  data,
+}: {
+  technologyId: number;
+  technologyName: string;
+  technologySlug: string;
+  data: Row[];
+}) {
+  const router = useRouter();
+
+  // modal
+  const [openModal, setOpenModal] = React.useState(false);
+  const [editing, setEditing] = React.useState<ModuleRow | null>(null);
+
+  // delete confirm
+  const [deleting, setDeleting] = React.useState<Row | null>(null);
+  const [isDeleting, setIsDeleting] = React.useState(false);
+
+  async function handleDelete(row: Row) {
+    try {
+      setIsDeleting(true);
+      const res = await fetch(`/api/admin/modules/${row.id}`, {
+        method: "DELETE",
+      });
+
+      if (!res.ok) {
+        const err = await res.json().catch(() => ({}));
+        throw new Error(err?.message ?? "Falha ao deletar módulo");
+      }
+
+      toast.success("Módulo deletado");
+      setDeleting(null);
+      router.refresh();
+    } catch (e: any) {
+      toast.error("Erro ao deletar", { description: e?.message });
+    } finally {
+      setIsDeleting(false);
+    }
+  }
+
+  const columns = React.useMemo<ColumnDef<Row>[]>(
+    () => [
+      {
+        accessorKey: "title",
+        header: ({ column }) => (
+          <Button
+            variant="ghost"
+            className="-ml-3 gap-1 font-semibold"
+            onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+          >
+            Título <i className="bx bx-sort text-sm ml-1" />
+          </Button>
+        ),
+        cell: ({ row }) => (
+          <div className="space-y-0.5">
+            <div className="font-medium text-foreground">
+              {row.original.title}
+            </div>
+            <div className="text-xs text-muted-foreground">{row.original.slug}</div>
+          </div>
+        ),
+      },
+      {
+        accessorKey: "postsCount",
+        header: "Posts",
+        cell: ({ row }) => (
+          <span className="text-sm font-mono text-muted-foreground">
+            {row.original.postsCount}
+          </span>
+        ),
+      },
+      {
+        accessorKey: "updatedAt",
+        header: "Atualizado",
+        cell: ({ row }) => {
+          return (
+            <span className="text-sm text-muted-foreground">
+              {formatDateBR(row.original.updatedAt)}
+            </span>
+          );
+        },
+      },
+      {
+        id: "actions",
+        header: "",
+        cell: ({ row }) => {
+          const m = row.original;
+
+          return (
+            <div className="flex justify-end">
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button variant="ghost" size="icon" className="h-8 w-8">
+                    <i className="bx bx-dots-horizontal-rounded text-lg" />
+                  </Button>
+                </DropdownMenuTrigger>
+
+                <DropdownMenuContent align="end" className="w-52">
+                  <DropdownMenuLabel>Ações</DropdownMenuLabel>
+
+                  <DropdownMenuItem asChild>
+                    <Link
+                      href={`/admin/tecnologias/${technologySlug}/modulos/${m.slug}/posts`}
+                      className="gap-2 cursor-pointer"
+                    >
+                      <i className="bx bx-file text-base mr-1.5" />
+                      Acessar posts
+                    </Link>
+                  </DropdownMenuItem>
+
+                  <DropdownMenuSeparator />
+
+                  <DropdownMenuItem
+                    className="gap-2 cursor-pointer"
+                    onSelect={() => {
+                      setEditing({
+                        id: m.id,
+                        title: m.title,
+                        slug: m.slug,
+                        technologyId,
+                      });
+                      setOpenModal(true);
+                    }}
+                  >
+                    <i className="bx bx-pencil text-base mr-1.5" />
+                    Editar
+                  </DropdownMenuItem>
+
+                  <DropdownMenuItem
+                    className="gap-2 text-rose-500 focus:text-rose-500 cursor-pointer"
+                    onSelect={() => setDeleting(m)}
+                  >
+                    <i className="bx bx-trash text-base mr-1.5 text-rose-500" />
+                    Deletar
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+            </div>
+          );
+        },
+      },
+    ],
+    [technologyId, technologySlug]
+  );
+
+  // table state
+  const [sorting, setSorting] = React.useState<SortingState>([]);
+  const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>(
+    []
+  );
+  const [columnVisibility, setColumnVisibility] =
+    React.useState<VisibilityState>({});
+  const [rowSelection, setRowSelection] = React.useState({});
+
+  const table = useReactTable({
+    data,
+    columns,
+    state: { sorting, columnFilters, columnVisibility, rowSelection },
+    onSortingChange: setSorting,
+    onColumnFiltersChange: setColumnFilters,
+    onColumnVisibilityChange: setColumnVisibility,
+    onRowSelectionChange: setRowSelection,
+    getCoreRowModel: getCoreRowModel(),
+    getSortedRowModel: getSortedRowModel(),
+    getFilteredRowModel: getFilteredRowModel(),
+    getPaginationRowModel: getPaginationRowModel(),
+  });
+
+  return (
+    <>
+      <div className="space-y-4">
+        {/* Toolbar */}
+        <div className="flex flex-col md:flex-row md:items-center justify-between gap-3 mb-4">
+          <div className="flex items-center gap-2">
+            <Input
+              placeholder="Buscar por título..."
+              value={
+                (table.getColumn("title")?.getFilterValue() as string) ?? ""
+              }
+              onChange={(event) =>
+                table.getColumn("title")?.setFilterValue(event.target.value)
+              }
+              className="w-full md:w-80"
+            />
+
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="secondary" className="gap-2">
+                  <i className="bx bx-slider-alt text-base" />
+                  Colunas
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="start" className="w-44">
+                {table
+                  .getAllColumns()
+                  .filter((column) => column.getCanHide())
+                  .map((column) => (
+                    <DropdownMenuCheckboxItem
+                      key={column.id}
+                      className="capitalize"
+                      checked={column.getIsVisible()}
+                      onCheckedChange={(value) =>
+                        column.toggleVisibility(!!value)
+                      }
+                    >
+                      {column.id === "postsCount"
+                        ? "posts"
+                        : column.id === "updatedAt"
+                        ? "atualizado"
+                        : column.id === "title"
+                        ? "título"
+                        : column.id === "actions"
+                        ? "ações"
+                        : column.id}
+                    </DropdownMenuCheckboxItem>
+                  ))}
+              </DropdownMenuContent>
+            </DropdownMenu>
+          </div>
+
+          <Button
+            className="gap-2 bg-blue-600 hover:bg-blue-600/90 text-white shrink-0"
+            onClick={() => {
+              setEditing(null);
+              setOpenModal(true);
+            }}
+          >
+            <i className="bx bx-plus text-base" />
+            Novo Módulo
+          </Button>
+        </div>
+
+        {/* Table */}
+        <div className="rounded-md border border-border bg-card overflow-hidden">
+          <Table>
+            <TableHeader>
+              {table.getHeaderGroups().map((headerGroup) => (
+                <TableRow key={headerGroup.id} className="border-border">
+                  {headerGroup.headers.map((header) => (
+                    <TableHead key={header.id} className="text-muted-foreground font-semibold">
+                      {header.isPlaceholder
+                        ? null
+                        : flexRender(
+                            header.column.columnDef.header,
+                            header.getContext()
+                          )}
+                    </TableHead>
+                  ))}
+                </TableRow>
+              ))}
+            </TableHeader>
+
+            <TableBody>
+              {table.getRowModel().rows?.length ? (
+                table.getRowModel().rows.map((row) => (
+                  <TableRow key={row.id} className="border-border hover:bg-muted/30">
+                    {row.getVisibleCells().map((cell) => (
+                      <TableCell key={cell.id} className="align-middle">
+                        {flexRender(
+                          cell.column.columnDef.cell,
+                          cell.getContext()
+                        )}
+                      </TableCell>
+                    ))}
+                  </TableRow>
+                ))
+              ) : (
+                <TableRow className="border-border">
+                  <TableCell
+                    colSpan={columns.length}
+                    className="h-24 text-center text-muted-foreground"
+                  >
+                    Nenhum módulo encontrado.
+                  </TableCell>
+                </TableRow>
+              )}
+            </TableBody>
+          </Table>
+        </div>
+
+        {/* Pagination */}
+        <div className="flex items-center justify-between gap-3 mt-4">
+          <div className="text-sm text-muted-foreground">
+            {table.getFilteredRowModel().rows.length} resultado(s)
+          </div>
+
+          <div className="flex items-center gap-2">
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => table.previousPage()}
+              disabled={!table.getCanPreviousPage()}
+            >
+              <i className="bx bx-chevron-left text-base mr-1" />
+              Anterior
+            </Button>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => table.nextPage()}
+              disabled={!table.getCanNextPage()}
+            >
+              Próxima
+              <i className="bx bx-chevron-right text-base ml-1" />
+            </Button>
+          </div>
+        </div>
+      </div>
+
+      {/* Create/Edit Modal */}
+      <ModuleModal
+        open={openModal}
+        onOpenChange={setOpenModal}
+        technologyId={technologyId}
+        technologyName={technologyName}
+        initial={editing}
+        onSaved={() => router.refresh()}
+      />
+
+      {/* Delete Confirm */}
+      <AlertDialog
+        open={!!deleting}
+        onOpenChange={(v) => !v && setDeleting(null)}
+      >
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Deletar módulo?</AlertDialogTitle>
+            <AlertDialogDescription>
+              Isso vai remover o módulo{" "}
+              <span className="font-semibold text-foreground">
+                {deleting?.title}
+              </span>{" "}
+              e todos os posts vinculados.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter className="gap-2">
+            <AlertDialogCancel disabled={isDeleting}>
+              Cancelar
+            </AlertDialogCancel>
+            <AlertDialogAction
+              disabled={isDeleting || !deleting}
+              onClick={() => deleting && handleDelete(deleting)}
+              className="bg-rose-600 hover:bg-rose-600/90 text-white"
+            >
+              {isDeleting ? "Deletando..." : "Deletar"}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+    </>
+  );
+}

@@ -1,0 +1,110 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1254 1254" role="img" aria-labelledby="title desc">
+  <title id="title">DevBook — ícone</title>
+  <desc id="desc">Livro aberto com símbolo de programação, em branco e tons de azul sobre fundo azul-marinho.</desc>
+  <defs>
+    <linearGradient id="background" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#020b2c"/>
+      <stop offset=".52" stop-color="#001747"/>
+      <stop offset="1" stop-color="#000b2d"/>
+    </linearGradient>
+    <linearGradient id="bluePages" x1="0" y1="0" x2="1" y2=".25">
+      <stop offset="0" stop-color="#087bff"/>
+      <stop offset=".48" stop-color="#0064f5"/>
+      <stop offset="1" stop-color="#00a9ed"/>
+    </linearGradient>
+    <linearGradient id="blueLower" x1="0" y1="0" x2="1" y2=".7">
+      <stop offset="0" stop-color="#0736c9"/>
+      <stop offset=".5" stop-color="#0058ed"/>
+      <stop offset="1" stop-color="#0733b8"/>
+    </linearGradient>
+    <linearGradient id="paper" x1="0" y1="0" x2=".8" y2="1">
+      <stop offset="0" stop-color="#ffffff"/>
+      <stop offset=".72" stop-color="#f4f7ff"/>
+      <stop offset="1" stop-color="#dce6ff"/>
+    </linearGradient>
+    <linearGradient id="code" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#ffffff"/>
+      <stop offset="1" stop-color="#dce8ff"/>
+    </linearGradient>
+    <filter id="softShadow" x="-20%" y="-20%" width="140%" height="150%">
+      <feGaussianBlur stdDeviation="16"/>
+    </filter>
+  </defs>
+
+  <!-- Fundo do ícone -->
+  <rect x="87" y="85" width="1076" height="1073" rx="180" fill="url(#background)"/>
+
+  <!-- Sombra suave do livro -->
+  <path d="M180 792 Q385 735 626 860 Q866 735 1074 792 L1060 887 Q845 822 626 930 Q406 822 192 887Z"
+        fill="#00051d" opacity=".55" filter="url(#softShadow)"/>
+
+  <!-- Páginas inferiores -->
+  <path d="M220 760 Q411 723 626 843 Q841 723 1034 760 L1064 861
+           Q850 814 626 910 Q402 814 190 861Z"
+        fill="url(#blueLower)"/>
+
+  <!-- Miolo azul / borda externa das páginas -->
+  <path d="M194 612 L228 608 Q420 600 626 736 Q832 600 1026 608
+           L1060 612 L1100 789 Q1105 807 1086 805
+           Q846 767 626 910 Q406 767 166 805
+           Q147 807 152 789Z"
+        fill="url(#bluePages)"/>
+
+  <!-- Página branca esquerda -->
+  <path d="M258 551
+           Q466 558 626 736
+           L626 858
+           Q459 702 228 699Z"
+        fill="url(#paper)"/>
+
+  <!-- Página branca direita -->
+  <path d="M996 551
+           Q788 558 626 736
+           L626 858
+           Q793 702 1026 699Z"
+        fill="url(#paper)"/>
+
+  <!-- Vinco central e sombra sob as páginas -->
+  <path d="M228 699 Q455 694 626 858 Q797 694 1026 699
+           L1048 730 Q820 711 626 876 Q432 711 206 730Z"
+        fill="#00133e" opacity=".9"/>
+  <path d="M626 736 L626 858" stroke="#d9e4ff" stroke-width="3" opacity=".65"/>
+
+  <!-- Símbolo de programação -->
+  <g fill="url(#code)">
+    <path d="M499 333
+      Q511 327 516 340
+      L516 367
+      Q516 379 506 387
+      L435 446
+      L505 500
+      Q516 509 516 522
+      L516 548
+      Q516 563 502 560
+      Q496 559 490 554
+      L369 466
+      Q358 458 360 446
+      Q360 438 369 431Z"/>
+    <path d="M651 302
+      Q655 292 669 293
+      L693 293
+      Q712 294 708 310
+      L613 581
+      Q609 593 595 593
+      L570 593
+      Q550 593 555 576Z"/>
+    <path d="M755 333
+      Q743 327 738 340
+      L738 367
+      Q738 379 748 387
+      L819 446
+      L749 500
+      Q738 509 738 522
+      L738 548
+      Q738 563 752 560
+      Q758 559 764 554
+      L885 466
+      Q896 458 894 446
+      Q894 438 885 431Z"/>
+  </g>
+</svg>

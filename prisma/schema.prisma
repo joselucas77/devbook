@@ -8,71 +8,127 @@ datasource db {
   provider = "postgresql"
 }
 
-model Tenant {
-  id        String    @id @default(cuid())
-  name      String
-  slug      String?   @unique
-  active    Boolean   @default(true)
-  createdAt DateTime  @default(now())
-  updatedAt DateTime  @updatedAt
-  deletedAt DateTime?
-
-  users        User[]
-  accessGroups AccessGroup[]
-  auditLogs    AuditLog[]
+enum PostStatus {
+  DRAFT
+  PUBLISHED
+  ARCHIVED
 }
 
-model AccessGroup {
-  id          String    @id @default(cuid())
-  name        String
-  description String?
-  permissions Json      @default("{}")
-  tenantId    String
-  createdAt   DateTime  @default(now())
-  updatedAt   DateTime  @updatedAt
-  deletedAt   DateTime?
-
-  tenant Tenant @relation(fields: [tenantId], references: [id], onDelete: Cascade)
-  users  User[]
-
-  @@index([tenantId])
+enum UserRole {
+  ADMIN
+  EDITOR
+  VIEWER
 }
 
 model User {
-  id            String    @id @default(cuid())
+  id            String    @id
   name          String
   email         String    @unique
-  password      String
-  active        Boolean   @default(true)
-  tenantId      String
-  accessGroupId String?
+  password      String?
+  emailVerified Boolean   @default(false)
+  image         String?
+  role          UserRole  @default(ADMIN)
   createdAt     DateTime  @default(now())
   updatedAt     DateTime  @updatedAt
-  deletedAt     DateTime?
+  sessions      Session[]
+  accounts      Account[]
+  posts         Post[]    @relation("UserPosts")
 
-  tenant      Tenant       @relation(fields: [tenantId], references: [id], onDelete: Cascade)
-  accessGroup AccessGroup? @relation(fields: [accessGroupId], references: [id], onDelete: SetNull)
-  auditLogs   AuditLog[]
-
-  @@index([tenantId])
-  @@index([accessGroupId])
+  @@map("user")
 }
 
-model AuditLog {
-  id        String   @id @default(cuid())
-  action    String
-  entity    String
-  entityId  String?
-  details   Json?
-  userId    String?
-  tenantId  String?
+model Technology {
+  id          Int      @id @default(autoincrement())
+  name        String
+  slug        String   @unique
+  description String
+  image       String?
+  category    String
+  modules     Module[]
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model Module {
+  id           Int        @id @default(autoincrement())
+  title        String
+  slug         String
+  technologyId Int
+  technology   Technology @relation(fields: [technologyId], references: [id], onDelete: Cascade)
+  posts        Post[]
+  createdAt    DateTime   @default(now())
+  updatedAt    DateTime   @updatedAt
+
+  @@unique([technologyId, slug])
+  @@index([technologyId])
+}
+
+model Post {
+  id          Int        @id @default(autoincrement())
+  title       String
+  slug        String
+  concept     String
+  summary     String
+  image       String?
+  content     Json
+  isPublic    Boolean    @default(true)
+  status      PostStatus @default(DRAFT)
+  authorId    String?
+  author      User?      @relation("UserPosts", fields: [authorId], references: [id])
+  publishedAt DateTime?
+  moduleId    Int
+  module      Module     @relation(fields: [moduleId], references: [id], onDelete: Cascade)
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt
+
+  @@unique([moduleId, slug])
+  @@index([moduleId])
+  @@index([authorId])
+}
+
+model Session {
+  id        String   @id
+  expiresAt DateTime
+  token     String   @unique
   createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  ipAddress String?
+  userAgent String?
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 
-  user   User?   @relation(fields: [userId], references: [id], onDelete: SetNull)
-  tenant Tenant? @relation(fields: [tenantId], references: [id], onDelete: Cascade)
-
-  @@index([tenantId])
   @@index([userId])
-  @@index([entity, entityId])
-  @@index([createdAt])
+  @@map("session")
+}
+
+model Account {
+  id                    String    @id
+  accountId             String
+  providerId            String
+  userId                String
+  user                  User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  accessToken           String?
+  refreshToken          String?
+  idToken               String?
+  accessTokenExpiresAt  DateTime?
+  refreshTokenExpiresAt DateTime?
+  scope                 String?
+  password              String?
+  createdAt             DateTime  @default(now())
+  updatedAt             DateTime  @updatedAt
+
+  @@index([userId])
+  @@map("account")
+}
+
+model Verification {
+  id         String   @id
+  identifier String
+  value      String
+  expiresAt  DateTime
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  @@index([identifier])
+  @@map("verification")
 }

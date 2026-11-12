@@ -1,33 +1,30 @@
 import { SignJWT, jwtVerify } from "jose";
+import { AuthJwtPayload } from "@/types/auth";
 
-const JWT_SECRET = new TextEncoder().encode(
-  process.env.JWT_SECRET || "default-secret-key-change-in-production-min-32-chars"
-);
+const COOKIE_NAME = process.env.AUTH_COOKIE_NAME ?? "devbook_token";
+const getSecret = () =>
+  new TextEncoder().encode(
+    process.env.AUTH_JWT_SECRET ?? "devbook-fallback-secret-min-32-chars-long"
+  );
 
-export interface JwtPayload {
-  sub: string;
-  tenantId: string;
-  email?: string;
-  scope?: "user" | "platform";
-  [key: string]: unknown;
+export function getAuthCookieName(): string {
+  return COOKIE_NAME;
 }
 
-export async function signJwtToken(
-  payload: JwtPayload,
-  expiresIn = "8h"
-): Promise<string> {
-  return new SignJWT({ ...payload })
+export async function signAuthToken(payload: AuthJwtPayload): Promise<string> {
+  return await new SignJWT(payload)
     .setProtectedHeader({ alg: "HS256" })
     .setIssuedAt()
-    .setExpirationTime(expiresIn)
-    .sign(JWT_SECRET);
+    .setExpirationTime("7d")
+    .sign(getSecret());
 }
 
-export async function verifyJwtToken(token: string): Promise<JwtPayload | null> {
+export async function verifyAuthToken(
+  token: string
+): Promise<AuthJwtPayload | null> {
   try {
-    const { payload } = await jwtVerify(token, JWT_SECRET);
-    if (!payload.sub) return null;
-    return payload as unknown as JwtPayload;
+    const { payload } = await jwtVerify(token, getSecret());
+    return payload as unknown as AuthJwtPayload;
   } catch {
     return null;
   }

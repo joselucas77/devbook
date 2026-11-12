@@ -1,39 +1,53 @@
+import { betterAuth } from "better-auth";
+import { prisma } from "./prisma";
+import { prismaAdapter } from "better-auth/adapters/prisma";
+import { nextCookies } from "better-auth/next-js";
 import { cookies } from "next/headers";
-import { verifyJwtToken } from "@/lib/jwt-auth";
-import prisma from "@/lib/prisma";
+import { getAuthCookieName, verifyAuthToken } from "./jwt-auth";
+
+export const auth = betterAuth({
+  database: prismaAdapter(prisma, {
+    provider: "postgresql",
+  }),
+  secret:
+    process.env.BETTER_AUTH_SECRET ||
+    process.env.AUTH_SECRET ||
+    "devbook-auth-secret-min-32-chars-long-fallback",
+  baseURL:
+    process.env.BETTER_AUTH_URL ||
+    process.env.NEXT_PUBLIC_APP_URL ||
+    "http://localhost:3000",
+  socialProviders: {
+    google: {
+      clientId: process.env.GOOGLE_CLIENT_ID || "dummy-client-id",
+      clientSecret: process.env.GOOGLE_CLIENT_SECRET || "dummy-client-secret",
+    },
+  },
+  plugins: [nextCookies()],
+});
 
 export async function getCurrentUser() {
-  const cookieStore = await cookies();
-  const token = cookieStore.get("token")?.value;
-
-  if (!token) return null;
-
-  const payload = await verifyJwtToken(token);
-  if (!payload?.sub) return null;
-
   try {
+    const cookieStore = await cookies();
+    const token = cookieStore.get(getAuthCookieName())?.value;
+    if (!token) return null;
+
+    const payload = await verifyAuthToken(token);
+    if (!payload?.sub) return null;
+
     const user = await prisma.user.findUnique({
       where: { id: payload.sub },
-      include: {
-        tenant: true,
-        accessGroup: true,
-      },
     });
 
-    if (
-      !user ||
-      !user.active ||
-      user.deletedAt !== null ||
-      !user.tenant ||
-      !user.tenant.active ||
-      user.tenant.deletedAt !== null
-    ) {
-      return null;
-    }
-
     return user;
-  } catch (error) {
-    console.error("Erro ao validar sessão do usuário no banco:", error);
+  } catch (error: any) {
+    if (
+      error?.digest === "DYNAMIC_SERVER_USAGE" ||
+      error?.message?.includes("Dynamic server usage")
+    ) {
+      throw error;
+    }
+    console.error("Erro ao validar sessão do usuário:", error);
     return null;
   }
 }
