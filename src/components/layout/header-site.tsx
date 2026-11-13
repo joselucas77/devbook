@@ -84,18 +84,13 @@ export function HeaderSite() {
             )}
           </div>
 
-          {/* Centro: Campo de Pesquisa Global (Desktop) */}
-          <div className="hidden md:flex flex-1 justify-center max-w-xs sm:max-w-sm md:max-w-md">
-            <GlobalSearch variant="header" />
-          </div>
-
-          {/* Direita: Acesso ao Painel (apenas Admin/Editor) e ThemeToggle */}
+          {/* Direita: Acesso ao Painel (apenas Admin/Editor), Campo de Pesquisa (Desktop) e ThemeToggle */}
           <div className="flex items-center gap-2 sm:gap-3 shrink-0">
             {isAdminOrEditor && (
               <Button
                 variant="outline"
                 size="icon"
-                className="h-9 w-9 text-muted-foreground hover:text-foreground border-border/80"
+                className="h-9 w-9 text-muted-foreground hover:text-foreground border-border/80 shrink-0"
                 asChild
                 title="Acessar Painel de Administração"
               >
@@ -104,6 +99,11 @@ export function HeaderSite() {
                 </Link>
               </Button>
             )}
+
+            {/* Campo de Pesquisa Global (Desktop posicionado à direita) */}
+            <div className="hidden md:block w-48 sm:w-60 lg:w-72">
+              <GlobalSearch variant="header" />
+            </div>
 
             <ThemeToggle />
           </div>

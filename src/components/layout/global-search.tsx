@@ -64,18 +64,17 @@ export function GlobalSearch({
   // Debounced search
   useEffect(() => {
     if (query.trim().length < 2) {
-      setResults(null);
-      setIsLoading(false);
       return;
     }
 
-    setIsLoading(true);
+    let isCurrent = true;
     const timer = setTimeout(async () => {
+      setIsLoading(true);
       try {
         const res = await fetch(
           `/api/search?q=${encodeURIComponent(query.trim())}`
         );
-        if (res.ok) {
+        if (res.ok && isCurrent) {
           const data = await res.json();
           setResults(data);
           setIsOpen(true);
@@ -83,11 +82,16 @@ export function GlobalSearch({
       } catch (err) {
         console.error("Erro ao buscar:", err);
       } finally {
-        setIsLoading(false);
+        if (isCurrent) {
+          setIsLoading(false);
+        }
       }
     }, 250);
 
-    return () => clearTimeout(timer);
+    return () => {
+      isCurrent = false;
+      clearTimeout(timer);
+    };
   }, [query]);
 
   // Click outside listener
@@ -142,8 +146,12 @@ export function GlobalSearch({
             type="text"
             value={query}
             onChange={(e) => {
-              setQuery(e.target.value);
-              if (!isOpen && e.target.value.trim().length >= 2) {
+              const val = e.target.value;
+              setQuery(val);
+              if (val.trim().length < 2) {
+                setResults(null);
+                setIsOpen(false);
+              } else if (!isOpen) {
                 setIsOpen(true);
               }
             }}
@@ -176,15 +184,23 @@ export function GlobalSearch({
             type="text"
             value={query}
             onChange={(e) => {
-              setQuery(e.target.value);
-              if (!isOpen && e.target.value.trim().length >= 2) {
+              const val = e.target.value;
+              setQuery(val);
+              if (val.trim().length < 2) {
+                setResults(null);
+                setIsOpen(false);
+              } else if (!isOpen) {
                 setIsOpen(true);
               }
             }}
             onFocus={() => {
               if (query.trim().length >= 2) setIsOpen(true);
             }}
-            placeholder="Pesquisar tecnologia, módulo ou post..."
+            placeholder={
+              isBottomBar
+                ? "Pesquisar tecnologia, módulo ou post..."
+                : "Pesquisar..."
+            }
             className="w-full bg-transparent border-none text-xs sm:text-sm text-foreground placeholder:text-muted-foreground/70 font-mono outline-none focus:outline-none focus:ring-0 p-0"
           />
 
@@ -209,10 +225,10 @@ export function GlobalSearch({
       {isOpen && query.trim().length >= 2 && (
         <div
           className={cn(
-            "absolute left-0 right-0 rounded-2xl border border-border bg-popover/95 text-popover-foreground shadow-2xl backdrop-blur-md overflow-hidden z-50 overflow-y-auto no-scrollbar duration-150 animate-in fade-in-0",
+            "absolute rounded-2xl border border-border bg-popover/95 text-popover-foreground shadow-2xl backdrop-blur-md overflow-hidden z-50 overflow-y-auto no-scrollbar duration-150 animate-in fade-in-0",
             isBottomBar
-              ? "bottom-full mb-3 max-h-[55vh] zoom-in-95 slide-in-from-bottom-2"
-              : "top-full mt-2 max-h-[70vh] zoom-in-95 slide-in-from-top-2"
+              ? "left-0 right-0 bottom-full mb-3 max-h-[55vh] zoom-in-95 slide-in-from-bottom-2"
+              : "right-0 w-80 sm:w-96 max-w-[calc(100vw-2rem)] top-full mt-2 max-h-[70vh] zoom-in-95 slide-in-from-top-2"
           )}
         >
           {isLoading ? (

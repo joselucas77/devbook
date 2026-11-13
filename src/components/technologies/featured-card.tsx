@@ -2,8 +2,7 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { Card, CardContent, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
+import { Card } from "@/components/ui/card";
 
 interface FeaturedCardProps {
   title: string;
@@ -23,40 +22,31 @@ export function FeaturedCard({
   void _category;
 
   return (
-    <Card className="overflow-hidden transition-all border border-border/60 hover:border-blue-500/50 hover:shadow-md bg-card">
-      <Link
-        href={`/tecnologias/${slug}/modulos`}
-        className="relative block h-56 w-full p-0 bg-muted/20 overflow-hidden group"
-      >
-        <Image
-          src={image || "/placeholder.svg"}
-          alt={title}
-          fill
-          priority={priority}
-          sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-          className="object-cover transition-transform duration-300 group-hover:scale-105"
-        />
-      </Link>
-      <CardContent className="flex items-center justify-between gap-3 px-3.5 py-2.5 sm:px-4 sm:py-3">
-        <CardTitle
-          className="text-base sm:text-lg font-bold truncate tracking-tight text-foreground min-w-0"
-          title={title}
-        >
-          <Link
-            href={`/tecnologias/${slug}/modulos`}
-            className="hover:text-blue-500 transition-colors"
-          >
+    <Link
+      href={`/tecnologias/${slug}/modulos`}
+      className="group block rounded-xl overflow-hidden focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+      title={`Acessar tecnologia ${title}`}
+    >
+      <Card className="gap-0 overflow-hidden transition-all duration-200 border border-border/60 group-hover:border-blue-500/50 group-hover:shadow-lg bg-card">
+        {/* Imagem (mesmo tamanho original mantido) */}
+        <div className="relative h-56 w-full p-0 bg-muted/20 overflow-hidden">
+          <Image
+            src={image || "/placeholder.svg"}
+            alt={title}
+            fill
+            priority={priority}
+            sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+            className="object-cover transition-transform duration-300 group-hover:scale-105"
+          />
+        </div>
+
+        {/* Título centralizado no final do card com padding compacto */}
+        <div className="py-2.5 px-3 flex items-center justify-center text-center">
+          <h3 className="text-base sm:text-lg font-bold tracking-tight text-foreground group-hover:text-blue-500 transition-colors truncate w-full">
             {title}
-          </Link>
-        </CardTitle>
-        <Button
-          size="sm"
-          className="h-8 px-3 text-xs font-medium shrink-0 bg-blue-600 text-white hover:bg-blue-600/90 transition-colors"
-          asChild
-        >
-          <Link href={`/tecnologias/${slug}/modulos`}>Acessar</Link>
-        </Button>
-      </CardContent>
-    </Card>
+          </h3>
+        </div>
+      </Card>
+    </Link>
   );
 }
