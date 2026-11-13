@@ -28,13 +28,14 @@ export default async function TecnologiasPage() {
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
-        {tech.map((item) => (
+        {tech.map((item, index) => (
           <FeaturedCard
             key={item.slug}
             title={item.name}
             image={item.image ?? "/placeholder.svg"}
             category={item.category}
             slug={item.slug}
+            priority={index < 4}
           />
         ))}
       </div>

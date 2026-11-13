@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { uploadToNeonStorage } from "@/lib/neon-storage";
+import { optimizeImage } from "@/lib/image-optimizer";
 
 export async function POST(request: Request) {
   try {
@@ -13,18 +14,39 @@ export async function POST(request: Request) {
       );
     }
 
-    const buffer = Buffer.from(await file.arrayBuffer());
-    const publicUrl = await uploadToNeonStorage(
-      file.name,
-      buffer,
-      file.type || "application/octet-stream"
+    const rawBuffer = Buffer.from(await file.arrayBuffer());
+
+    // Otimização inteligente: converte para WebP (se raster), redimensiona para no máx 1200px e comprime
+    const optimized = await optimizeImage(
+      rawBuffer,
+      file.type || "",
+      file.name
     );
 
-    return NextResponse.json({ url: publicUrl });
-  } catch (error: any) {
+    const baseName = file.name.replace(/\.[^/.]+$/, "");
+    const targetFileName = `${baseName}.${optimized.extension}`;
+
+    const publicUrl = await uploadToNeonStorage(
+      targetFileName,
+      optimized.buffer,
+      optimized.contentType
+    );
+
+    return NextResponse.json({
+      url: publicUrl,
+      originalSize: optimized.originalSize,
+      optimizedSize: optimized.optimizedSize,
+      savingsPercent: optimized.savingsPercent,
+    });
+  } catch (error: unknown) {
     console.error("Erro no upload para Neon Storage:", error);
     return NextResponse.json(
-      { message: error?.message || "Falha ao processar o upload." },
+      {
+        message:
+          error instanceof Error
+            ? error.message
+            : "Falha ao processar o upload.",
+      },
       { status: 500 }
     );
   }

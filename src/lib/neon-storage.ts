@@ -31,12 +31,14 @@ export async function uploadToNeonStorage(
 ): Promise<string> {
   const s3 = getS3Client();
 
-  const ext = fileName.split(".").pop() || "png";
-  const cleanName = fileName
-    .replace(/\.[^/.]+$/, "")
+  const ext = fileName.split(".").pop()?.toLowerCase() || "webp";
+  const baseName = fileName.replace(/\.[^/.]+$/, "");
+  const cleanName = baseName
     .toLowerCase()
-    .replace(/[^a-z0-9_-]/g, "-");
-  const uniqueKey = `uploads/${Date.now()}-${cleanName}.${ext}`;
+    .replace(/[^a-z0-9_-]/g, "-")
+    .replace(/-+/g, "-")
+    .replace(/^-|-$/g, "");
+  const uniqueKey = `uploads/${Date.now()}-${cleanName || "image"}.${ext}`;
 
   await s3.send(
     new PutObjectCommand({
@@ -44,6 +46,7 @@ export async function uploadToNeonStorage(
       Key: uniqueKey,
       Body: buffer,
       ContentType: contentType,
+      CacheControl: "public, max-age=31536000, immutable",
     })
   );
 
