@@ -31,8 +31,8 @@ export function AppSidebar({
       {...props}
     >
       <div className="flex h-16 items-center px-6 border-b border-border font-bold text-lg tracking-tight">
-        <Link href="/admin" className="flex items-center gap-1.5">
-          Dev<span className="text-blue-500">Book</span>
+        <Link href="/admin" className="flex items-center gap-1.5 font-bold text-lg tracking-tight">
+          DevBook
           <span className="text-xs bg-blue-500/10 text-blue-400 px-1.5 py-0.5 rounded ml-1 font-mono uppercase">
             Admin
           </span>

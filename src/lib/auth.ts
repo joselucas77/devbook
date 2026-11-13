@@ -15,6 +15,7 @@ export const auth = betterAuth({
     "devbook-auth-secret-min-32-chars-long-fallback",
   baseURL:
     process.env.BETTER_AUTH_URL ||
+    process.env.NEXT_PUBLIC_BASE_URL ||
     process.env.NEXT_PUBLIC_APP_URL ||
     "http://localhost:3000",
   socialProviders: {
