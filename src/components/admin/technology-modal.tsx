@@ -151,8 +151,10 @@ export function TechnologyModal({
       const data = await res.json();
       setValue("image", data.url, { shouldValidate: true, shouldDirty: true });
       toast.success("Imagem enviada com sucesso para o Neon Storage!");
-    } catch (err: any) {
-      toast.error("Erro no upload", { description: err?.message });
+    } catch (err: unknown) {
+      toast.error("Erro no upload", {
+        description: err instanceof Error ? err.message : "Erro inesperado",
+      });
     } finally {
       setIsUploading(false);
     }
@@ -179,14 +181,16 @@ export function TechnologyModal({
       toast.success(isEdit ? "Tecnologia atualizada" : "Tecnologia criada");
       onOpenChange(false);
       onSaved?.();
-    } catch (e: any) {
-      toast.error("Erro ao salvar tecnologia", { description: e?.message });
+    } catch (e: unknown) {
+      toast.error("Erro ao salvar tecnologia", {
+        description: e instanceof Error ? e.message : "Erro inesperado",
+      });
     }
   }
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-xl z-200">
+      <DialogContent className="sm:max-w-xl z-200 w-full max-h-[90vh] overflow-y-auto overflow-x-hidden">
         <DialogHeader>
           <DialogTitle className="text-xl font-bold">
             {isEdit ? "Editar Tecnologia" : "Nova Tecnologia"}
@@ -196,8 +200,8 @@ export function TechnologyModal({
           </DialogDescription>
         </DialogHeader>
 
-        <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-          <div className="space-y-2">
+        <form onSubmit={handleSubmit(onSubmit)} className="space-y-4 w-full min-w-0 max-w-full">
+          <div className="space-y-2 min-w-0">
             <Label>Nome</Label>
             <Input placeholder="Ex: PHP" {...register("name")} />
             {errors.name?.message && (
@@ -205,10 +209,14 @@ export function TechnologyModal({
             )}
           </div>
 
-          <div className="space-y-2">
+          <div className="space-y-2 min-w-0">
             <Label>Slug</Label>
-            <div className="flex gap-2">
-              <Input placeholder="ex: php" {...register("slug")} />
+            <div className="flex gap-2 min-w-0 w-full">
+              <Input
+                placeholder="ex: php"
+                className="min-w-0 flex-1"
+                {...register("slug")}
+              />
               <Button
                 type="button"
                 variant="secondary"
@@ -228,7 +236,7 @@ export function TechnologyModal({
             )}
           </div>
 
-          <div className="space-y-2">
+          <div className="space-y-2 min-w-0">
             <div className="flex items-center gap-1.5">
               <Label>Categoria</Label>
               <HoverCard>
@@ -268,10 +276,10 @@ export function TechnologyModal({
             )}
           </div>
 
-          <div className="space-y-2">
+          <div className="space-y-2 min-w-0">
             <Label>Descrição</Label>
             <Textarea
-              className="min-h-24 resize-none"
+              className="min-h-24 resize-none w-full"
               placeholder="Descrição breve..."
               {...register("description")}
             />
@@ -283,8 +291,8 @@ export function TechnologyModal({
           </div>
 
           {/* Imagem com opção de Upload e URL Externa */}
-          <div className="space-y-2">
-            <div className="flex items-center justify-between">
+          <div className="space-y-2 min-w-0">
+            <div className="flex items-center justify-between gap-2 flex-wrap">
               <Label>Imagem / Ícone</Label>
               <div className="flex items-center gap-1">
                 <Button
@@ -309,23 +317,24 @@ export function TechnologyModal({
             </div>
 
             {imageMode === "file" ? (
-              <div className="space-y-1">
+              <div className="space-y-1 min-w-0">
                 <Input
                   type="file"
                   accept="image/*"
                   disabled={isUploading}
                   onChange={handleFileUpload}
-                  className="cursor-pointer file:cursor-pointer"
+                  className="cursor-pointer file:cursor-pointer w-full"
                 />
                 <p className="text-[11px] text-muted-foreground">
                   Selecione um arquivo de imagem do computador. O upload para o Neon Storage é automático.
                 </p>
               </div>
             ) : (
-              <div className="space-y-1">
+              <div className="space-y-1 min-w-0">
                 <Input
                   placeholder="https://exemplo.com/logo.png"
                   {...register("image")}
+                  className="w-full"
                 />
                 <p className="text-[11px] text-muted-foreground">
                   Cole uma URL pública de imagem.
@@ -341,7 +350,7 @@ export function TechnologyModal({
             )}
 
             {currentImage && (
-              <div className="flex items-center gap-3 p-2.5 rounded-lg border border-border bg-muted/30">
+              <div className="flex items-center gap-3 p-2.5 rounded-lg border border-border bg-muted/30 w-full min-w-0 max-w-full overflow-hidden">
                 <img
                   src={currentImage}
                   alt="Prévia"
@@ -350,10 +359,16 @@ export function TechnologyModal({
                     (e.target as HTMLElement).style.display = "none";
                   }}
                 />
-                <div className="flex-1 min-w-0">
-                  <p className="text-xs font-medium truncate">{currentImage}</p>
-                  <p className="text-[10px] text-emerald-500 flex items-center gap-1">
-                    <i className="bx bx-check-circle text-xs" /> Imagem vinculada
+                <div className="flex-1 min-w-0 overflow-hidden">
+                  <p
+                    className="text-xs font-medium truncate block max-w-full"
+                    title={currentImage}
+                  >
+                    {currentImage}
+                  </p>
+                  <p className="text-[10px] text-emerald-500 flex items-center gap-1 shrink-0">
+                    <i className="bx bx-check-circle text-xs shrink-0" />
+                    <span>Imagem vinculada</span>
                   </p>
                 </div>
                 <Button

@@ -94,14 +94,16 @@ export function ModuleModal({
       toast.success(isEdit ? "Módulo atualizado" : "Módulo criado");
       onOpenChange(false);
       onSaved?.();
-    } catch (e: any) {
-      toast.error("Erro ao salvar módulo", { description: e?.message });
+    } catch (e: unknown) {
+      toast.error("Erro ao salvar módulo", {
+        description: e instanceof Error ? e.message : "Erro inesperado",
+      });
     }
   }
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-md z-200">
+      <DialogContent className="sm:max-w-md z-200 w-full max-h-[90vh] overflow-y-auto overflow-x-hidden">
         <DialogHeader>
           <DialogTitle className="text-xl font-bold">
             {isEdit ? "Editar Módulo" : "Novo Módulo"}
@@ -111,8 +113,8 @@ export function ModuleModal({
           </DialogDescription>
         </DialogHeader>
 
-        <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-          <div className="space-y-2">
+        <form onSubmit={handleSubmit(onSubmit)} className="space-y-4 w-full min-w-0 max-w-full">
+          <div className="space-y-2 min-w-0">
             <Label>Título</Label>
             <Input placeholder="Ex: Começando com PHP" {...register("title")} />
             {errors.title?.message && (
@@ -120,10 +122,14 @@ export function ModuleModal({
             )}
           </div>
 
-          <div className="space-y-2">
+          <div className="space-y-2 min-w-0">
             <Label>Slug</Label>
-            <div className="flex gap-2">
-              <Input placeholder="ex: comecando-com-php" {...register("slug")} />
+            <div className="flex gap-2 min-w-0 w-full">
+              <Input
+                placeholder="ex: comecando-com-php"
+                className="min-w-0 flex-1"
+                {...register("slug")}
+              />
               <Button
                 type="button"
                 variant="secondary"

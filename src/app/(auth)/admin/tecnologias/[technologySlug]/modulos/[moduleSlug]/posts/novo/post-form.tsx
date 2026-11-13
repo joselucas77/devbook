@@ -394,7 +394,7 @@ export function PostForm({
             )}
 
             {currentImage && (
-              <div className="flex items-center gap-3 p-2.5 rounded-lg border border-border bg-muted/30">
+              <div className="flex items-center gap-3 p-2.5 rounded-lg border border-border bg-muted/30 w-full min-w-0 max-w-full overflow-hidden">
                 <img
                   src={currentImage}
                   alt="Prévia"
@@ -403,10 +403,16 @@ export function PostForm({
                     (e.target as HTMLElement).style.display = "none";
                   }}
                 />
-                <div className="flex-1 min-w-0">
-                  <p className="text-xs font-medium truncate">{currentImage}</p>
-                  <p className="text-[10px] text-emerald-500 flex items-center gap-1">
-                    <i className="bx bx-check-circle text-xs" /> Imagem vinculada
+                <div className="flex-1 min-w-0 overflow-hidden">
+                  <p
+                    className="text-xs font-medium truncate block max-w-full"
+                    title={currentImage}
+                  >
+                    {currentImage}
+                  </p>
+                  <p className="text-[10px] text-emerald-500 flex items-center gap-1 shrink-0">
+                    <i className="bx bx-check-circle text-xs shrink-0" />
+                    <span>Imagem vinculada</span>
                   </p>
                 </div>
                 <Button
