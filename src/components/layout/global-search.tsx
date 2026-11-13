@@ -1,9 +1,8 @@
 "use client";
 
 import { useState, useEffect, useRef } from "react";
-import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { Input } from "@/components/ui/input";
+import { cn } from "@/lib/utils";
 import { Badge } from "@/components/ui/badge";
 
 interface SearchResultTech {
@@ -45,13 +44,22 @@ interface SearchResponse {
   posts: SearchResultPost[];
 }
 
-export function GlobalSearch() {
-  const router = useRouter();
+interface GlobalSearchProps {
+  variant?: "header" | "bottom-bar";
+  className?: string;
+}
+
+export function GlobalSearch({
+  variant = "header",
+  className,
+}: GlobalSearchProps) {
   const [query, setQuery] = useState("");
   const [results, setResults] = useState<SearchResponse | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [isOpen, setIsOpen] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
+
+  const isBottomBar = variant === "bottom-bar";
 
   // Debounced search
   useEffect(() => {
@@ -118,44 +126,95 @@ export function GlobalSearch() {
   }
 
   return (
-    <div ref={containerRef} className="relative w-full max-w-xs sm:max-w-sm md:max-w-md">
-      <div className="relative flex items-center">
-        <i className="bx bx-search absolute left-3 text-muted-foreground text-base pointer-events-none" />
-        <Input
-          type="text"
-          value={query}
-          onChange={(e) => {
-            setQuery(e.target.value);
-            if (!isOpen && e.target.value.trim().length >= 2) {
-              setIsOpen(true);
-            }
-          }}
-          onFocus={() => {
-            if (query.trim().length >= 2) setIsOpen(true);
-          }}
-          placeholder="Pesquisar tecnologia, módulo ou post..."
-          className="h-9 pl-9 pr-8 text-xs sm:text-sm bg-muted/40 border-border/60 hover:border-border focus:border-blue-500/70 focus:bg-background transition-colors placeholder:text-muted-foreground/70 font-mono"
-        />
-
-        {query && (
-          <button
-            type="button"
-            onClick={() => {
-              setQuery("");
-              setResults(null);
-              setIsOpen(false);
+    <div
+      ref={containerRef}
+      className={cn(
+        "relative w-full",
+        isBottomBar ? "max-w-md" : "max-w-xs sm:max-w-sm md:max-w-md",
+        className
+      )}
+    >
+      {/* Container do Input */}
+      {isBottomBar ? (
+        <div className="relative flex items-center rounded-full bg-card/95 dark:bg-zinc-900/95 backdrop-blur-xl border border-border/80 shadow-2xl shadow-black/40 px-3.5 h-11 sm:h-12 transition-all focus-within:border-blue-500/80 focus-within:ring-2 focus-within:ring-blue-500/20 overflow-hidden">
+          <i className="bx bx-search text-muted-foreground text-lg shrink-0 mr-2.5 pointer-events-none" />
+          <input
+            type="text"
+            value={query}
+            onChange={(e) => {
+              setQuery(e.target.value);
+              if (!isOpen && e.target.value.trim().length >= 2) {
+                setIsOpen(true);
+              }
             }}
-            className="absolute right-2.5 text-muted-foreground hover:text-foreground text-base"
-            title="Limpar pesquisa"
-          >
-            <i className="bx bx-x" />
-          </button>
-        )}
-      </div>
+            onFocus={() => {
+              if (query.trim().length >= 2) setIsOpen(true);
+            }}
+            placeholder="Pesquisar tecnologia, módulo ou post..."
+            className="w-full bg-transparent border-none text-xs sm:text-sm text-foreground placeholder:text-muted-foreground/70 font-mono outline-none focus:outline-none focus:ring-0 p-0"
+          />
 
-      {/* Dropdown de Resultados */}
+          {query && (
+            <button
+              type="button"
+              onClick={() => {
+                setQuery("");
+                setResults(null);
+                setIsOpen(false);
+              }}
+              className="text-muted-foreground hover:text-foreground text-lg ml-2 shrink-0 flex items-center justify-center h-6 w-6 rounded-full hover:bg-muted/60 transition-colors"
+              title="Limpar pesquisa"
+            >
+              <i className="bx bx-x" />
+            </button>
+          )}
+        </div>
+      ) : (
+        <div className="relative flex items-center rounded-lg bg-muted/40 border border-border/60 hover:border-border focus-within:border-blue-500/70 focus-within:bg-background transition-colors px-3 h-9 overflow-hidden">
+          <i className="bx bx-search text-muted-foreground text-base shrink-0 mr-2 pointer-events-none" />
+          <input
+            type="text"
+            value={query}
+            onChange={(e) => {
+              setQuery(e.target.value);
+              if (!isOpen && e.target.value.trim().length >= 2) {
+                setIsOpen(true);
+              }
+            }}
+            onFocus={() => {
+              if (query.trim().length >= 2) setIsOpen(true);
+            }}
+            placeholder="Pesquisar tecnologia, módulo ou post..."
+            className="w-full bg-transparent border-none text-xs sm:text-sm text-foreground placeholder:text-muted-foreground/70 font-mono outline-none focus:outline-none focus:ring-0 p-0"
+          />
+
+          {query && (
+            <button
+              type="button"
+              onClick={() => {
+                setQuery("");
+                setResults(null);
+                setIsOpen(false);
+              }}
+              className="text-muted-foreground hover:text-foreground text-base ml-1 shrink-0 flex items-center justify-center h-5 w-5 rounded-full hover:bg-muted/80"
+              title="Limpar pesquisa"
+            >
+              <i className="bx bx-x" />
+            </button>
+          )}
+        </div>
+      )}
+
+      {/* Dropdown de Resultados: Para cima na barra inferior, para baixo no header */}
       {isOpen && query.trim().length >= 2 && (
-        <div className="absolute left-0 right-0 top-full mt-2 rounded-xl border border-border bg-popover/95 text-popover-foreground shadow-2xl backdrop-blur-md overflow-hidden z-50 max-h-[70vh] overflow-y-auto no-scrollbar animate-in fade-in-0 zoom-in-95 duration-150">
+        <div
+          className={cn(
+            "absolute left-0 right-0 rounded-2xl border border-border bg-popover/95 text-popover-foreground shadow-2xl backdrop-blur-md overflow-hidden z-50 overflow-y-auto no-scrollbar duration-150 animate-in fade-in-0",
+            isBottomBar
+              ? "bottom-full mb-3 max-h-[55vh] zoom-in-95 slide-in-from-bottom-2"
+              : "top-full mt-2 max-h-[70vh] zoom-in-95 slide-in-from-top-2"
+          )}
+        >
           {isLoading ? (
             <div className="p-6 text-center text-xs text-muted-foreground flex items-center justify-center gap-2">
               <i className="bx bx-loader-alt animate-spin text-base text-blue-500" />

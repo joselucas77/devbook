@@ -110,16 +110,14 @@ export function RegisterForm({
               type="button"
               onClick={handleGoogleRegister}
               disabled={isGooglePending || isPending}
-              className="w-full h-11 gap-2.5 border-border/80 hover:bg-muted/50 font-medium text-sm transition-colors cursor-pointer"
-            >
+              className="w-full h-11 gap-2.5 border-border/80 hover:bg-muted/50 font-medium text-sm transition-colors cursor-pointer">
               {isGooglePending ? (
                 <i className="bx bx-loader-alt animate-spin text-base" />
               ) : (
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
                   viewBox="0 0 24 24"
-                  className="h-4 w-4"
-                >
+                  className="h-4 w-4">
                   <path
                     d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"
                     fill="#4285F4"
@@ -143,11 +141,11 @@ export function RegisterForm({
 
             {/* Separador */}
             <div className="relative flex items-center justify-center my-4">
-              <div className="border-t border-border/80 flex-grow" />
+              <div className="border-t border-border/80 grow" />
               <span className="text-xs text-muted-foreground px-3 shrink-0">
                 ou continue com e-mail
               </span>
-              <div className="border-t border-border/80 flex-grow" />
+              <div className="border-t border-border/80 grow" />
             </div>
 
             {/* Campos de cadastro */}
@@ -227,8 +225,7 @@ export function RegisterForm({
               <Button
                 type="submit"
                 disabled={isPending || isGooglePending}
-                className="w-full h-11 bg-blue-600 text-white hover:bg-blue-600/90 font-medium transition-colors mt-3 cursor-pointer"
-              >
+                className="w-full h-11 bg-blue-600 text-white hover:bg-blue-600/90 font-medium transition-colors mt-3 cursor-pointer">
                 {isPending ? (
                   <>
                     <i className="bx bx-loader-alt animate-spin text-base mr-2" />
@@ -245,8 +242,7 @@ export function RegisterForm({
                 Já tem uma conta?{" "}
                 <Link
                   href="/login"
-                  className="text-blue-500 hover:text-blue-400 font-semibold underline underline-offset-4"
-                >
+                  className="text-blue-500 hover:text-blue-400 font-semibold underline underline-offset-4">
                   Entrar
                 </Link>
               </p>

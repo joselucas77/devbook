@@ -79,9 +79,10 @@ export function LoginForm({
           provider: "google",
           callbackURL: "/api/auth/oauth/callback",
         });
-      } catch (err: any) {
+      } catch (err: unknown) {
         toast.error("Erro ao autenticar com Google", {
-          description: err?.message,
+          description:
+            err instanceof Error ? err.message : "Erro inesperado",
         });
       }
     });

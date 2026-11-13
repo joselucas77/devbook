@@ -15,7 +15,12 @@ interface SiteHeaderProps extends React.ComponentProps<"header"> {
   } | null;
 }
 
-export function SiteHeader({ className, user, ...props }: SiteHeaderProps) {
+export function SiteHeader({
+  className,
+  user: _user,
+  ...props
+}: SiteHeaderProps) {
+  void _user;
   const router = useRouter();
   const pathname = usePathname();
 

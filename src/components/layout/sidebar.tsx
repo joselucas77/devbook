@@ -37,8 +37,10 @@ export function AppSidebar({
       toast.success("Sessão finalizada com sucesso.");
       router.push("/admin/login");
       router.refresh();
-    } catch (e: any) {
-      toast.error("Erro ao sair", { description: e?.message });
+    } catch (e: unknown) {
+      toast.error("Erro ao sair", {
+        description: e instanceof Error ? e.message : "Erro desconhecido",
+      });
     } finally {
       setIsLoggingOut(false);
     }
