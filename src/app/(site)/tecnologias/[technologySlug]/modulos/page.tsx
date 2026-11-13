@@ -78,19 +78,19 @@ export default async function ModulosPage({
           {technology.description}
         </p>
 
-        <div className="w-full flex flex-wrap items-center justify-between gap-4 py-2 border-y border-border/40">
-          <div className="flex items-center gap-6">
-            <div className="flex items-center gap-2 text-sm text-blue-400">
-              <i className="bx bx-layer text-lg" />
+        <div className="w-full flex flex-wrap items-center justify-between gap-3 sm:gap-4 py-2.5 border-y border-border/40">
+          <div className="flex flex-wrap items-center gap-3 sm:gap-6">
+            <div className="flex items-center gap-1.5 sm:gap-2 text-xs sm:text-sm text-blue-400">
+              <i className="bx bx-layer text-base sm:text-lg" />
               <span>{technology.modules.length} módulos</span>
             </div>
-            <div className="flex items-center gap-2 text-sm text-blue-400">
-              <i className="bx bx-book-open text-lg" />
+            <div className="flex items-center gap-1.5 sm:gap-2 text-xs sm:text-sm text-blue-400">
+              <i className="bx bx-book-open text-base sm:text-lg" />
               <span>{totalTopics} posts publicados</span>
             </div>
           </div>
 
-          <Badge variant="outline" className="gap-1">
+          <Badge variant="outline" className="gap-1 text-xs">
             <i className="bx bx-tag text-xs" />
             {technology.category}
           </Badge>

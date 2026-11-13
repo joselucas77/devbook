@@ -2,6 +2,7 @@
 
 import * as React from "react";
 import { cn } from "@/lib/utils";
+import { Button } from "@/components/ui/button";
 
 interface SidebarContextValue {
   open: boolean;
@@ -20,7 +21,7 @@ export function useSidebar() {
 }
 
 export function SidebarProvider({
-  defaultOpen = false,
+  defaultOpen = true,
   open: openProp,
   onOpenChange: setOpenProp,
   className,
@@ -33,8 +34,21 @@ export function SidebarProvider({
 }) {
   const [_open, _setOpen] = React.useState(defaultOpen);
   const open = openProp ?? _open;
+
+  React.useEffect(() => {
+    try {
+      const saved = localStorage.getItem("devbook:sidebar_state");
+      if (saved !== null) {
+        _setOpen(saved === "true");
+      }
+    } catch {}
+  }, []);
+
   const setOpen = React.useCallback(
     (value: boolean) => {
+      try {
+        localStorage.setItem("devbook:sidebar_state", String(value));
+      } catch {}
       if (setOpenProp) {
         setOpenProp(value);
       } else {
@@ -60,6 +74,31 @@ export function SidebarProvider({
         {children}
       </div>
     </SidebarContext.Provider>
+  );
+}
+
+export function SidebarTrigger({
+  className,
+  ...props
+}: React.ComponentProps<typeof Button>) {
+  const { toggleSidebar, open } = useSidebar();
+
+  return (
+    <Button
+      variant="ghost"
+      size="icon"
+      onClick={toggleSidebar}
+      title={open ? "Recolher barra lateral" : "Expandir barra lateral"}
+      className={cn("h-9 w-9 text-muted-foreground hover:text-foreground", className)}
+      {...props}
+    >
+      <i
+        className={cn(
+          "bx text-xl transition-transform duration-200",
+          open ? "bx-sidebar" : "bx-sidebar"
+        )}
+      />
+    </Button>
   );
 }
 

@@ -1,31 +1,47 @@
 import type { Metadata, Viewport } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
+import { JetBrains_Mono } from "next/font/google";
 import { Toaster } from "sonner";
 import { PWAUpdater } from "@/components/pwa-updater";
 import { ThemeColorUpdater } from "@/components/theme-color-updater";
 import { ThemeProvider } from "@/components/layout/theme-provider";
 import "./globals.css";
 
-const geistSans = Geist({
-  variable: "--font-geist-sans",
+const jetbrainsMono = JetBrains_Mono({
+  variable: "--font-jetbrains-mono",
   subsets: ["latin"],
-});
-
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
-  subsets: ["latin"],
+  display: "swap",
 });
 
 export const metadata: Metadata = {
-  title: "DevBook",
+  title: {
+    default: "DevBook",
+    template: "%s | DevBook",
+  },
   description: "Sua documentação não oficial favorita.",
   manifest: "/site.webmanifest",
+  icons: {
+    icon: [
+      { url: "/favicon.ico" },
+      { url: "/favicon-16x16.png", sizes: "16x16", type: "image/png" },
+      { url: "/favicon-32x32.png", sizes: "32x32", type: "image/png" },
+    ],
+    apple: [
+      { url: "/apple-touch-icon.png", sizes: "180x180", type: "image/png" },
+    ],
+  },
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: "black-translucent",
+    title: "DevBook",
+  },
 };
 
 export const viewport: Viewport = {
   width: "device-width",
   initialScale: 1,
+  maximumScale: 5,
   viewportFit: "cover",
+  themeColor: "#09090b",
 };
 
 export default function RootLayout({
@@ -37,9 +53,9 @@ export default function RootLayout({
     <html
       lang="pt-BR"
       suppressHydrationWarning
-      className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
+      className={`${jetbrainsMono.variable} h-full antialiased font-mono`}
     >
-      <body className="min-h-full flex flex-col bg-background text-foreground no-scrollbar">
+      <body className="min-h-full flex flex-col bg-background text-foreground font-mono no-scrollbar selection:bg-blue-600/30 selection:text-blue-200">
         <ThemeProvider
           attribute="class"
           defaultTheme="dark"

@@ -16,7 +16,7 @@ export async function POST(req: Request) {
       );
     }
 
-    const { email, password } = parsed.data;
+    const { email, password, adminOnly } = parsed.data;
 
     const user = await prisma.user.findUnique({ where: { email } });
     if (!user || !user.password) {
@@ -34,6 +34,18 @@ export async function POST(req: Request) {
       );
     }
 
+    // Se for login exclusivo de admin e o usuário for apenas visualizador
+    if (adminOnly && user.role !== "ADMIN" && user.role !== "EDITOR") {
+      return NextResponse.json(
+        {
+          message:
+            "Acesso restrito. Esta conta não possui privilégios de administrador.",
+          role: user.role,
+        },
+        { status: 403 }
+      );
+    }
+
     const token = await signAuthToken({
       sub: String(user.id),
       email: user.email,
@@ -41,7 +53,15 @@ export async function POST(req: Request) {
       name: user.name,
     });
 
-    const res = NextResponse.json({ ok: true, user: { name: user.name, role: user.role } });
+    const res = NextResponse.json({
+      ok: true,
+      user: {
+        id: user.id,
+        name: user.name,
+        email: user.email,
+        role: user.role,
+      },
+    });
 
     res.cookies.set(getAuthCookieName(), token, {
       httpOnly: true,

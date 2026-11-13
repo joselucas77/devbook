@@ -120,7 +120,7 @@ export default async function PostPage({
           </Link>
         </div>
 
-        <h1 className="text-3xl md:text-4xl lg:text-5xl font-bold leading-tight mb-3">
+        <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold leading-tight mb-3 break-words">
           {data.title}
         </h1>
 

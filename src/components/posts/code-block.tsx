@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
-import { ScrollArea } from "@/components/ui/scroll-area";
+import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
 import { cn } from "@/lib/utils";
 
 interface CodeBlockProps {
@@ -55,14 +55,14 @@ export function CodeBlock({ filename, code, language }: CodeBlockProps) {
       </div>
 
       {/* Corpo do código */}
-      <ScrollArea className="max-h-96">
-        <pre className="text-sm font-mono bg-zinc-950 px-4 py-3 leading-relaxed">
+      <ScrollArea className="max-h-[500px] w-full">
+        <pre className="text-xs sm:text-sm font-mono bg-zinc-950 px-3 sm:px-4 py-3 leading-relaxed w-max min-w-full">
           <code>
             {lines.map((line, index) => {
               const lineNumber = index + 1;
               return (
-                <div key={index} className="flex gap-4 px-2 -mx-2 rounded-sm hover:bg-zinc-900/50">
-                  <span className="w-6 text-right select-none opacity-40 text-xs">
+                <div key={index} className="flex gap-3 sm:gap-4 px-1 -mx-1 sm:px-2 sm:-mx-2 rounded-sm hover:bg-zinc-900/50">
+                  <span className="w-5 sm:w-6 text-right select-none opacity-40 text-[11px] sm:text-xs shrink-0">
                     {lineNumber}
                   </span>
                   <span className="whitespace-pre">
@@ -73,6 +73,7 @@ export function CodeBlock({ filename, code, language }: CodeBlockProps) {
             })}
           </code>
         </pre>
+        <ScrollBar orientation="horizontal" />
       </ScrollArea>
     </div>
   );

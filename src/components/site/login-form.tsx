@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import {
@@ -54,12 +55,19 @@ export function LoginForm({
       return;
     }
 
+    const data = await res.json().catch(() => null);
+    const role = data?.user?.role;
+
     toast.success("Login realizado com sucesso!", {
-      description: "Redirecionando para a área administrativa...",
+      description: "Seja bem-vindo de volta!",
     });
 
     startTransition(() => {
-      router.push("/admin");
+      if (role === "ADMIN" || role === "EDITOR") {
+        router.push("/admin");
+      } else {
+        router.push("/tecnologias");
+      }
       router.refresh();
     });
   }
@@ -87,7 +95,7 @@ export function LoginForm({
             DevBook
           </CardTitle>
           <CardDescription className="text-sm text-muted-foreground mt-1">
-            Acesse o painel com sua conta Google ou e-mail
+            Entre na sua conta para salvar posts e acompanhar novidades
           </CardDescription>
         </CardHeader>
 
@@ -99,7 +107,7 @@ export function LoginForm({
               type="button"
               onClick={handleGoogleLogin}
               disabled={isGooglePending || isPending}
-              className="w-full h-11 gap-2.5 border-border/80 hover:bg-muted/50 font-medium text-sm transition-colors"
+              className="w-full h-11 gap-2.5 border-border/80 hover:bg-muted/50 font-medium text-sm transition-colors cursor-pointer"
             >
               {isGooglePending ? (
                 <i className="bx bx-loader-alt animate-spin text-base" />
@@ -130,7 +138,7 @@ export function LoginForm({
               <span>Entrar com Google</span>
             </Button>
 
-            {/* Separador sem fundo preto */}
+            {/* Separador */}
             <div className="relative flex items-center justify-center my-4">
               <div className="border-t border-border/80 flex-grow" />
               <span className="text-xs text-muted-foreground px-3 shrink-0">
@@ -179,7 +187,7 @@ export function LoginForm({
               <Button
                 type="submit"
                 disabled={isPending || isGooglePending}
-                className="w-full h-11 bg-blue-600 text-white hover:bg-blue-600/90 font-medium transition-colors mt-3"
+                className="w-full h-11 bg-blue-600 text-white hover:bg-blue-600/90 font-medium transition-colors mt-3 cursor-pointer"
               >
                 {isPending ? (
                   <>
@@ -190,6 +198,18 @@ export function LoginForm({
                   "Entrar com credenciais"
                 )}
               </Button>
+            </div>
+
+            <div className="text-center pt-2">
+              <p className="text-xs text-muted-foreground">
+                Não tem uma conta?{" "}
+                <Link
+                  href="/cadastro"
+                  className="text-blue-500 hover:text-blue-400 font-semibold underline underline-offset-4"
+                >
+                  Criar conta
+                </Link>
+              </p>
             </div>
           </form>
         </CardContent>

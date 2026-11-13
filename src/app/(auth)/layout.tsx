@@ -14,11 +14,15 @@ export default async function AuthLayout({
 }) {
   const user = await getCurrentUser();
   if (!user) {
-    redirect("/login");
+    redirect("/admin/login");
+  }
+
+  if (user.role !== "ADMIN" && user.role !== "EDITOR") {
+    redirect("/tecnologias");
   }
 
   return (
-    <SidebarProvider defaultOpen={false}>
+    <SidebarProvider defaultOpen={true}>
       <AppSidebar variant="inset" />
       <SidebarInset className="bg-background min-h-screen flex flex-col">
         <SiteHeader
