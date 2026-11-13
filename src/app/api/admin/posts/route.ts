@@ -18,19 +18,27 @@ export async function POST(req: Request) {
 
     const data = parsed.data;
 
-    const content = data.content.blocks.map((block: any) => {
-      if (block.type === "paragraph") {
-        if (typeof block.text === "string") {
-          const safeHtml = sanitizeParagraphHtml(block.text);
-          return {
-            type: "paragraph",
-            content: htmlToParagraphJson(safeHtml),
-          };
+    let finalContent: any;
+    if (typeof data.content.html === "string") {
+      finalContent = { html: data.content.html };
+    } else if (Array.isArray(data.content.blocks)) {
+      const content = data.content.blocks.map((block: any) => {
+        if (block.type === "paragraph") {
+          if (typeof block.text === "string") {
+            const safeHtml = sanitizeParagraphHtml(block.text);
+            return {
+              type: "paragraph",
+              content: htmlToParagraphJson(safeHtml),
+            };
+          }
+          return block;
         }
         return block;
-      }
-      return block;
-    });
+      });
+      finalContent = { blocks: content };
+    } else {
+      finalContent = { html: "" };
+    }
 
     const created = await prisma.post.create({
       data: {
@@ -39,7 +47,7 @@ export async function POST(req: Request) {
         concept: data.concept,
         summary: data.summary,
         image: data.image || null,
-        content: { blocks: content } as any,
+        content: finalContent,
         isPublic: data.isPublic,
         status: data.status,
         moduleId: data.moduleId,

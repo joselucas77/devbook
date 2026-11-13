@@ -106,7 +106,7 @@ export function SidebarInset({ className, ...props }: React.ComponentProps<"main
   return (
     <main
       className={cn(
-        "relative flex min-h-svh flex-1 flex-col bg-background transition-all duration-200 ease-in-out md:peer-data-[variant=inset]:m-2 md:peer-data-[state=collapsed]:peer-data-[variant=inset]:ml-2 md:peer-data-[variant=inset]:ml-0 md:peer-data-[variant=inset]:rounded-xl md:peer-data-[variant=inset]:shadow",
+        "relative flex min-h-svh flex-1 flex-col min-w-0 bg-background transition-all duration-200 ease-in-out md:peer-data-[variant=inset]:m-2 md:peer-data-[state=collapsed]:peer-data-[variant=inset]:ml-2 md:peer-data-[variant=inset]:ml-0 md:peer-data-[variant=inset]:rounded-xl md:peer-data-[variant=inset]:shadow",
         className
       )}
       {...props}

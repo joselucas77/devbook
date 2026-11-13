@@ -51,7 +51,7 @@ export function AppSidebar({
       data-variant={variant}
       data-state={open ? "expanded" : "collapsed"}
       className={cn(
-        "hidden md:flex md:flex-col border-r border-border bg-card shrink-0 transition-all duration-300 ease-in-out select-none",
+        "sticky top-0 h-screen h-svh max-h-screen max-h-svh z-30 self-start hidden md:flex md:flex-col border-r border-border bg-card shrink-0 transition-all duration-300 ease-in-out select-none",
         open ? "w-64" : "w-17",
         className,
       )}
@@ -59,7 +59,7 @@ export function AppSidebar({
       {/* Topo: Logo oficial + Título DevBook */}
       <div
         className={cn(
-          "flex h-16 items-center border-b border-border transition-all duration-300",
+          "flex h-16 shrink-0 items-center border-b border-border transition-all duration-300",
           open ? "px-4 justify-start" : "px-0 justify-center",
         )}>
         <Link
@@ -85,7 +85,7 @@ export function AppSidebar({
       </div>
 
       {/* Navegação principal */}
-      <nav className="flex-1 space-y-1.5 p-3">
+      <nav className="flex-1 space-y-1.5 p-3 overflow-y-auto no-scrollbar">
         {navItems.map((item) => {
           const active =
             item.href === "/admin"
@@ -115,7 +115,7 @@ export function AppSidebar({
       </nav>
 
       {/* Rodapé da sidebar: Botão de Sair lá embaixo */}
-      <div className="p-3 border-t border-border mt-auto">
+      <div className="p-3 border-t border-border mt-auto shrink-0">
         {open ? (
           <Button
             variant="outline"

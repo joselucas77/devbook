@@ -13,24 +13,24 @@ const RichTextDocSchema = z.object({
   children: z.array(RichTextNodeSchema),
 });
 
-const ParagraphBlockSchema = z.object({
+export const ParagraphBlockSchema = z.object({
   type: z.literal("paragraph"),
   content: RichTextDocSchema,
 });
 
-const HeadingBlockSchema = z.object({
+export const HeadingBlockSchema = z.object({
   type: z.literal("heading"),
   level: z.union([z.literal(2), z.literal(3)]),
   text: z.string().min(1),
 });
 
-const ListBlockSchema = z.object({
+export const ListBlockSchema = z.object({
   type: z.literal("list"),
   style: z.enum(["bullet", "numbered"]),
   items: z.array(z.string().min(1)),
 });
 
-const CodeBlockSchema = z.object({
+export const CodeBlockSchema = z.object({
   type: z.literal("code"),
   language: z.string(),
   filename: z.string().optional(),
@@ -38,7 +38,7 @@ const CodeBlockSchema = z.object({
   explanation: z.string().optional(),
 });
 
-const SummaryBlockSchema = z.object({
+export const SummaryBlockSchema = z.object({
   type: z.literal("summary"),
   text: z.string().min(1),
 });
@@ -52,17 +52,34 @@ export const CreatePostSchema = z.object({
   image: z.string().optional(),
   isPublic: z.boolean(),
   status: z.enum(["DRAFT", "PUBLISHED", "ARCHIVED"]),
-  content: z.object({
-    blocks: z.array(
-      z.discriminatedUnion("type", [
-        ParagraphBlockSchema,
-        HeadingBlockSchema,
-        ListBlockSchema,
-        CodeBlockSchema,
-        SummaryBlockSchema,
-      ])
+  content: z
+    .object({
+      html: z.string().optional(),
+      blocks: z.array(z.any()).optional(),
+    })
+    .refine(
+      (data) => {
+        if (typeof data.html === "string") {
+          const stripped = data.html.replace(/<[^>]*>/g, "").trim();
+          if (
+            stripped.length > 0 ||
+            data.html.includes("<img") ||
+            data.html.includes("<hr") ||
+            data.html.includes("<code")
+          ) {
+            return true;
+          }
+        }
+        if (Array.isArray(data.blocks) && data.blocks.length > 0) {
+          return true;
+        }
+        return false;
+      },
+      {
+        message: "O conteúdo do post não pode ficar vazio.",
+        path: ["html"],
+      }
     ),
-  }),
 });
 
 export type CreatePostValues = z.infer<typeof CreatePostSchema>;

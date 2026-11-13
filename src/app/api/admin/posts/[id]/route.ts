@@ -73,19 +73,27 @@ export async function PATCH(
       );
     }
 
-    const content = data.content.blocks.map((block: any) => {
-      if (block.type === "paragraph") {
-        if (typeof block.text === "string") {
-          const safeHtml = sanitizeParagraphHtml(block.text);
-          return {
-            type: "paragraph",
-            content: htmlToParagraphJson(safeHtml),
-          };
+    let finalContent: any;
+    if (typeof data.content.html === "string") {
+      finalContent = { html: data.content.html };
+    } else if (Array.isArray(data.content.blocks)) {
+      const content = data.content.blocks.map((block: any) => {
+        if (block.type === "paragraph") {
+          if (typeof block.text === "string") {
+            const safeHtml = sanitizeParagraphHtml(block.text);
+            return {
+              type: "paragraph",
+              content: htmlToParagraphJson(safeHtml),
+            };
+          }
+          return block;
         }
         return block;
-      }
-      return block;
-    });
+      });
+      finalContent = { blocks: content };
+    } else {
+      finalContent = { html: "" };
+    }
 
     const updated = await prisma.post.update({
       where: { id },
@@ -95,7 +103,7 @@ export async function PATCH(
         concept: data.concept,
         summary: data.summary,
         image: data.image || null,
-        content: { blocks: content } as any,
+        content: finalContent,
         isPublic: data.isPublic,
         status: data.status,
         moduleId: data.moduleId,

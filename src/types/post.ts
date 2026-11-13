@@ -64,7 +64,8 @@ export type PostContentBlock =
     };
 
 export interface PostContent {
-  blocks: PostContentBlock[];
+  html?: string;
+  blocks?: PostContentBlock[];
 }
 
 export interface Post {

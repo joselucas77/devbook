@@ -6,7 +6,6 @@ import { useRouter } from "next/navigation";
 import { z } from "zod";
 import {
   useForm,
-  useFieldArray,
   Controller,
   FieldErrors,
 } from "react-hook-form";
@@ -29,8 +28,7 @@ import {
 
 import { CreatePostSchema } from "@/lib/validations/post";
 import { slugifySmart } from "@/lib/slugify";
-import { RichTextEditor } from "@/components/posts/rich-text-editor";
-import { EMPTY_RICH_TEXT_DOC, RichTextDoc } from "@/types/post";
+import { PostEditor } from "@/components/posts/editor";
 
 type CreatePostValues = z.infer<typeof CreatePostSchema>;
 
@@ -58,7 +56,7 @@ export function PostForm({
     image?: string | null;
     isPublic: boolean;
     status: "DRAFT" | "PUBLISHED" | "ARCHIVED";
-    content: { blocks: any[] };
+    content: { html?: string; blocks?: unknown[] };
   };
 }) {
   const router = useRouter();
@@ -94,13 +92,8 @@ export function PostForm({
       image: initialPost?.image ?? "",
       isPublic: initialPost?.isPublic ?? true,
       status: initialPost?.status ?? "DRAFT",
-      content: initialPost?.content ?? {
-        blocks: [
-          {
-            type: "paragraph",
-            content: EMPTY_RICH_TEXT_DOC,
-          },
-        ],
+      content: {
+        html: initialPost?.content?.html ?? "",
       },
     },
     mode: "onSubmit",
@@ -119,15 +112,6 @@ export function PostForm({
     handleSubmit,
     formState: { errors, isSubmitting, isValid },
   } = form;
-
-  const { fields, append, remove, move } = useFieldArray({
-    control,
-    name: "content.blocks",
-  });
-
-  const revalidateContent = async () => {
-    await trigger("content");
-  };
 
   const currentImage = watch("image");
   const displayCoverSrc = coverPreviewUrl || currentImage;
@@ -165,48 +149,6 @@ export function PostForm({
       coverInputRef.current.value = "";
     }
   }
-
-  const addBlock = async (
-    type: CreatePostValues["content"]["blocks"][number]["type"]
-  ) => {
-    switch (type) {
-      case "paragraph":
-        append(
-          {
-            type: "paragraph",
-            content: EMPTY_RICH_TEXT_DOC,
-          },
-          { shouldFocus: false }
-        );
-        break;
-      case "heading":
-        append({ type: "heading", level: 2, text: "" }, { shouldFocus: false });
-        break;
-      case "list":
-        append(
-          { type: "list", style: "bullet", items: [""] },
-          { shouldFocus: false }
-        );
-        break;
-      case "code":
-        append(
-          {
-            type: "code",
-            language: "php",
-            filename: "index.php",
-            code: "",
-            explanation: "",
-          },
-          { shouldFocus: false }
-        );
-        break;
-      case "summary":
-        append({ type: "summary", text: "" }, { shouldFocus: false });
-        break;
-    }
-
-    await revalidateContent();
-  };
 
   const onSubmit = async (values: CreatePostValues) => {
     let finalImageUrl = values.image || "";
@@ -284,13 +226,16 @@ export function PostForm({
   };
 
   const onInvalid = (errs: FieldErrors<CreatePostValues>) => {
+    const contentErrors = errs.content as Record<string, { message?: string }> | undefined;
     const first =
       errs.title?.message ||
       errs.slug?.message ||
       errs.concept?.message ||
       errs.summary?.message ||
       errs.moduleId?.message ||
-      (errs.content as any)?.blocks?.message ||
+      errs.content?.html?.message ||
+      contentErrors?.html?.message ||
+      contentErrors?.message ||
       "Verifique os campos destacados.";
 
     toast.error("Formulário inválido", { description: String(first) });
@@ -557,334 +502,39 @@ export function PostForm({
           </div>
         </Card>
 
-        {/* Sticky bar for adding blocks */}
-        <div className="sticky top-14 z-40 -mx-4 px-4 py-3 bg-background/80 backdrop-blur border-y border-border">
-          <div className="max-w-3xl mx-auto flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-            <h2 className="text-lg font-bold">Conteúdo</h2>
-
-            <div className="flex flex-wrap gap-2 justify-end">
-              <Button
-                type="button"
-                variant="secondary"
-                size="sm"
-                onClick={() => addBlock("heading")}
-                className="gap-1.5"
-              >
-                <i className="bx bx-heading text-base" /> Seção
-              </Button>
-              <Button
-                type="button"
-                variant="secondary"
-                size="sm"
-                onClick={() => addBlock("paragraph")}
-                className="gap-1.5"
-              >
-                <i className="bx bx-paragraph text-base" /> Parágrafo
-              </Button>
-              <Button
-                type="button"
-                variant="secondary"
-                size="sm"
-                onClick={() => addBlock("list")}
-                className="gap-1.5"
-              >
-                <i className="bx bx-list-ul text-base" /> Lista
-              </Button>
-              <Button
-                type="button"
-                variant="secondary"
-                size="sm"
-                onClick={() => addBlock("code")}
-                className="gap-1.5"
-              >
-                <i className="bx bx-code-alt text-base" /> Código
-              </Button>
-              <Button
-                type="button"
-                variant="secondary"
-                size="sm"
-                onClick={() => addBlock("summary")}
-                className="gap-1.5"
-              >
-                <i className="bx bx-check-shield text-base" /> Conclusão
-              </Button>
+        {/* Bloco Único de Conteúdo */}
+        <div className="space-y-3 pt-2">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-1">
+            <div>
+              <h2 className="text-xl font-bold tracking-tight text-foreground">
+                Conteúdo do Post
+              </h2>
+              <p className="text-xs text-muted-foreground mt-0.5">
+                Escreva todo o conteúdo em um único bloco. Selecione qualquer parte do texto ou palavras para formatar.
+              </p>
             </div>
           </div>
 
-          {errors.content?.blocks?.message && (
-            <p className="max-w-3xl mx-auto mt-2 text-sm text-destructive">
-              {errors.content.blocks.message as any}
+          <Controller
+            control={control}
+            name="content.html"
+            render={({ field }) => (
+              <PostEditor
+                value={field.value ?? ""}
+                onChange={(html) => {
+                  field.onChange(html);
+                  trigger("content");
+                }}
+                placeholder="Comece a escrever o conteúdo completo do post aqui... Adicione títulos, negrito, itálico, listas, citações, blocos de código e links de forma livre."
+              />
+            )}
+          />
+
+          {errors.content?.html && (
+            <p className="text-sm font-medium text-destructive mt-1.5">
+              {errors.content.html.message}
             </p>
           )}
-        </div>
-
-        <div className="space-y-4">
-          {fields.map((field, index) => {
-            const type = (field as any).type as
-              | "heading"
-              | "paragraph"
-              | "list"
-              | "code"
-              | "summary";
-
-            return (
-              <Card key={field.id} className="p-4 border-border">
-                <div className="flex items-center justify-between mb-4">
-                  <div className="text-sm font-medium text-foreground">
-                    Bloco {index + 1} —{" "}
-                    <span className="text-muted-foreground">
-                      {type === "heading"
-                        ? "Título"
-                        : type === "paragraph"
-                        ? "Parágrafo"
-                        : type === "list"
-                        ? "Lista"
-                        : type === "code"
-                        ? "Código"
-                        : type === "summary"
-                        ? "Conclusão"
-                        : type}
-                    </span>
-                  </div>
-
-                  <div className="flex items-center gap-1">
-                    <Button
-                      type="button"
-                      variant="ghost"
-                      size="icon"
-                      onClick={async () => {
-                        if (index === 0) return;
-                        move(index, index - 1);
-                        await revalidateContent();
-                      }}
-                      disabled={index === 0}
-                      title="Mover para cima"
-                      className="h-8 w-8"
-                    >
-                      <i className="bx bx-chevron-up text-lg" />
-                    </Button>
-
-                    <Button
-                      type="button"
-                      variant="ghost"
-                      size="icon"
-                      onClick={async () => {
-                        if (index === fields.length - 1) return;
-                        move(index, index + 1);
-                        await revalidateContent();
-                      }}
-                      disabled={index === fields.length - 1}
-                      title="Mover para baixo"
-                      className="h-8 w-8"
-                    >
-                      <i className="bx bx-chevron-down text-lg" />
-                    </Button>
-
-                    <Button
-                      type="button"
-                      variant="ghost"
-                      size="icon"
-                      onClick={async () => {
-                        remove(index);
-                        await revalidateContent();
-                      }}
-                      title="Remover bloco"
-                      className="h-8 w-8 text-rose-500 hover:text-rose-600"
-                    >
-                      <i className="bx bx-trash text-lg" />
-                    </Button>
-                  </div>
-                </div>
-
-                {type === "heading" && (
-                  <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-                    <Controller
-                      control={control}
-                      name={`content.blocks.${index}.level` as const}
-                      render={({ field }) => (
-                        <div className="space-y-2">
-                          <Label>Nível</Label>
-                          <Select
-                            value={String(field.value ?? 2)}
-                            onValueChange={(v) => {
-                              field.onChange(Number(v));
-                              trigger(`content.blocks.${index}` as any);
-                            }}
-                          >
-                            <SelectTrigger>
-                              <SelectValue />
-                            </SelectTrigger>
-                            <SelectContent>
-                              <SelectItem value="2">H2</SelectItem>
-                              <SelectItem value="3">H3</SelectItem>
-                            </SelectContent>
-                          </Select>
-                        </div>
-                      )}
-                    />
-
-                    <div className="md:col-span-3 space-y-2">
-                      <Label>Título da seção</Label>
-                      <Input
-                        placeholder="Ex: Regras básicas"
-                        {...register(`content.blocks.${index}.text` as const)}
-                      />
-                      {(errors.content?.blocks?.[index] as any)?.text
-                        ?.message && (
-                        <p className="text-sm text-destructive">
-                          {
-                            (errors.content?.blocks?.[index] as any)?.text
-                              ?.message
-                          }
-                        </p>
-                      )}
-                    </div>
-                  </div>
-                )}
-
-                {type === "paragraph" && (
-                  <div className="space-y-2">
-                    <Label>Parágrafo</Label>
-                    <Controller
-                      control={control}
-                      name={`content.blocks.${index}.content`}
-                      render={({ field }) => (
-                        <RichTextEditor
-                          value={field.value as RichTextDoc}
-                          onChange={field.onChange}
-                          placeholder="Escreva o parágrafo..."
-                        />
-                      )}
-                    />
-                    {(errors.content?.blocks?.[index] as any)?.text
-                      ?.message && (
-                      <p className="text-sm text-destructive">
-                        {
-                          (errors.content?.blocks?.[index] as any)?.text
-                            ?.message
-                        }
-                      </p>
-                    )}
-                  </div>
-                )}
-
-                {type === "summary" && (
-                  <div className="space-y-2">
-                    <Label>Conclusão / Resumo final</Label>
-                    <Textarea
-                      className="min-h-[110px]"
-                      placeholder="Feche o post com uma conclusão..."
-                      {...register(`content.blocks.${index}.text` as const)}
-                    />
-                    {(errors.content?.blocks?.[index] as any)?.text
-                      ?.message && (
-                      <p className="text-sm text-destructive">
-                        {
-                          (errors.content?.blocks?.[index] as any)?.text
-                            ?.message
-                        }
-                      </p>
-                    )}
-                  </div>
-                )}
-
-                {type === "list" && (
-                  <ListBlockEditor
-                    control={control}
-                    register={register}
-                    errors={errors}
-                    index={index}
-                    onRevalidate={revalidateContent}
-                  />
-                )}
-
-                {type === "code" && (
-                  <div className="space-y-4">
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                      <Controller
-                        control={control}
-                        name={`content.blocks.${index}.language` as const}
-                        render={({ field }) => (
-                          <div className="space-y-2">
-                            <Label>Linguagem</Label>
-                            <Select
-                              value={field.value ?? "php"}
-                              onValueChange={(v) => {
-                                field.onChange(v);
-                                trigger(`content.blocks.${index}` as any);
-                              }}
-                            >
-                              <SelectTrigger>
-                                <SelectValue placeholder="Selecione" />
-                              </SelectTrigger>
-                              <SelectContent>
-                                <SelectItem value="php">php</SelectItem>
-                                <SelectItem value="js">js</SelectItem>
-                                <SelectItem value="ts">ts</SelectItem>
-                                <SelectItem value="html">html</SelectItem>
-                                <SelectItem value="css">css</SelectItem>
-                                <SelectItem value="bash">bash</SelectItem>
-                                <SelectItem value="sql">sql</SelectItem>
-                                <SelectItem value="txt">txt</SelectItem>
-                              </SelectContent>
-                            </Select>
-                            {(errors.content?.blocks?.[index] as any)?.language
-                              ?.message && (
-                              <p className="text-sm text-destructive">
-                                {
-                                  (errors.content?.blocks?.[index] as any)
-                                    ?.language?.message
-                                }
-                              </p>
-                            )}
-                          </div>
-                        )}
-                      />
-
-                      <div className="md:col-span-2 space-y-2">
-                        <Label>Nome do arquivo (opcional)</Label>
-                        <Input
-                          placeholder="Ex: index.php"
-                          {...register(
-                            `content.blocks.${index}.filename` as const
-                          )}
-                        />
-                      </div>
-                    </div>
-
-                    <div className="space-y-2">
-                      <Label>Código</Label>
-                      <Textarea
-                        className="min-h-[180px] font-mono text-xs"
-                        placeholder="Cole o código aqui..."
-                        {...register(`content.blocks.${index}.code` as const)}
-                      />
-                      {(errors.content?.blocks?.[index] as any)?.code
-                        ?.message && (
-                        <p className="text-sm text-destructive">
-                          {
-                            (errors.content?.blocks?.[index] as any)?.code
-                              ?.message
-                          }
-                        </p>
-                      )}
-                    </div>
-
-                    <div className="space-y-2">
-                      <Label>Explicação (opcional)</Label>
-                      <Textarea
-                        className="min-h-[90px]"
-                        placeholder="Explique o que esse código demonstra..."
-                        {...register(
-                          `content.blocks.${index}.explanation` as const
-                        )}
-                      />
-                    </div>
-                  </div>
-                )}
-              </Card>
-            );
-          })}
         </div>
 
         <div className="flex items-center justify-between gap-3 pt-2">
@@ -907,107 +557,5 @@ export function PostForm({
         </div>
       </form>
     </section>
-  );
-}
-
-function ListBlockEditor({
-  control,
-  register,
-  errors,
-  index,
-  onRevalidate,
-}: {
-  control: any;
-  register: any;
-  errors: any;
-  index: number;
-  onRevalidate: () => Promise<void>;
-}) {
-  const itemsArray = useFieldArray({
-    control,
-    name: `content.blocks.${index}.items`,
-  });
-
-  return (
-    <div className="space-y-4">
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        <Controller
-          control={control}
-          name={`content.blocks.${index}.style`}
-          render={({ field }) => (
-            <div className="space-y-2">
-              <Label>Estilo</Label>
-              <Select
-                value={field.value ?? "bullet"}
-                onValueChange={async (v) => {
-                  field.onChange(v);
-                  await onRevalidate();
-                }}
-              >
-                <SelectTrigger>
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="bullet">Marcadores (Bullet)</SelectItem>
-                  <SelectItem value="numbered">Numerada</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-          )}
-        />
-
-        <div className="md:col-span-2 flex items-end justify-end">
-          <Button
-            type="button"
-            variant="secondary"
-            onClick={async () => {
-              itemsArray.append("");
-              await onRevalidate();
-            }}
-            className="gap-2"
-          >
-            <i className="bx bx-plus text-base" />
-            Adicionar item
-          </Button>
-        </div>
-      </div>
-
-      <div className="space-y-3">
-        {itemsArray.fields.map((f, i) => (
-          <div key={f.id} className="flex items-start gap-2">
-            <div className="w-full space-y-2">
-              <Label className="text-xs text-muted-foreground">Item {i + 1}</Label>
-              <Input
-                placeholder="Digite um item..."
-                {...register(`content.blocks.${index}.items.${i}`)}
-              />
-              {(errors.content?.blocks?.[index] as any)?.items?.[i]
-                ?.message && (
-                <p className="text-sm text-destructive">
-                  {
-                    (errors.content?.blocks?.[index] as any)?.items?.[i]
-                      ?.message
-                  }
-                </p>
-              )}
-            </div>
-
-            <Button
-              type="button"
-              variant="ghost"
-              size="icon"
-              onClick={async () => {
-                itemsArray.remove(i);
-                await onRevalidate();
-              }}
-              title="Remover item"
-              className="mt-6 text-rose-500 hover:text-rose-600 h-9 w-9"
-            >
-              <i className="bx bx-trash text-base" />
-            </Button>
-          </div>
-        ))}
-      </div>
-    </div>
   );
 }

@@ -3,6 +3,54 @@ import { prisma } from "@/lib/prisma";
 import { PostForm } from "./post-form";
 import { Button } from "@/components/ui/button";
 
+function convertLegacyBlocksToHtml(blocks: unknown[]): string {
+  if (!Array.isArray(blocks) || blocks.length === 0) return "";
+  return blocks
+    .map((item) => {
+      const b = item as Record<string, unknown>;
+      if (b.type === "heading") {
+        const lvl = typeof b.level === "number" ? b.level : 2;
+        return `<h${lvl}>${String(b.text ?? "")}</h${lvl}>`;
+      }
+      if (b.type === "paragraph") {
+        if (typeof b.text === "string") return `<p>${b.text}</p>`;
+        const content = b.content as Record<string, unknown> | undefined;
+        if (Array.isArray(content?.children)) {
+          const inner = content.children
+            .map((nodeItem: unknown) => {
+              const node = nodeItem as Record<string, unknown>;
+              if (node.type === "code") return `<code>${String(node.text ?? "")}</code>`;
+              if (node.type === "quote") return `<blockquote>${String(node.text ?? "")}</blockquote>`;
+              if (node.type === "link") {
+                const linkChildren = Array.isArray(node.children) ? (node.children as Record<string, unknown>[]) : [];
+                return `<a href="${String(node.href ?? "#")}">${String(linkChildren[0]?.text ?? node.text ?? "")}</a>`;
+              }
+              return String(node.text ?? "");
+            })
+            .join("");
+          return `<p>${inner}</p>`;
+        }
+        return "";
+      }
+      if (b.type === "list") {
+        const tag = b.style === "numbered" ? "ol" : "ul";
+        const items = Array.isArray(b.items)
+          ? b.items.map((it: unknown) => `<li>${String(it)}</li>`).join("")
+          : "";
+        return `<${tag}>${items}</${tag}>`;
+      }
+      if (b.type === "code") {
+        return `<pre><code>${String(b.code ?? "")}</code></pre>`;
+      }
+      if (b.type === "summary") {
+        return `<blockquote><p><strong>Resumo:</strong> ${String(b.text ?? "")}</p></blockquote>`;
+      }
+      return "";
+    })
+    .filter(Boolean)
+    .join("");
+}
+
 export default async function AdminNewPostPage({
   params,
   searchParams,
@@ -25,9 +73,9 @@ export default async function AdminNewPostPage({
 
   const resolvedModuleId = post?.moduleId ?? moduleIdFromQuery;
 
-  let module = null;
+  let moduleData = null;
   if (resolvedModuleId) {
-    module = await prisma.module.findUnique({
+    moduleData = await prisma.module.findUnique({
       where: { id: resolvedModuleId },
       include: { technology: true },
     });
@@ -36,14 +84,14 @@ export default async function AdminNewPostPage({
       where: { slug: technologySlug },
     });
     if (tech) {
-      module = await prisma.module.findFirst({
+      moduleData = await prisma.module.findFirst({
         where: { slug: moduleSlug, technologyId: tech.id },
         include: { technology: true },
       });
     }
   }
 
-  if (!module) {
+  if (!moduleData) {
     return (
       <div className="text-center py-16 space-y-4">
         <p className="text-muted-foreground">
@@ -56,15 +104,27 @@ export default async function AdminNewPostPage({
     );
   }
 
+  let initialHtml = "";
+  if (post?.content) {
+    const c = post.content as Record<string, unknown>;
+    if (typeof c?.html === "string") {
+      initialHtml = c.html;
+    } else if (Array.isArray(c?.blocks)) {
+      initialHtml = convertLegacyBlocksToHtml(c.blocks);
+    } else if (typeof c === "string") {
+      initialHtml = c;
+    }
+  }
+
   return (
     <div className="py-6">
       <PostForm
-        moduleId={module.id}
-        technologyId={module.technologyId}
-        technologySlug={module.technology.slug}
-        technologyName={module.technology.name}
-        moduleSlug={module.slug}
-        moduleTitle={module.title}
+        moduleId={moduleData.id}
+        technologyId={moduleData.technologyId}
+        technologySlug={moduleData.technology.slug}
+        technologyName={moduleData.technology.name}
+        moduleSlug={moduleData.slug}
+        moduleTitle={moduleData.title}
         initialPost={
           post
             ? {
@@ -77,11 +137,7 @@ export default async function AdminNewPostPage({
                 isPublic: post.isPublic,
                 status: post.status,
                 content: {
-                  blocks: Array.isArray((post.content as any)?.blocks)
-                    ? (post.content as any).blocks
-                    : Array.isArray(post.content)
-                    ? post.content
-                    : [],
+                  html: initialHtml,
                 },
               }
             : null
