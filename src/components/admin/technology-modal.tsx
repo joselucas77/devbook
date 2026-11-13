@@ -3,7 +3,7 @@
 import { Controller, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { toast } from "sonner";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -92,6 +92,11 @@ export function TechnologyModal({
   const isEdit = !!initial?.id;
   const [imageMode, setImageMode] = useState<"file" | "url">("file");
   const [isUploading, setIsUploading] = useState(false);
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const [previewUrl, setPreviewUrl] = useState<string>("");
+  const previewUrlRef = useRef<string>("");
+  previewUrlRef.current = previewUrl;
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   const form = useForm<CreateTechnologyValues>({
     resolver: zodResolver(CreateTechnologySchema),
@@ -116,9 +121,23 @@ export function TechnologyModal({
   } = form;
 
   const currentImage = watch("image");
+  const displayImageSrc = previewUrl || currentImage;
+  const hasImage = Boolean(selectedFile || previewUrl || currentImage);
 
+  // Limpeza de recursos e sincronização de dados iniciais
   useEffect(() => {
-    if (!open) return;
+    if (!open) {
+      if (previewUrlRef.current && previewUrlRef.current.startsWith("blob:")) {
+        URL.revokeObjectURL(previewUrlRef.current);
+      }
+      setSelectedFile(null);
+      setPreviewUrl("");
+      if (fileInputRef.current) {
+        fileInputRef.current.value = "";
+      }
+      return;
+    }
+
     reset({
       name: initial?.name ?? "",
       slug: initial?.slug ?? "",
@@ -126,41 +145,92 @@ export function TechnologyModal({
       category: initial?.category ?? "",
       image: initial?.image ?? "",
     });
+    setSelectedFile(null);
+    setPreviewUrl(initial?.image ?? "");
     setImageMode(initial?.image ? "url" : "file");
+    if (fileInputRef.current) {
+      fileInputRef.current.value = "";
+    }
   }, [open, initial, reset]);
 
-  async function handleFileUpload(e: React.ChangeEvent<HTMLInputElement>) {
+  // Limpa Object URL se o componente for desmontado
+  useEffect(() => {
+    return () => {
+      if (previewUrlRef.current && previewUrlRef.current.startsWith("blob:")) {
+        URL.revokeObjectURL(previewUrlRef.current);
+      }
+    };
+  }, []);
+
+  function handleFileSelect(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0];
     if (!file) return;
 
-    setIsUploading(true);
-    try {
-      const formData = new FormData();
-      formData.append("file", file);
-
-      const res = await fetch("/api/admin/upload", {
-        method: "POST",
-        body: formData,
+    if (!file.type.startsWith("image/")) {
+      toast.error("Formato inválido", {
+        description: "Selecione um arquivo de imagem (PNG, JPG, SVG, WebP...).",
       });
+      return;
+    }
 
-      if (!res.ok) {
-        const err = await res.json().catch(() => ({}));
-        throw new Error(err?.message || "Falha no upload");
-      }
+    if (previewUrl && previewUrl.startsWith("blob:")) {
+      URL.revokeObjectURL(previewUrl);
+    }
 
-      const data = await res.json();
-      setValue("image", data.url, { shouldValidate: true, shouldDirty: true });
-      toast.success("Imagem enviada com sucesso para o Neon Storage!");
-    } catch (err: unknown) {
-      toast.error("Erro no upload", {
-        description: err instanceof Error ? err.message : "Erro inesperado",
-      });
-    } finally {
-      setIsUploading(false);
+    const objUrl = URL.createObjectURL(file);
+    setSelectedFile(file);
+    setPreviewUrl(objUrl);
+    setValue("image", "", { shouldValidate: true, shouldDirty: true });
+  }
+
+  function handleRemoveImage() {
+    if (previewUrl && previewUrl.startsWith("blob:")) {
+      URL.revokeObjectURL(previewUrl);
+    }
+    setSelectedFile(null);
+    setPreviewUrl("");
+    setValue("image", "", { shouldValidate: true, shouldDirty: true });
+    if (fileInputRef.current) {
+      fileInputRef.current.value = "";
     }
   }
 
   async function onSubmit(values: CreateTechnologyValues) {
+    let finalImageUrl = values.image || "";
+
+    // Upload do arquivo SOMENTE agora ao salvar de fato
+    if (imageMode === "file" && selectedFile) {
+      setIsUploading(true);
+      try {
+        const formData = new FormData();
+        formData.append("file", selectedFile);
+
+        const uploadRes = await fetch("/api/admin/upload", {
+          method: "POST",
+          body: formData,
+        });
+
+        if (!uploadRes.ok) {
+          const err = await uploadRes.json().catch(() => ({}));
+          throw new Error(err?.message || "Falha ao enviar a imagem para o armazenamento.");
+        }
+
+        const uploadData = await uploadRes.json();
+        finalImageUrl = uploadData.url;
+      } catch (err: unknown) {
+        setIsUploading(false);
+        toast.error("Erro no envio da imagem", {
+          description:
+            err instanceof Error
+              ? err.message
+              : "Não foi possível enviar a imagem. A tecnologia não foi salva.",
+        });
+        return; // Interrompe para não salvar sem a imagem
+      } finally {
+        setIsUploading(false);
+      }
+    }
+
     try {
       const res = await fetch(
         isEdit
@@ -169,7 +239,10 @@ export function TechnologyModal({
         {
           method: isEdit ? "PATCH" : "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(values),
+          body: JSON.stringify({
+            ...values,
+            image: finalImageUrl,
+          }),
         }
       );
 
@@ -179,6 +252,7 @@ export function TechnologyModal({
       }
 
       toast.success(isEdit ? "Tecnologia atualizada" : "Tecnologia criada");
+      handleRemoveImage();
       onOpenChange(false);
       onSaved?.();
     } catch (e: unknown) {
@@ -319,14 +393,15 @@ export function TechnologyModal({
             {imageMode === "file" ? (
               <div className="space-y-1 min-w-0">
                 <Input
+                  ref={fileInputRef}
                   type="file"
                   accept="image/*"
-                  disabled={isUploading}
-                  onChange={handleFileUpload}
+                  disabled={isUploading || isSubmitting}
+                  onChange={handleFileSelect}
                   className="cursor-pointer file:cursor-pointer w-full"
                 />
                 <p className="text-[11px] text-muted-foreground">
-                  Selecione um arquivo de imagem do computador. O upload para o Neon Storage é automático.
+                  Selecione um arquivo de imagem do computador. O envio para o banco será feito somente ao clicar em Salvar.
                 </p>
               </div>
             ) : (
@@ -335,6 +410,7 @@ export function TechnologyModal({
                   placeholder="https://exemplo.com/logo.png"
                   {...register("image")}
                   className="w-full"
+                  disabled={isUploading || isSubmitting}
                 />
                 <p className="text-[11px] text-muted-foreground">
                   Cole uma URL pública de imagem.
@@ -343,16 +419,16 @@ export function TechnologyModal({
             )}
 
             {isUploading && (
-              <div className="flex items-center gap-2 text-xs text-blue-500 py-1">
+              <div className="flex items-center gap-2 text-xs text-blue-500 py-1 font-mono">
                 <i className="bx bx-loader-alt animate-spin text-base" />
                 Enviando imagem para o Neon Object Storage...
               </div>
             )}
 
-            {currentImage && (
+            {hasImage && displayImageSrc && (
               <div className="flex items-center gap-3 p-2.5 rounded-lg border border-border bg-muted/30 w-full min-w-0 max-w-full overflow-hidden">
                 <img
-                  src={currentImage}
+                  src={displayImageSrc}
                   alt="Prévia"
                   className="h-10 w-10 rounded-md object-contain border border-border bg-background p-1 shrink-0"
                   onError={(e) => {
@@ -362,26 +438,31 @@ export function TechnologyModal({
                 <div className="flex-1 min-w-0 overflow-hidden">
                   <p
                     className="text-xs font-medium truncate block max-w-full"
-                    title={currentImage}
+                    title={selectedFile ? selectedFile.name : currentImage}
                   >
-                    {currentImage}
+                    {selectedFile
+                      ? `${selectedFile.name} (${Math.round(selectedFile.size / 1024)} KB)`
+                      : currentImage}
                   </p>
-                  <p className="text-[10px] text-emerald-500 flex items-center gap-1 shrink-0">
-                    <i className="bx bx-check-circle text-xs shrink-0" />
-                    <span>Imagem vinculada</span>
-                  </p>
+                  {selectedFile ? (
+                    <p className="text-[10px] text-amber-500 dark:text-amber-400 flex items-center gap-1 shrink-0">
+                      <i className="bx bx-time text-xs shrink-0" />
+                      <span>Será enviado ao salvar</span>
+                    </p>
+                  ) : (
+                    <p className="text-[10px] text-emerald-500 flex items-center gap-1 shrink-0">
+                      <i className="bx bx-check-circle text-xs shrink-0" />
+                      <span>Imagem vinculada</span>
+                    </p>
+                  )}
                 </div>
                 <Button
                   type="button"
                   variant="ghost"
                   size="icon"
+                  disabled={isUploading || isSubmitting}
                   className="h-7 w-7 text-rose-500 hover:text-rose-600 hover:bg-rose-500/10 shrink-0"
-                  onClick={() =>
-                    setValue("image", "", {
-                      shouldValidate: true,
-                      shouldDirty: true,
-                    })
-                  }
+                  onClick={handleRemoveImage}
                   title="Remover imagem"
                 >
                   <i className="bx bx-trash text-base" />
@@ -394,7 +475,11 @@ export function TechnologyModal({
             <Button
               type="button"
               variant="outline"
-              onClick={() => onOpenChange(false)}
+              disabled={isSubmitting || isUploading}
+              onClick={() => {
+                handleRemoveImage();
+                onOpenChange(false);
+              }}
             >
               Cancelar
             </Button>
@@ -403,10 +488,15 @@ export function TechnologyModal({
               disabled={isSubmitting || isUploading || !isValid}
               className="gap-2 bg-blue-600 hover:bg-blue-600/90 text-white"
             >
-              {isSubmitting ? (
+              {isUploading ? (
                 <>
                   <i className="bx bx-loader-alt animate-spin text-base" />
-                  Salvando...
+                  Enviando imagem...
+                </>
+              ) : isSubmitting ? (
+                <>
+                  <i className="bx bx-loader-alt animate-spin text-base" />
+                  Salvando tecnologia...
                 </>
               ) : (
                 <>

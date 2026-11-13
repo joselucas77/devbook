@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useMemo, useState, useRef, useEffect } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { z } from "zod";
@@ -67,6 +67,21 @@ export function PostForm({
     initialPost?.image ? "url" : "file"
   );
   const [isUploadingImage, setIsUploadingImage] = useState(false);
+  const [selectedCoverFile, setSelectedCoverFile] = useState<File | null>(null);
+  const [coverPreviewUrl, setCoverPreviewUrl] = useState<string>(
+    initialPost?.image ?? ""
+  );
+  const coverPreviewUrlRef = useRef<string>("");
+  coverPreviewUrlRef.current = coverPreviewUrl;
+  const coverInputRef = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    return () => {
+      if (coverPreviewUrlRef.current && coverPreviewUrlRef.current.startsWith("blob:")) {
+        URL.revokeObjectURL(coverPreviewUrlRef.current);
+      }
+    };
+  }, []);
 
   const form = useForm<CreatePostValues>({
     resolver: zodResolver(CreatePostSchema),
@@ -115,33 +130,39 @@ export function PostForm({
   };
 
   const currentImage = watch("image");
+  const displayCoverSrc = coverPreviewUrl || currentImage;
+  const hasCover = Boolean(selectedCoverFile || coverPreviewUrl || currentImage);
 
-  async function handleImageUpload(e: React.ChangeEvent<HTMLInputElement>) {
+  function handleCoverSelect(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0];
     if (!file) return;
 
-    setIsUploadingImage(true);
-    try {
-      const formData = new FormData();
-      formData.append("file", file);
-
-      const res = await fetch("/api/admin/upload", {
-        method: "POST",
-        body: formData,
+    if (!file.type.startsWith("image/")) {
+      toast.error("Formato inválido", {
+        description: "Selecione um arquivo de imagem.",
       });
+      return;
+    }
 
-      if (!res.ok) {
-        const err = await res.json().catch(() => ({}));
-        throw new Error(err?.message || "Falha no upload");
-      }
+    if (coverPreviewUrl && coverPreviewUrl.startsWith("blob:")) {
+      URL.revokeObjectURL(coverPreviewUrl);
+    }
 
-      const data = await res.json();
-      setValue("image", data.url, { shouldValidate: true, shouldDirty: true });
-      toast.success("Imagem enviada com sucesso para o Neon Storage!");
-    } catch (err: any) {
-      toast.error("Erro no upload", { description: err?.message });
-    } finally {
-      setIsUploadingImage(false);
+    const objUrl = URL.createObjectURL(file);
+    setSelectedCoverFile(file);
+    setCoverPreviewUrl(objUrl);
+    setValue("image", "", { shouldValidate: true, shouldDirty: true });
+  }
+
+  function handleRemoveCover() {
+    if (coverPreviewUrl && coverPreviewUrl.startsWith("blob:")) {
+      URL.revokeObjectURL(coverPreviewUrl);
+    }
+    setSelectedCoverFile(null);
+    setCoverPreviewUrl("");
+    setValue("image", "", { shouldValidate: true, shouldDirty: true });
+    if (coverInputRef.current) {
+      coverInputRef.current.value = "";
     }
   }
 
@@ -188,13 +209,51 @@ export function PostForm({
   };
 
   const onSubmit = async (values: CreatePostValues) => {
+    let finalImageUrl = values.image || "";
+
+    // Upload da imagem de capa SOMENTE agora ao salvar
+    if (imageMode === "file" && selectedCoverFile) {
+      setIsUploadingImage(true);
+      try {
+        const formData = new FormData();
+        formData.append("file", selectedCoverFile);
+
+        const uploadRes = await fetch("/api/admin/upload", {
+          method: "POST",
+          body: formData,
+        });
+
+        if (!uploadRes.ok) {
+          const err = await uploadRes.json().catch(() => ({}));
+          throw new Error(err?.message || "Falha no envio da imagem de capa");
+        }
+
+        const data = await uploadRes.json();
+        finalImageUrl = data.url;
+      } catch (err: unknown) {
+        setIsUploadingImage(false);
+        toast.error("Erro no envio da imagem de capa", {
+          description:
+            err instanceof Error
+              ? err.message
+              : "Falha ao enviar imagem. O post não foi salvo.",
+        });
+        return; // Interrompe para não salvar sem a imagem de capa esperada
+      } finally {
+        setIsUploadingImage(false);
+      }
+    }
+
     try {
       const res = await fetch(
         isEdit ? `/api/admin/posts/${initialPost!.id}` : "/api/admin/posts",
         {
           method: isEdit ? "PATCH" : "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(values),
+          body: JSON.stringify({
+            ...values,
+            image: finalImageUrl,
+          }),
         }
       );
 
@@ -207,13 +266,18 @@ export function PostForm({
         description: "Dados salvos com sucesso.",
       });
 
+      handleRemoveCover();
+
       router.push(
         `/admin/tecnologias/${technologySlug}/modulos/${moduleSlug}/posts`
       );
       router.refresh();
-    } catch (e: any) {
+    } catch (e: unknown) {
       toast.error("Erro ao salvar post", {
-        description: e?.message ?? "Verifique os dados e tente novamente.",
+        description:
+          e instanceof Error
+            ? e.message
+            : "Verifique os dados e tente novamente.",
       });
       console.error(e);
     }
@@ -364,14 +428,15 @@ export function PostForm({
             {imageMode === "file" ? (
               <div className="space-y-1">
                 <Input
+                  ref={coverInputRef}
                   type="file"
                   accept="image/*"
-                  disabled={isUploadingImage}
-                  onChange={handleImageUpload}
+                  disabled={isUploadingImage || isSubmitting}
+                  onChange={handleCoverSelect}
                   className="cursor-pointer file:cursor-pointer"
                 />
                 <p className="text-[11px] text-muted-foreground">
-                  Selecione um arquivo de imagem. O upload para o Neon Storage é automático.
+                  Selecione um arquivo de imagem. O envio para o banco será feito somente ao salvar.
                 </p>
               </div>
             ) : (
@@ -379,6 +444,7 @@ export function PostForm({
                 <Input
                   placeholder="https://exemplo.com/banner.png"
                   {...register("image")}
+                  disabled={isUploadingImage || isSubmitting}
                 />
                 <p className="text-[11px] text-muted-foreground">
                   Cole uma URL pública de imagem.
@@ -387,16 +453,16 @@ export function PostForm({
             )}
 
             {isUploadingImage && (
-              <div className="flex items-center gap-2 text-xs text-blue-500 py-1">
+              <div className="flex items-center gap-2 text-xs text-blue-500 py-1 font-mono">
                 <i className="bx bx-loader-alt animate-spin text-base" />
                 Enviando imagem para o Neon Object Storage...
               </div>
             )}
 
-            {currentImage && (
+            {hasCover && displayCoverSrc && (
               <div className="flex items-center gap-3 p-2.5 rounded-lg border border-border bg-muted/30 w-full min-w-0 max-w-full overflow-hidden">
                 <img
-                  src={currentImage}
+                  src={displayCoverSrc}
                   alt="Prévia"
                   className="h-12 w-20 rounded-md object-cover border border-border bg-background shrink-0"
                   onError={(e) => {
@@ -406,26 +472,31 @@ export function PostForm({
                 <div className="flex-1 min-w-0 overflow-hidden">
                   <p
                     className="text-xs font-medium truncate block max-w-full"
-                    title={currentImage}
+                    title={selectedCoverFile ? selectedCoverFile.name : currentImage}
                   >
-                    {currentImage}
+                    {selectedCoverFile
+                      ? `${selectedCoverFile.name} (${Math.round(selectedCoverFile.size / 1024)} KB)`
+                      : currentImage}
                   </p>
-                  <p className="text-[10px] text-emerald-500 flex items-center gap-1 shrink-0">
-                    <i className="bx bx-check-circle text-xs shrink-0" />
-                    <span>Imagem vinculada</span>
-                  </p>
+                  {selectedCoverFile ? (
+                    <p className="text-[10px] text-amber-500 dark:text-amber-400 flex items-center gap-1 shrink-0">
+                      <i className="bx bx-time text-xs shrink-0" />
+                      <span>Será enviado ao salvar</span>
+                    </p>
+                  ) : (
+                    <p className="text-[10px] text-emerald-500 flex items-center gap-1 shrink-0">
+                      <i className="bx bx-check-circle text-xs shrink-0" />
+                      <span>Imagem vinculada</span>
+                    </p>
+                  )}
                 </div>
                 <Button
                   type="button"
                   variant="ghost"
                   size="icon"
+                  disabled={isUploadingImage || isSubmitting}
                   className="h-7 w-7 text-rose-500 hover:text-rose-600 hover:bg-rose-500/10 shrink-0"
-                  onClick={() =>
-                    setValue("image", "", {
-                      shouldValidate: true,
-                      shouldDirty: true,
-                    })
-                  }
+                  onClick={handleRemoveCover}
                   title="Remover imagem"
                 >
                   <i className="bx bx-trash text-base" />
