@@ -90,7 +90,7 @@ export function PostEditor({
     editorProps: {
       attributes: {
         class:
-          "prose prose-invert prose-blue max-w-none focus:outline-none min-h-[420px] p-5 text-foreground text-sm font-sans leading-relaxed",
+          "prose dark:prose-invert prose-blue max-w-none focus:outline-none min-h-[420px] p-5 text-foreground text-sm font-sans leading-relaxed",
       },
     },
     onUpdate: ({ editor }) => {
@@ -127,11 +127,11 @@ export function PostEditor({
     if (val === "paragraph") {
       editor.chain().focus().setParagraph().run();
     } else if (val === "h1") {
-      editor.chain().focus().toggleHeading({ level: 1 }).run();
+      editor.chain().focus().setHeading({ level: 1 }).run();
     } else if (val === "h2") {
-      editor.chain().focus().toggleHeading({ level: 2 }).run();
+      editor.chain().focus().setHeading({ level: 2 }).run();
     } else if (val === "h3") {
-      editor.chain().focus().toggleHeading({ level: 3 }).run();
+      editor.chain().focus().setHeading({ level: 3 }).run();
     }
   };
 
@@ -153,12 +153,17 @@ export function PostEditor({
       ) {
         url = `https://${url}`;
       }
-      editor
-        .chain()
-        .focus()
-        .extendMarkRange("link")
-        .setLink({ href: url })
-        .run();
+
+      if (editor.state.selection.empty && !editor.isActive("link")) {
+        editor.chain().focus().insertContent(`<a href="${url}">${url}</a>`).run();
+      } else {
+        editor
+          .chain()
+          .focus()
+          .extendMarkRange("link")
+          .setLink({ href: url })
+          .run();
+      }
     }
     setLinkOpen(false);
   };
@@ -309,8 +314,9 @@ export function PostEditor({
               className={cn(
                 "h-8 w-8 rounded text-muted-foreground transition-colors hover:text-foreground hover:bg-muted",
                 editor.isActive("link") &&
-                  "bg-primary/15 text-primary hover:bg-primary/20 hover:text-primary font-medium"
+                  "bg-blue-600/15 text-blue-600 dark:bg-blue-500/25 dark:text-blue-400 font-semibold border border-blue-500/30"
               )}
+              onMouseDown={(e) => e.preventDefault()}
               onClick={openLinkPopover}
               title="Inserir ou editar link"
             >
@@ -440,14 +446,14 @@ function ToolbarButton({
       className={cn(
         "h-8 w-8 rounded text-muted-foreground transition-colors hover:text-foreground hover:bg-muted",
         active &&
-          "bg-primary/15 text-primary hover:bg-primary/20 hover:text-primary font-medium"
+          "bg-blue-600/15 text-blue-600 dark:bg-blue-500/25 dark:text-blue-400 font-semibold border border-blue-500/30"
       )}
       disabled={disabled}
       onMouseDown={(e) => {
         // Evita perder a seleção de texto ao clicar nos botões da toolbar
         e.preventDefault();
-        onClick();
       }}
+      onClick={onClick}
       title={title}
     >
       {children}

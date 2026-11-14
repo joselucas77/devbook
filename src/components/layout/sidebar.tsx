@@ -14,8 +14,8 @@ interface AppSidebarProps extends React.ComponentProps<"aside"> {
 }
 
 const navItems = [
-  { label: "Tecnologias", href: "/admin", icon: "bx-code-alt" },
-  { label: "Ver Site", href: "/tecnologias", icon: "bx-globe" },
+  { label: "Tecnologias", href: "/admin", icon: "bx-code-alt", external: false },
+  { label: "Ver Site", href: "/tecnologias", icon: "bx-globe", external: true },
 ];
 
 export function AppSidebar({
@@ -95,6 +95,8 @@ export function AppSidebar({
             <Link
               key={item.href}
               href={item.href}
+              target={item.external ? "_blank" : undefined}
+              rel={item.external ? "noopener noreferrer" : undefined}
               title={!open ? item.label : undefined}
               className={cn(
                 "flex items-center gap-3 rounded-lg py-2.5 font-medium text-sm transition-colors",
@@ -105,9 +107,12 @@ export function AppSidebar({
               )}>
               <i className={cn("bx text-xl shrink-0", item.icon)} />
               {open && (
-                <span className="truncate animate-in fade-in-0 duration-150">
+                <span className="truncate animate-in fade-in-0 duration-150 flex-1">
                   {item.label}
                 </span>
+              )}
+              {open && item.external && (
+                <i className="bx bx-link-external text-xs opacity-60 shrink-0" />
               )}
             </Link>
           );

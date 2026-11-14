@@ -256,6 +256,46 @@ body::-webkit-scrollbar {
   min-height: 380px;
 }
 
+.ProseMirror,
+.tiptap-content {
+  color: var(--color-foreground) !important;
+}
+
+.ProseMirror strong,
+.tiptap-content strong,
+.ProseMirror b,
+.tiptap-content b {
+  color: var(--color-foreground) !important;
+  font-weight: 700 !important;
+}
+
+.ProseMirror h1,
+.tiptap-content h1,
+.ProseMirror h2,
+.tiptap-content h2,
+.ProseMirror h3,
+.tiptap-content h3 {
+  color: var(--color-foreground) !important;
+  font-weight: 700 !important;
+}
+
+.ProseMirror em,
+.tiptap-content em,
+.ProseMirror i,
+.tiptap-content i {
+  font-style: italic !important;
+}
+
+.ProseMirror u,
+.tiptap-content u {
+  text-decoration: underline !important;
+}
+
+.ProseMirror s,
+.tiptap-content s {
+  text-decoration: line-through !important;
+}
+
 .ProseMirror p.is-editor-empty:first-child::before {
   content: attr(data-placeholder);
   float: left;

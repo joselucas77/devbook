@@ -34,7 +34,7 @@ type CreatePostValues = z.infer<typeof CreatePostSchema>;
 
 export function PostForm({
   moduleId,
-  technologyId,
+  technologyId: _technologyId,
   technologySlug,
   technologyName,
   moduleSlug,
@@ -60,6 +60,7 @@ export function PostForm({
   };
 }) {
   const router = useRouter();
+  void _technologyId;
   const isEdit = !!initialPost?.id;
   const [imageMode, setImageMode] = useState<"file" | "url">(
     initialPost?.image ? "url" : "file"
@@ -245,63 +246,52 @@ export function PostForm({
 
   return (
     <section className="max-w-3xl mx-auto mb-20">
-      <div className="flex items-center justify-between gap-4 mb-8">
-        <div>
-          <h1 className="text-3xl md:text-4xl font-bold leading-tight mb-2">
-            {isEdit ? "Editar Post" : "Criar Post"}
-          </h1>
-          <p className="text-sm text-muted-foreground">
-            {technologyName} / {moduleTitle}
-          </p>
-        </div>
-
-        <Button
-          type="button"
-          onClick={handleSubmit(onSubmit, onInvalid)}
-          disabled={isSubmitting || !isValid}
-          className="gap-2"
-        >
-          <i className="bx bx-save text-base" />
-          Salvar
-        </Button>
+      <div className="mb-6">
+        <h1 className="text-2xl sm:text-3xl font-bold leading-tight mb-1">
+          {isEdit ? "Editar Post" : "Criar Post"}
+        </h1>
+        <p className="text-xs sm:text-sm text-muted-foreground">
+          {technologyName} / {moduleTitle}
+        </p>
       </div>
 
       {hasAnyError && (
         <div className="mb-4 text-sm text-rose-500">
-          Existem campos inválidos. Clique em “Salvar” para ver o motivo.
+          Existem campos inválidos. Clique em “Salvar Post” para ver o motivo.
         </div>
       )}
 
-      <form onSubmit={handleSubmit(onSubmit, onInvalid)} className="space-y-6">
-        <Card className="p-4 space-y-4">
-          <div className="space-y-2">
-            <Label>Módulo</Label>
-            <Input type="number" value={moduleId} readOnly className="bg-muted cursor-not-allowed" />
+      <form onSubmit={handleSubmit(onSubmit, onInvalid)} className="space-y-5">
+        <Card className="p-4 sm:p-5 space-y-3">
+          <div className="space-y-1">
+            <Label className="text-xs font-medium">Módulo</Label>
+            <Input type="number" value={moduleId} readOnly className="h-9 bg-muted cursor-not-allowed" />
             <input
               type="hidden"
               {...register("moduleId", { valueAsNumber: true })}
               value={moduleId}
             />
             {errors.moduleId?.message && (
-              <p className="text-sm text-destructive">{errors.moduleId.message}</p>
+              <p className="text-xs text-destructive">{errors.moduleId.message}</p>
             )}
           </div>
 
-          <div className="space-y-2">
-            <Label>Título</Label>
-            <Input placeholder="Ex: Variáveis em PHP" {...register("title")} />
+          <div className="space-y-1">
+            <Label className="text-xs font-medium">Título</Label>
+            <Input placeholder="Ex: Variáveis em PHP" className="h-9" {...register("title")} />
             {errors.title?.message && (
-              <p className="text-sm text-destructive">{errors.title.message}</p>
+              <p className="text-xs text-destructive">{errors.title.message}</p>
             )}
           </div>
 
-          <div className="space-y-2">
-            <Label>Slug</Label>
+          <div className="space-y-1">
+            <Label className="text-xs font-medium">Slug</Label>
             <div className="flex gap-2">
-              <Input placeholder="ex: variaveis-php" {...register("slug")} />
+              <Input placeholder="ex: variaveis-php" className="h-9" {...register("slug")} />
               <Button
                 type="button"
                 variant="secondary"
+                size="sm"
                 onClick={() =>
                   setValue("slug", slugifySmart(getValues("title")), {
                     shouldValidate: true,
@@ -309,45 +299,45 @@ export function PostForm({
                     shouldTouch: true,
                   })
                 }
-                className="gap-2"
+                className="h-9 gap-1.5 shrink-0"
               >
                 <i className="bx bx-sparkles text-base" />
                 Gerar
               </Button>
             </div>
             {errors.slug?.message && (
-              <p className="text-sm text-destructive">{errors.slug.message}</p>
+              <p className="text-xs text-destructive">{errors.slug.message}</p>
             )}
           </div>
 
-          <div className="space-y-2">
-            <Label>Conceito</Label>
+          <div className="space-y-1">
+            <Label className="text-xs font-medium">Conceito</Label>
             <Textarea
               placeholder="Uma frase curta explicando o objetivo do post."
-              className="min-h-[90px]"
+              className="min-h-[70px] resize-y text-sm py-2"
               {...register("concept")}
             />
             {errors.concept?.message && (
-              <p className="text-sm text-destructive">{errors.concept.message}</p>
+              <p className="text-xs text-destructive">{errors.concept.message}</p>
             )}
           </div>
 
-          <div className="space-y-2">
-            <Label>Resumo</Label>
+          <div className="space-y-1">
+            <Label className="text-xs font-medium">Resumo</Label>
             <Textarea
               placeholder="Resumo para cards/listagens."
-              className="min-h-[90px]"
+              className="min-h-[70px] resize-y text-sm py-2"
               {...register("summary")}
             />
             {errors.summary?.message && (
-              <p className="text-sm text-destructive">{errors.summary.message}</p>
+              <p className="text-xs text-destructive">{errors.summary.message}</p>
             )}
           </div>
 
           {/* Imagem de Capa do Post */}
-          <div className="space-y-2">
+          <div className="space-y-1.5">
             <div className="flex items-center justify-between">
-              <Label>Imagem de Capa (Opcional)</Label>
+              <Label className="text-xs font-medium">Imagem de Capa (Opcional)</Label>
               <div className="flex items-center gap-1">
                 <Button
                   type="button"
@@ -378,7 +368,7 @@ export function PostForm({
                   accept="image/*"
                   disabled={isUploadingImage || isSubmitting}
                   onChange={handleCoverSelect}
-                  className="cursor-pointer file:cursor-pointer"
+                  className="cursor-pointer file:cursor-pointer h-9 text-xs"
                 />
                 <p className="text-[11px] text-muted-foreground">
                   Selecione um arquivo de imagem. O envio para o banco será feito somente ao salvar.
@@ -390,6 +380,7 @@ export function PostForm({
                   placeholder="https://exemplo.com/banner.png"
                   {...register("image")}
                   disabled={isUploadingImage || isSubmitting}
+                  className="h-9"
                 />
                 <p className="text-[11px] text-muted-foreground">
                   Cole uma URL pública de imagem.
@@ -474,15 +465,15 @@ export function PostForm({
               control={control}
               name="status"
               render={({ field }) => (
-                <div className="w-[180px] space-y-2">
-                  <Label>Status</Label>
+                <div className="w-[180px] space-y-1">
+                  <Label className="text-xs font-medium">Status</Label>
                   <Select
                     value={field.value}
                     onValueChange={(v) =>
                       field.onChange(v as CreatePostValues["status"])
                     }
                   >
-                    <SelectTrigger>
+                    <SelectTrigger className="h-9">
                       <SelectValue placeholder="Selecione" />
                     </SelectTrigger>
                     <SelectContent>

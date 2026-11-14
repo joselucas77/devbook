@@ -6,46 +6,14 @@ import { Button } from "@/components/ui/button";
 import { usePathname, useRouter } from "next/navigation";
 import { ThemeToggle } from "./theme-toggle";
 import { GlobalSearch } from "./global-search";
-import { useEffect, useState } from "react";
-
-interface AuthUser {
-  id: string;
-  name: string;
-  email: string;
-  role: "ADMIN" | "EDITOR" | "VIEWER";
-}
 
 const HomeOrCatalogPaths = ["/", "/tecnologias"];
 
 export function HeaderSite() {
   const currentPath = usePathname();
   const router = useRouter();
-  const [user, setUser] = useState<AuthUser | null>(null);
 
   const isHomeOrCatalog = HomeOrCatalogPaths.includes(currentPath);
-
-  useEffect(() => {
-    let isMounted = true;
-    async function checkAuth() {
-      try {
-        const res = await fetch("/api/auth/me", { cache: "no-store" });
-        if (res.ok) {
-          const data = await res.json();
-          if (isMounted && data.isAuthenticated && data.user) {
-            setUser(data.user);
-          }
-        }
-      } catch (err) {
-        console.error("Erro ao validar sessão:", err);
-      }
-    }
-    checkAuth();
-    return () => {
-      isMounted = false;
-    };
-  }, [currentPath]);
-
-  const isAdminOrEditor = user?.role === "ADMIN" || user?.role === "EDITOR";
 
   return (
     <>
@@ -84,22 +52,8 @@ export function HeaderSite() {
             )}
           </div>
 
-          {/* Direita: Acesso ao Painel (apenas Admin/Editor), Campo de Pesquisa (Desktop) e ThemeToggle */}
+          {/* Direita: Campo de Pesquisa (Desktop) e ThemeToggle */}
           <div className="flex items-center gap-2 sm:gap-3 shrink-0">
-            {isAdminOrEditor && (
-              <Button
-                variant="outline"
-                size="icon"
-                className="h-9 w-9 text-muted-foreground hover:text-foreground border-border/80 shrink-0"
-                asChild
-                title="Acessar Painel de Administração"
-              >
-                <Link href="/admin">
-                  <i className="bx bx-cog text-lg" />
-                </Link>
-              </Button>
-            )}
-
             {/* Campo de Pesquisa Global (Desktop posicionado à direita) */}
             <div className="hidden md:block w-48 sm:w-60 lg:w-72">
               <GlobalSearch variant="header" />

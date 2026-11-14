@@ -102,12 +102,14 @@ export default async function PostPage({
   }
 
   const published = data.publishedAt ? formatDatePtBR(data.publishedAt) : "";
-  const contentObj = data.content as any;
+  const contentObj = data.content as Record<string, unknown> | null;
   const htmlContent =
     typeof contentObj?.html === "string" && contentObj.html.trim()
       ? contentObj.html
       : null;
-  const blocks = (contentObj?.blocks as PostContentBlock[]) ?? [];
+  const blocks = Array.isArray(contentObj?.blocks)
+    ? (contentObj.blocks as PostContentBlock[])
+    : [];
 
   return (
     <section className="max-w-3xl mx-auto mb-20">
@@ -147,7 +149,7 @@ export default async function PostPage({
         )}
       </div>
 
-      <article className="prose prose-invert prose-blue max-w-none">
+      <article className="prose dark:prose-invert prose-blue max-w-none">
         {htmlContent ? (
           <div
             className="tiptap-content leading-relaxed"
