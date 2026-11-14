@@ -72,8 +72,8 @@ export interface Post {
   id: number;
   title: string;
   slug: string;
-  concept: string;
-  summary: string;
+  concept?: string | null;
+  summary?: string;
   content: PostContent;
   isPublic: boolean;
   status: "DRAFT" | "PUBLISHED" | "ARCHIVED";

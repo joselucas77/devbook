@@ -44,8 +44,8 @@ export async function POST(req: Request) {
       data: {
         title: data.title,
         slug: data.slug,
-        concept: data.concept,
-        summary: data.summary,
+        concept: data.concept ?? "",
+        summary: data.summary ?? "",
         image: data.image || null,
         content: finalContent,
         isPublic: data.isPublic,

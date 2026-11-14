@@ -51,8 +51,8 @@ export function PostForm({
     id: number;
     title: string;
     slug: string;
-    concept: string;
-    summary: string;
+    concept?: string | null;
+    summary?: string;
     image?: string | null;
     isPublic: boolean;
     status: "DRAFT" | "PUBLISHED" | "ARCHIVED";
@@ -231,7 +231,6 @@ export function PostForm({
     const first =
       errs.title?.message ||
       errs.slug?.message ||
-      errs.concept?.message ||
       errs.summary?.message ||
       errs.moduleId?.message ||
       errs.content?.html?.message ||
@@ -311,21 +310,9 @@ export function PostForm({
           </div>
 
           <div className="space-y-1">
-            <Label className="text-xs font-medium">Conceito</Label>
+            <Label className="text-xs font-medium">Resumo / Descrição (Opcional)</Label>
             <Textarea
-              placeholder="Uma frase curta explicando o objetivo do post."
-              className="min-h-[70px] resize-y text-sm py-2"
-              {...register("concept")}
-            />
-            {errors.concept?.message && (
-              <p className="text-xs text-destructive">{errors.concept.message}</p>
-            )}
-          </div>
-
-          <div className="space-y-1">
-            <Label className="text-xs font-medium">Resumo</Label>
-            <Textarea
-              placeholder="Resumo para cards/listagens."
+              placeholder="Breve resumo ou descrição do post (opcional)."
               className="min-h-[70px] resize-y text-sm py-2"
               {...register("summary")}
             />

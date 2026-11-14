@@ -5279,7 +5279,7 @@ export namespace Prisma {
     id: number
     title: string
     slug: string
-    concept: string
+    concept: string | null
     summary: string
     image: string | null
     content: JsonValue
@@ -5409,7 +5409,7 @@ export namespace Prisma {
       id: number
       title: string
       slug: string
-      concept: string
+      concept: string | null
       summary: string
       image: string | null
       content: Prisma.JsonValue
@@ -10078,7 +10078,7 @@ export namespace Prisma {
     id?: IntFilter<"Post"> | number
     title?: StringFilter<"Post"> | string
     slug?: StringFilter<"Post"> | string
-    concept?: StringFilter<"Post"> | string
+    concept?: StringNullableFilter<"Post"> | string | null
     summary?: StringFilter<"Post"> | string
     image?: StringNullableFilter<"Post"> | string | null
     content?: JsonFilter<"Post">
@@ -10097,7 +10097,7 @@ export namespace Prisma {
     id?: SortOrder
     title?: SortOrder
     slug?: SortOrder
-    concept?: SortOrder
+    concept?: SortOrderInput | SortOrder
     summary?: SortOrder
     image?: SortOrderInput | SortOrder
     content?: SortOrder
@@ -10120,7 +10120,7 @@ export namespace Prisma {
     NOT?: PostWhereInput | PostWhereInput[]
     title?: StringFilter<"Post"> | string
     slug?: StringFilter<"Post"> | string
-    concept?: StringFilter<"Post"> | string
+    concept?: StringNullableFilter<"Post"> | string | null
     summary?: StringFilter<"Post"> | string
     image?: StringNullableFilter<"Post"> | string | null
     content?: JsonFilter<"Post">
@@ -10139,7 +10139,7 @@ export namespace Prisma {
     id?: SortOrder
     title?: SortOrder
     slug?: SortOrder
-    concept?: SortOrder
+    concept?: SortOrderInput | SortOrder
     summary?: SortOrder
     image?: SortOrderInput | SortOrder
     content?: SortOrder
@@ -10164,7 +10164,7 @@ export namespace Prisma {
     id?: IntWithAggregatesFilter<"Post"> | number
     title?: StringWithAggregatesFilter<"Post"> | string
     slug?: StringWithAggregatesFilter<"Post"> | string
-    concept?: StringWithAggregatesFilter<"Post"> | string
+    concept?: StringNullableWithAggregatesFilter<"Post"> | string | null
     summary?: StringWithAggregatesFilter<"Post"> | string
     image?: StringNullableWithAggregatesFilter<"Post"> | string | null
     content?: JsonWithAggregatesFilter<"Post">
@@ -10639,8 +10639,8 @@ export namespace Prisma {
   export type PostCreateInput = {
     title: string
     slug: string
-    concept: string
-    summary: string
+    concept?: string | null
+    summary?: string
     image?: string | null
     content: JsonNullValueInput | InputJsonValue
     isPublic?: boolean
@@ -10656,8 +10656,8 @@ export namespace Prisma {
     id?: number
     title: string
     slug: string
-    concept: string
-    summary: string
+    concept?: string | null
+    summary?: string
     image?: string | null
     content: JsonNullValueInput | InputJsonValue
     isPublic?: boolean
@@ -10672,7 +10672,7 @@ export namespace Prisma {
   export type PostUpdateInput = {
     title?: StringFieldUpdateOperationsInput | string
     slug?: StringFieldUpdateOperationsInput | string
-    concept?: StringFieldUpdateOperationsInput | string
+    concept?: NullableStringFieldUpdateOperationsInput | string | null
     summary?: StringFieldUpdateOperationsInput | string
     image?: NullableStringFieldUpdateOperationsInput | string | null
     content?: JsonNullValueInput | InputJsonValue
@@ -10689,7 +10689,7 @@ export namespace Prisma {
     id?: IntFieldUpdateOperationsInput | number
     title?: StringFieldUpdateOperationsInput | string
     slug?: StringFieldUpdateOperationsInput | string
-    concept?: StringFieldUpdateOperationsInput | string
+    concept?: NullableStringFieldUpdateOperationsInput | string | null
     summary?: StringFieldUpdateOperationsInput | string
     image?: NullableStringFieldUpdateOperationsInput | string | null
     content?: JsonNullValueInput | InputJsonValue
@@ -10706,8 +10706,8 @@ export namespace Prisma {
     id?: number
     title: string
     slug: string
-    concept: string
-    summary: string
+    concept?: string | null
+    summary?: string
     image?: string | null
     content: JsonNullValueInput | InputJsonValue
     isPublic?: boolean
@@ -10722,7 +10722,7 @@ export namespace Prisma {
   export type PostUpdateManyMutationInput = {
     title?: StringFieldUpdateOperationsInput | string
     slug?: StringFieldUpdateOperationsInput | string
-    concept?: StringFieldUpdateOperationsInput | string
+    concept?: NullableStringFieldUpdateOperationsInput | string | null
     summary?: StringFieldUpdateOperationsInput | string
     image?: NullableStringFieldUpdateOperationsInput | string | null
     content?: JsonNullValueInput | InputJsonValue
@@ -10737,7 +10737,7 @@ export namespace Prisma {
     id?: IntFieldUpdateOperationsInput | number
     title?: StringFieldUpdateOperationsInput | string
     slug?: StringFieldUpdateOperationsInput | string
-    concept?: StringFieldUpdateOperationsInput | string
+    concept?: NullableStringFieldUpdateOperationsInput | string | null
     summary?: StringFieldUpdateOperationsInput | string
     image?: NullableStringFieldUpdateOperationsInput | string | null
     content?: JsonNullValueInput | InputJsonValue
@@ -12217,8 +12217,8 @@ export namespace Prisma {
   export type PostCreateWithoutAuthorInput = {
     title: string
     slug: string
-    concept: string
-    summary: string
+    concept?: string | null
+    summary?: string
     image?: string | null
     content: JsonNullValueInput | InputJsonValue
     isPublic?: boolean
@@ -12233,8 +12233,8 @@ export namespace Prisma {
     id?: number
     title: string
     slug: string
-    concept: string
-    summary: string
+    concept?: string | null
+    summary?: string
     image?: string | null
     content: JsonNullValueInput | InputJsonValue
     isPublic?: boolean
@@ -12343,7 +12343,7 @@ export namespace Prisma {
     id?: IntFilter<"Post"> | number
     title?: StringFilter<"Post"> | string
     slug?: StringFilter<"Post"> | string
-    concept?: StringFilter<"Post"> | string
+    concept?: StringNullableFilter<"Post"> | string | null
     summary?: StringFilter<"Post"> | string
     image?: StringNullableFilter<"Post"> | string | null
     content?: JsonFilter<"Post">
@@ -12440,8 +12440,8 @@ export namespace Prisma {
   export type PostCreateWithoutModuleInput = {
     title: string
     slug: string
-    concept: string
-    summary: string
+    concept?: string | null
+    summary?: string
     image?: string | null
     content: JsonNullValueInput | InputJsonValue
     isPublic?: boolean
@@ -12456,8 +12456,8 @@ export namespace Prisma {
     id?: number
     title: string
     slug: string
-    concept: string
-    summary: string
+    concept?: string | null
+    summary?: string
     image?: string | null
     content: JsonNullValueInput | InputJsonValue
     isPublic?: boolean
@@ -12821,8 +12821,8 @@ export namespace Prisma {
     id?: number
     title: string
     slug: string
-    concept: string
-    summary: string
+    concept?: string | null
+    summary?: string
     image?: string | null
     content: JsonNullValueInput | InputJsonValue
     isPublic?: boolean
@@ -12911,7 +12911,7 @@ export namespace Prisma {
   export type PostUpdateWithoutAuthorInput = {
     title?: StringFieldUpdateOperationsInput | string
     slug?: StringFieldUpdateOperationsInput | string
-    concept?: StringFieldUpdateOperationsInput | string
+    concept?: NullableStringFieldUpdateOperationsInput | string | null
     summary?: StringFieldUpdateOperationsInput | string
     image?: NullableStringFieldUpdateOperationsInput | string | null
     content?: JsonNullValueInput | InputJsonValue
@@ -12927,7 +12927,7 @@ export namespace Prisma {
     id?: IntFieldUpdateOperationsInput | number
     title?: StringFieldUpdateOperationsInput | string
     slug?: StringFieldUpdateOperationsInput | string
-    concept?: StringFieldUpdateOperationsInput | string
+    concept?: NullableStringFieldUpdateOperationsInput | string | null
     summary?: StringFieldUpdateOperationsInput | string
     image?: NullableStringFieldUpdateOperationsInput | string | null
     content?: JsonNullValueInput | InputJsonValue
@@ -12943,7 +12943,7 @@ export namespace Prisma {
     id?: IntFieldUpdateOperationsInput | number
     title?: StringFieldUpdateOperationsInput | string
     slug?: StringFieldUpdateOperationsInput | string
-    concept?: StringFieldUpdateOperationsInput | string
+    concept?: NullableStringFieldUpdateOperationsInput | string | null
     summary?: StringFieldUpdateOperationsInput | string
     image?: NullableStringFieldUpdateOperationsInput | string | null
     content?: JsonNullValueInput | InputJsonValue
@@ -12992,8 +12992,8 @@ export namespace Prisma {
     id?: number
     title: string
     slug: string
-    concept: string
-    summary: string
+    concept?: string | null
+    summary?: string
     image?: string | null
     content: JsonNullValueInput | InputJsonValue
     isPublic?: boolean
@@ -13007,7 +13007,7 @@ export namespace Prisma {
   export type PostUpdateWithoutModuleInput = {
     title?: StringFieldUpdateOperationsInput | string
     slug?: StringFieldUpdateOperationsInput | string
-    concept?: StringFieldUpdateOperationsInput | string
+    concept?: NullableStringFieldUpdateOperationsInput | string | null
     summary?: StringFieldUpdateOperationsInput | string
     image?: NullableStringFieldUpdateOperationsInput | string | null
     content?: JsonNullValueInput | InputJsonValue
@@ -13023,7 +13023,7 @@ export namespace Prisma {
     id?: IntFieldUpdateOperationsInput | number
     title?: StringFieldUpdateOperationsInput | string
     slug?: StringFieldUpdateOperationsInput | string
-    concept?: StringFieldUpdateOperationsInput | string
+    concept?: NullableStringFieldUpdateOperationsInput | string | null
     summary?: StringFieldUpdateOperationsInput | string
     image?: NullableStringFieldUpdateOperationsInput | string | null
     content?: JsonNullValueInput | InputJsonValue
@@ -13039,7 +13039,7 @@ export namespace Prisma {
     id?: IntFieldUpdateOperationsInput | number
     title?: StringFieldUpdateOperationsInput | string
     slug?: StringFieldUpdateOperationsInput | string
-    concept?: StringFieldUpdateOperationsInput | string
+    concept?: NullableStringFieldUpdateOperationsInput | string | null
     summary?: StringFieldUpdateOperationsInput | string
     image?: NullableStringFieldUpdateOperationsInput | string | null
     content?: JsonNullValueInput | InputJsonValue

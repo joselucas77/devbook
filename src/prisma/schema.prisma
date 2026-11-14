@@ -67,8 +67,8 @@ model Post {
   id          Int        @id @default(autoincrement())
   title       String
   slug        String
-  concept     String
-  summary     String
+  concept     String?    @default("")
+  summary     String     @default("")
   image       String?
   content     Json
   isPublic    Boolean    @default(true)
