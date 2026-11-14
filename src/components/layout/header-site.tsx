@@ -2,19 +2,10 @@
 
 import Link from "next/link";
 import Image from "next/image";
-import { Button } from "@/components/ui/button";
-import { usePathname, useRouter } from "next/navigation";
 import { ThemeToggle } from "./theme-toggle";
 import { GlobalSearch } from "./global-search";
 
-const HomeOrCatalogPaths = ["/", "/tecnologias"];
-
 export function HeaderSite() {
-  const currentPath = usePathname();
-  const router = useRouter();
-
-  const isHomeOrCatalog = HomeOrCatalogPaths.includes(currentPath);
-
   return (
     <>
       <header className="py-3 sm:py-3.5 border-b border-border/40 bg-background/95 backdrop-blur-sm sticky top-0 z-40">
@@ -38,18 +29,6 @@ export function HeaderSite() {
                 DevBook
               </span>
             </Link>
-
-            {!isHomeOrCatalog && (
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={() => router.back()}
-                className="text-muted-foreground hover:text-foreground h-8 px-2 text-xs hidden sm:inline-flex items-center gap-1"
-              >
-                <i className="bx bx-arrow-back text-sm" />
-                <span>Voltar</span>
-              </Button>
-            )}
           </div>
 
           {/* Direita: Campo de Pesquisa (Desktop) e ThemeToggle */}

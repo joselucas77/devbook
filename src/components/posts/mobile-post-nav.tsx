@@ -73,16 +73,12 @@ export function MobilePostNav({
                   Módulo • {moduleTitle}
                 </p>
                 <p className="text-xs font-bold text-foreground truncate">
-                  Ver aulas ({posts.length})
-                  {headings.length > 1 ? ` e tópicos (${headings.length})` : ""}
+                  Ver aulas e tópicos
                 </p>
               </div>
             </div>
 
             <div className="flex items-center gap-1 shrink-0">
-              <span className="px-2 py-0.5 rounded-full bg-primary/10 text-primary font-bold text-[11px] whitespace-nowrap">
-                Aula {currentPostNumber}/{posts.length}
-              </span>
               <i className="bx bx-chevron-right text-lg text-muted-foreground" />
             </div>
           </button>

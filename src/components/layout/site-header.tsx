@@ -1,9 +1,7 @@
 "use client";
 
 import * as React from "react";
-import { usePathname, useRouter } from "next/navigation";
 import { cn } from "@/lib/utils";
-import { Button } from "@/components/ui/button";
 import { ThemeToggle } from "./theme-toggle";
 import { SidebarTrigger } from "@/components/ui/sidebar";
 
@@ -21,10 +19,6 @@ export function SiteHeader({
   ...props
 }: SiteHeaderProps) {
   void _user;
-  const router = useRouter();
-  const pathname = usePathname();
-
-  const isRootAdmin = pathname === "/admin";
 
   return (
     <header
@@ -36,18 +30,6 @@ export function SiteHeader({
     >
       <div className="flex items-center gap-2 sm:gap-3">
         <SidebarTrigger />
-
-        {!isRootAdmin && (
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={() => router.back()}
-            className="text-muted-foreground hover:text-foreground gap-1.5"
-          >
-            <i className="bx bx-arrow-back text-base" />
-            <span className="hidden sm:inline">Voltar</span>
-          </Button>
-        )}
         <span className="font-semibold text-sm md:text-base text-foreground font-mono">
           Painel de Administração
         </span>
