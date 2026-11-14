@@ -202,7 +202,40 @@ export function PostForm({
 
       if (!res.ok) {
         const err = await res.json().catch(() => ({}));
-        throw new Error(err?.message ?? "Falha ao salvar post");
+        let title = "Erro ao salvar post";
+        let description = err?.message || "Ocorreu um erro no servidor ao tentar salvar o post.";
+
+        if (res.status === 409) {
+          title = "Conflito: Slug já existe";
+          description =
+            err?.message ||
+            "Já existe um post cadastrado com este slug neste módulo. Escolha outro slug ou altere o título.";
+        } else if (res.status === 400) {
+          title = "Dados inválidos";
+          if (err?.fieldErrors && typeof err.fieldErrors === "object") {
+            const list = Object.entries(err.fieldErrors)
+              .map(([field, errList]) => `• ${field}: ${(errList as string[]).join(", ")}`)
+              .join("\n");
+            description = `${err.message || "Campos com problemas"}:\n${list}`;
+          }
+        } else if (res.status === 404) {
+          title = "Não encontrado (404)";
+          description = err?.message || "O módulo ou post não foi encontrado no banco de dados.";
+        } else if (res.status === 503) {
+          title = "Banco temporariamente indisponível";
+          description = err?.message || "A conexão com o banco oscilou. Tente salvar novamente em instantes.";
+        } else if (res.status === 500) {
+          title = "Erro interno do servidor (500)";
+          if (err?.details) {
+            description = `${err.message || "Erro interno ao salvar post"}\n\nDetalhes técnicos: ${err.details}`;
+          }
+        }
+
+        toast.error(title, {
+          description,
+          duration: 9000,
+        });
+        return;
       }
 
       toast.success(isEdit ? "Post atualizado" : "Post criado", {
@@ -526,11 +559,20 @@ export function PostForm({
 
           <Button
             type="submit"
-            disabled={isSubmitting || !isValid}
+            disabled={isSubmitting || !isValid || isUploadingImage}
             className="gap-2"
           >
-            <i className="bx bx-save text-base" />
-            Salvar Post
+            {isSubmitting || isUploadingImage ? (
+              <>
+                <i className="bx bx-loader-alt animate-spin text-base" />
+                Salvando...
+              </>
+            ) : (
+              <>
+                <i className="bx bx-save text-base" />
+                Salvar Post
+              </>
+            )}
           </Button>
         </div>
       </form>

@@ -65,7 +65,8 @@ export const CreatePostSchema = z.object({
             stripped.length > 0 ||
             data.html.includes("<img") ||
             data.html.includes("<hr") ||
-            data.html.includes("<code")
+            data.html.includes("<code") ||
+            data.html.includes("<pre")
           ) {
             return true;
           }
