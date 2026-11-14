@@ -2,8 +2,15 @@ import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { prisma } from "@/lib/prisma";
 import { CodeBlock } from "@/components/posts/code-block";
+import { PostContent } from "@/components/posts/post-content";
 import { ParagraphRenderer } from "@/components/posts/paragraph-renderer";
+import { ModuleSidebar } from "@/components/posts/module-sidebar";
+import { TableOfContents } from "@/components/posts/table-of-contents";
+import { MobilePostNav } from "@/components/posts/mobile-post-nav";
+import { PostFooterNav } from "@/components/posts/post-footer-nav";
 import { formatDatePtBR } from "@/lib/format-date";
+import { extractHeadingsAndInjectIds, HeadingItem } from "@/lib/toc";
+import { slugifySmart } from "@/lib/slugify";
 import { PostContentBlock } from "@/types/post";
 
 export const revalidate = 3600;
@@ -64,6 +71,23 @@ export default async function PostPage({
     );
   }
 
+  // Busca todas as aulas/posts publicados deste módulo para a navegação
+  const modulePosts = await prisma.post.findMany({
+    where: {
+      moduleId: moduleItem.id,
+      isPublic: true,
+      status: "PUBLISHED",
+    },
+    select: {
+      id: true,
+      title: true,
+      slug: true,
+    },
+    orderBy: {
+      id: "asc",
+    },
+  });
+
   const data = await prisma.post.findUnique({
     where: {
       moduleId_slug: {
@@ -111,117 +135,216 @@ export default async function PostPage({
     ? (contentObj.blocks as PostContentBlock[])
     : [];
 
+  // Extrai títulos e injeta IDs de âncora no HTML
+  let headings: HeadingItem[] = [];
+  let contentHtmlToRender = htmlContent || "";
+
+  if (htmlContent) {
+    const extracted = extractHeadingsAndInjectIds(htmlContent);
+    headings = extracted.headings;
+    contentHtmlToRender = extracted.modifiedHtml;
+  } else if (blocks.length > 0) {
+    headings = blocks
+      .filter(
+        (b): b is Extract<PostContentBlock, { type: "heading" }> =>
+          b.type === "heading" && (b.level === 2 || b.level === 3)
+      )
+      .map((b, idx) => ({
+        id: slugifySmart(b.text || `secao-${idx + 1}`),
+        text: b.text || "",
+        level: b.level || 2,
+      }));
+  }
+
+  // Determina aula anterior e próxima
+  const currentIndex = modulePosts.findIndex((p) => p.slug === postSlug);
+  const prevPost = currentIndex > 0 ? modulePosts[currentIndex - 1] : null;
+  const nextPost =
+    currentIndex >= 0 && currentIndex < modulePosts.length - 1
+      ? modulePosts[currentIndex + 1]
+      : null;
+
   return (
-    <section className="max-w-3xl mx-auto mb-20">
-      <div className="mb-6">
-        <div className="flex items-center gap-2 text-xs text-muted-foreground mb-3">
-          <Link href="/tecnologias" className="hover:text-blue-500 transition-colors">
-            {technology.name}
-          </Link>
-          <span>/</span>
-          <Link
-            href={`/tecnologias/${technology.slug}/modulos`}
-            className="hover:text-blue-500 transition-colors"
-          >
-            {moduleItem.title}
-          </Link>
-        </div>
+    <div className="w-full max-w-7xl mx-auto pb-16">
+      {/* Barra Responsiva (Mobile e Tablet): Abertura da Gaveta de Aulas + Sumário */}
+      <MobilePostNav
+        technologySlug={technology.slug}
+        technologyName={technology.name}
+        moduleSlug={moduleItem.slug}
+        moduleTitle={moduleItem.title}
+        posts={modulePosts}
+        currentPostSlug={data.slug}
+        headings={headings}
+      />
 
-        <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold leading-tight mb-3 break-words">
-          {data.title}
-        </h1>
-
-        {data.publishedAt && (
-          <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
-            <i className="bx bx-calendar text-sm" />
-            <span>Publicado em {published}</span>
-          </div>
-        )}
-
-        {data.image && (
-          <div className="mt-6 overflow-hidden rounded-xl border border-border bg-muted/20">
-            <img
-              src={data.image}
-              alt={data.title}
-              className="w-full max-h-[420px] object-cover"
-            />
-          </div>
-        )}
-      </div>
-
-      <article className="prose dark:prose-invert prose-blue max-w-none">
-        {htmlContent ? (
-          <div
-            className="tiptap-content leading-relaxed"
-            dangerouslySetInnerHTML={{ __html: htmlContent }}
+      {/* Grid de 3 Colunas no Desktop */}
+      <div className="flex gap-8 lg:gap-10 items-start">
+        {/* COLUNA 1 (Esquerda - Navegação do Módulo): Fixa no Desktop */}
+        <aside className="hidden lg:block w-64 shrink-0 sticky top-20 max-h-[calc(100vh-6rem)] overflow-y-auto pr-3 scrollbar-thin">
+          <ModuleSidebar
+            technologySlug={technology.slug}
+            technologyName={technology.name}
+            moduleSlug={moduleItem.slug}
+            moduleTitle={moduleItem.title}
+            posts={modulePosts}
+            currentPostSlug={data.slug}
           />
-        ) : (
-          blocks.map((block, index) => {
-            switch (block.type) {
-              case "heading":
-                return block.level === 2 ? (
-                  <h2 key={index} className="text-2xl font-bold mt-8 mb-4 border-b border-border/40 pb-2">
-                    {block.text}
-                  </h2>
-                ) : (
-                  <h3 key={index} className="text-xl font-semibold mt-6 mb-3">
-                    {block.text}
-                  </h3>
-                );
+        </aside>
 
-              case "paragraph":
-                return <ParagraphRenderer key={index} content={block.content} />;
+        {/* COLUNA 2 (Centro - Conteúdo Principal do Artigo) */}
+        <main className="min-w-0 flex-1 max-w-3xl mx-auto px-1 sm:px-3">
+          {/* Breadcrumb discreto */}
+          <div className="flex items-center gap-1.5 text-xs text-muted-foreground mb-4">
+            <Link
+              href="/tecnologias"
+              className="hover:text-primary transition-colors"
+            >
+              Tecnologias
+            </Link>
+            <span>/</span>
+            <Link
+              href={`/tecnologias/${technology.slug}/modulos`}
+              className="hover:text-primary transition-colors"
+            >
+              {technology.name}
+            </Link>
+            <span>/</span>
+            <span className="text-foreground font-medium truncate max-w-[200px]">
+              {moduleItem.title}
+            </span>
+          </div>
 
-              case "list":
-                return block.style === "numbered" ? (
-                  <ol key={index} className="list-decimal pl-6 my-4 space-y-1">
-                    {block.items.map((item, i) => (
-                      <li key={i}>{item}</li>
-                    ))}
-                  </ol>
-                ) : (
-                  <ul key={index} className="list-disc pl-6 my-4 space-y-1">
-                    {block.items.map((item, i) => (
-                      <li key={i}>{item}</li>
-                    ))}
-                  </ul>
-                );
+          {/* Título do Post */}
+          <h1 className="text-2xl sm:text-3xl md:text-4xl font-extrabold tracking-tight leading-tight mb-3 text-foreground break-words">
+            {data.title}
+          </h1>
 
-              case "code":
-                return (
-                  <div key={index}>
-                    <CodeBlock
-                      code={block.code}
-                      language={block.language ?? "txt"}
-                      filename={block.filename ?? "index.html"}
-                    />
-                    {block.explanation ? (
-                      <p className="text-sm text-muted-foreground mt-2 italic">
-                        {block.explanation}
-                      </p>
-                    ) : null}
-                  </div>
-                );
+          {/* Data de publicação */}
+          {data.publishedAt && (
+            <div className="flex items-center gap-1.5 text-xs text-muted-foreground mb-6">
+              <i className="bx bx-calendar text-sm" />
+              <span>Publicado em {published}</span>
+            </div>
+          )}
 
-              case "summary":
-                return (
-                  <div
-                    key={index}
-                    className="my-6 p-4 rounded-lg bg-blue-500/10 border border-blue-500/20 text-blue-200"
-                  >
-                    <strong className="block text-blue-400 font-semibold mb-1">
-                      Resumo
-                    </strong>
-                    <p className="text-sm">{block.text}</p>
-                  </div>
-                );
+          {/* Imagem de Capa (se houver) */}
+          {data.image && (
+            <div className="mb-8 overflow-hidden rounded-xl border border-border bg-muted/20">
+              <img
+                src={data.image}
+                alt={data.title}
+                className="w-full max-h-[420px] object-cover"
+              />
+            </div>
+          )}
 
-              default:
-                return null;
-            }
-          })
-        )}
-      </article>
-    </section>
+          {/* Artigo / Conteúdo */}
+          <article className="prose dark:prose-invert prose-blue max-w-none">
+            {htmlContent ? (
+              <PostContent html={contentHtmlToRender} />
+            ) : (
+              blocks.map((block, index) => {
+                switch (block.type) {
+                  case "heading": {
+                    const headingId = slugifySmart(block.text || `secao-${index + 1}`);
+                    return block.level === 2 ? (
+                      <h2
+                        key={index}
+                        id={headingId}
+                        className="scroll-mt-24 text-2xl font-bold mt-8 mb-4 border-b border-border/40 pb-2"
+                      >
+                        {block.text}
+                      </h2>
+                    ) : (
+                      <h3
+                        key={index}
+                        id={headingId}
+                        className="scroll-mt-24 text-xl font-semibold mt-6 mb-3"
+                      >
+                        {block.text}
+                      </h3>
+                    );
+                  }
+
+                  case "paragraph":
+                    return (
+                      <ParagraphRenderer
+                        key={index}
+                        content={block.content}
+                      />
+                    );
+
+                  case "list":
+                    return block.style === "numbered" ? (
+                      <ol
+                        key={index}
+                        className="list-decimal pl-6 my-4 space-y-1"
+                      >
+                        {block.items.map((item, i) => (
+                          <li key={i}>{item}</li>
+                        ))}
+                      </ol>
+                    ) : (
+                      <ul
+                        key={index}
+                        className="list-disc pl-6 my-4 space-y-1"
+                      >
+                        {block.items.map((item, i) => (
+                          <li key={i}>{item}</li>
+                        ))}
+                      </ul>
+                    );
+
+                  case "code":
+                    return (
+                      <div key={index}>
+                        <CodeBlock
+                          code={block.code}
+                          language={block.language ?? "txt"}
+                          filename={block.filename ?? "index.html"}
+                        />
+                        {block.explanation ? (
+                          <p className="text-sm text-muted-foreground mt-2 italic">
+                            {block.explanation}
+                          </p>
+                        ) : null}
+                      </div>
+                    );
+
+                  case "summary":
+                    return (
+                      <div
+                        key={index}
+                        className="my-6 p-4 rounded-lg bg-blue-500/10 border border-blue-500/20 text-blue-200"
+                      >
+                        <strong className="block text-blue-400 font-semibold mb-1">
+                          Resumo
+                        </strong>
+                        <p className="text-sm">{block.text}</p>
+                      </div>
+                    );
+
+                  default:
+                    return null;
+                }
+              })
+            )}
+          </article>
+
+          {/* Navegação de Rodapé (Aula Anterior / Próxima Aula) */}
+          <PostFooterNav
+            technologySlug={technology.slug}
+            moduleSlug={moduleItem.slug}
+            prevPost={prevPost}
+            nextPost={nextPost}
+          />
+        </main>
+
+        {/* COLUNA 3 (Direita - Sumário "Nesta Página"): Fixa no Desktop */}
+        <aside className="hidden xl:block w-56 shrink-0 sticky top-20 max-h-[calc(100vh-6rem)] overflow-y-auto pl-3 border-l border-border/40 scrollbar-thin">
+          <TableOfContents headings={headings} />
+        </aside>
+      </div>
+    </div>
   );
 }

@@ -43,7 +43,7 @@ export function ParagraphRenderer({ content }: ParagraphRendererProps) {
           return (
             <code
               key={i}
-              className="px-1.5 py-0.5 rounded bg-muted font-mono text-sm text-foreground"
+              className="px-1.5 py-0.5 rounded-md bg-zinc-100 dark:bg-zinc-800/80 border border-zinc-200 dark:border-zinc-700/60 font-mono text-[0.875em] font-medium text-foreground inline"
             >
               {node.text}
             </code>

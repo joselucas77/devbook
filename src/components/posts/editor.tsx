@@ -54,7 +54,7 @@ export function PostEditor({
         codeBlock: {
           HTMLAttributes: {
             class:
-              "rounded-lg bg-zinc-950 border border-zinc-800 p-4 font-mono text-sm overflow-x-auto text-zinc-100 my-4",
+              "rounded-xl bg-[#09090b] border border-zinc-800/80 p-4 sm:p-5 font-mono text-xs sm:text-sm overflow-x-auto text-zinc-100 my-4 leading-6",
           },
         },
         blockquote: {
