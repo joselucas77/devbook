@@ -44,18 +44,18 @@ export const SummaryBlockSchema = z.object({
 });
 
 export const CreatePostSchema = z.object({
-  moduleId: z.number(),
+  moduleId: z.number().int().positive("ID do módulo inválido"),
   title: z.string().min(1, "Título obrigatório"),
   slug: z.string().min(1, "Slug obrigatório"),
-  concept: z.string().optional(),
-  summary: z.string().optional(),
-  image: z.string().optional(),
+  concept: z.string().nullable().optional(),
+  summary: z.string().nullable().optional(),
+  image: z.string().nullable().optional(),
   isPublic: z.boolean(),
   status: z.enum(["DRAFT", "PUBLISHED", "ARCHIVED"]),
   content: z
     .object({
-      html: z.string().optional(),
-      blocks: z.array(z.any()).optional(),
+      html: z.string().nullable().optional(),
+      blocks: z.array(z.any()).nullable().optional(),
     })
     .refine(
       (data) => {

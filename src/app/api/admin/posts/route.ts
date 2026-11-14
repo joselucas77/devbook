@@ -17,8 +17,14 @@ export async function POST(req: Request) {
       );
     }
 
-    // Normaliza o slug se vier preenchido ou gera automaticamente a partir do título
+    // Normaliza tipos e o slug se vier preenchido ou gera automaticamente a partir do título
     if (body && typeof body === "object") {
+      if (body.moduleId !== undefined && body.moduleId !== null) {
+        body.moduleId = Number(body.moduleId);
+      }
+      if (body.isPublic !== undefined && body.isPublic !== null) {
+        body.isPublic = Boolean(body.isPublic);
+      }
       if (typeof body.slug === "string" && body.slug.trim()) {
         body.slug = slugifySmart(body.slug);
       } else if (typeof body.title === "string" && body.title.trim()) {

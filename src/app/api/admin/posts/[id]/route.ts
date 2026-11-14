@@ -7,11 +7,11 @@ import { htmlToParagraphJson } from "@/lib/html-parser";
 
 export async function PATCH(
   req: Request,
-  { params }: { params: Promise<{ id: string }> }
+  { params }: { params: Promise<{ id: string }> | { id: string } }
 ) {
   try {
-    const { id: idParam } = await params;
-    const id = Number(idParam);
+    const resolvedParams = params ? await params : null;
+    const id = Number(resolvedParams?.id);
 
     if (!Number.isFinite(id)) {
       return NextResponse.json({ message: "ID do post inválido." }, { status: 400 });
@@ -28,6 +28,12 @@ export async function PATCH(
     }
 
     if (body && typeof body === "object") {
+      if (body.moduleId !== undefined && body.moduleId !== null) {
+        body.moduleId = Number(body.moduleId);
+      }
+      if (body.isPublic !== undefined && body.isPublic !== null) {
+        body.isPublic = Boolean(body.isPublic);
+      }
       if (typeof body.slug === "string" && body.slug.trim()) {
         body.slug = slugifySmart(body.slug);
       } else if (typeof body.title === "string" && body.title.trim()) {
@@ -59,7 +65,7 @@ export async function PATCH(
 
     const existing = await prisma.post.findUnique({
       where: { id },
-      select: { id: true, publishedAt: true },
+      select: { id: true, publishedAt: true, slug: true, moduleId: true },
     });
 
     if (!existing) {
@@ -81,24 +87,26 @@ export async function PATCH(
       );
     }
 
-    // Verifica se já existe outro post com o mesmo slug neste módulo
-    const duplicateSlug = await prisma.post.findFirst({
-      where: {
-        moduleId: data.moduleId,
-        slug: data.slug,
-        id: { not: id },
-      },
-      select: { id: true, title: true },
-    });
-
-    if (duplicateSlug) {
-      return NextResponse.json(
-        {
-          message: `Já existe outro post com o slug "${data.slug}" neste módulo ("${duplicateSlug.title}").`,
-          code: "DUPLICATE_SLUG",
+    // Verifica se já existe outro post com o mesmo slug neste módulo (caso slug ou módulo tenha mudado)
+    if (data.slug !== existing.slug || data.moduleId !== existing.moduleId) {
+      const duplicateSlug = await prisma.post.findFirst({
+        where: {
+          moduleId: data.moduleId,
+          slug: data.slug,
+          id: { not: id },
         },
-        { status: 409 }
-      );
+        select: { id: true, title: true },
+      });
+
+      if (duplicateSlug) {
+        return NextResponse.json(
+          {
+            message: `Já existe outro post com o slug "${data.slug}" neste módulo ("${duplicateSlug.title}").`,
+            code: "DUPLICATE_SLUG",
+          },
+          { status: 409 }
+        );
+      }
     }
 
     const nextPublishedAt =
@@ -194,11 +202,11 @@ export async function PATCH(
 
 export async function DELETE(
   _: Request,
-  { params }: { params: Promise<{ id: string }> }
+  { params }: { params: Promise<{ id: string }> | { id: string } }
 ) {
   try {
-    const { id: idParam } = await params;
-    const id = Number(idParam);
+    const resolvedParams = params ? await params : null;
+    const id = Number(resolvedParams?.id);
 
     if (!Number.isFinite(id)) {
       return NextResponse.json({ message: "ID do post inválido." }, { status: 400 });

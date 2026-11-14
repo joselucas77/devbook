@@ -576,7 +576,7 @@ export function PostForm({
                 <div className="flex-1 min-w-0 overflow-hidden">
                   <p
                     className="text-xs font-medium truncate block max-w-full"
-                    title={selectedCoverFile ? selectedCoverFile.name : currentImage}
+                    title={selectedCoverFile ? selectedCoverFile.name : (currentImage || undefined)}
                   >
                     {selectedCoverFile
                       ? `${selectedCoverFile.name} (${Math.round(selectedCoverFile.size / 1024)} KB)`
