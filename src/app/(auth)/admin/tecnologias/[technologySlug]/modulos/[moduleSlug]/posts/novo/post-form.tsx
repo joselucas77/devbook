@@ -317,15 +317,34 @@ export function PostForm({
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
             ...values,
+            moduleId: Number(values.moduleId || moduleId),
             image: finalImageUrl,
           }),
         }
       );
 
       if (!res.ok) {
-        const err = await res.json().catch(() => ({}));
+        let err: any = {};
+        let rawText = "";
+        try {
+          rawText = await res.text();
+          err = JSON.parse(rawText);
+        } catch {
+          err = {};
+        }
+
+        console.error("Erro na resposta da API ao salvar post:", {
+          status: res.status,
+          statusText: res.statusText,
+          rawText,
+          err,
+        });
+
         let title = "Erro ao salvar post";
-        let description = err?.message || "Ocorreu um erro no servidor ao tentar salvar o post.";
+        let description =
+          err?.message ||
+          (rawText && rawText.length < 250 && !rawText.trim().startsWith("<") ? rawText : "") ||
+          "Ocorreu um erro no servidor ao tentar salvar o post.";
 
         if (res.status === 409) {
           title = "Conflito: Slug já existe";
@@ -350,6 +369,8 @@ export function PostForm({
           title = "Erro interno do servidor (500)";
           if (err?.details) {
             description = `${err.message || "Erro interno ao salvar post"}\n\nDetalhes técnicos: ${err.details}`;
+          } else if (rawText && !rawText.trim().startsWith("<")) {
+            description = `Erro no servidor: ${rawText}`;
           }
         }
 
@@ -449,7 +470,6 @@ export function PostForm({
             <input
               type="hidden"
               {...register("moduleId", { valueAsNumber: true })}
-              value={moduleId}
             />
             {errors.moduleId?.message && (
               <p className="text-xs text-destructive">{errors.moduleId.message}</p>

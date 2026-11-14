@@ -2,16 +2,14 @@ import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { CreatePostSchema } from "@/lib/validations/post";
 import { slugifySmart } from "@/lib/slugify";
-import { sanitizeParagraphHtml } from "@/lib/sanitize-html";
-import { htmlToParagraphJson } from "@/lib/html-parser";
 
 export async function PATCH(
   req: Request,
-  { params }: { params: Promise<{ id: string }> | { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const resolvedParams = params ? await params : null;
-    const id = Number(resolvedParams?.id);
+    const { id: idParam } = await params;
+    const id = Number(idParam);
 
     if (!Number.isFinite(id)) {
       return NextResponse.json({ message: "ID do post inválido." }, { status: 400 });
@@ -116,20 +114,7 @@ export async function PATCH(
     if (typeof data.content.html === "string") {
       finalContent = { html: data.content.html };
     } else if (Array.isArray(data.content.blocks)) {
-      const content = data.content.blocks.map((block: any) => {
-        if (block.type === "paragraph") {
-          if (typeof block.text === "string") {
-            const safeHtml = sanitizeParagraphHtml(block.text);
-            return {
-              type: "paragraph",
-              content: htmlToParagraphJson(safeHtml),
-            };
-          }
-          return block;
-        }
-        return block;
-      });
-      finalContent = { blocks: content };
+      finalContent = { blocks: data.content.blocks };
     } else {
       finalContent = { html: "" };
     }
@@ -202,11 +187,11 @@ export async function PATCH(
 
 export async function DELETE(
   _: Request,
-  { params }: { params: Promise<{ id: string }> | { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const resolvedParams = params ? await params : null;
-    const id = Number(resolvedParams?.id);
+    const { id: idParam } = await params;
+    const id = Number(idParam);
 
     if (!Number.isFinite(id)) {
       return NextResponse.json({ message: "ID do post inválido." }, { status: 400 });
