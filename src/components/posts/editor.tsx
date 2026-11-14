@@ -21,6 +21,12 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 import { cn } from "@/lib/utils";
 
 interface PostEditorProps {
@@ -187,213 +193,230 @@ export function PostEditor({
       )}
     >
       {/* Barra de Ferramentas / Toolbar */}
-      <div className="sticky top-0 z-10 flex flex-wrap items-center gap-1 p-2 bg-card/95 backdrop-blur-sm border-b border-border/70 select-none">
-        {/* Nível de Texto / Peso do Texto */}
-        <div className="mr-1">
-          <Select
-            value={getCurrentHeading()}
-            onValueChange={handleHeadingChange}
+      <TooltipProvider delayDuration={150}>
+        <div className="sticky top-0 z-10 flex flex-wrap items-center gap-1 p-2 bg-card/95 backdrop-blur-sm border-b border-border/70 select-none">
+          {/* Nível de Texto / Peso do Texto */}
+          <div className="mr-1">
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <div>
+                  <Select
+                    value={getCurrentHeading()}
+                    onValueChange={handleHeadingChange}
+                  >
+                    <SelectTrigger
+                      className="h-8 w-[130px] text-xs font-medium bg-muted/40 border-border/60 hover:bg-muted/70"
+                      onMouseDown={(e) => e.stopPropagation()}
+                    >
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="paragraph" className="text-xs">
+                        Parágrafo
+                      </SelectItem>
+                      <SelectItem value="h1" className="text-xs font-bold">
+                        Título 1 (H1)
+                      </SelectItem>
+                      <SelectItem value="h2" className="text-xs font-bold">
+                        Título 2 (H2)
+                      </SelectItem>
+                      <SelectItem value="h3" className="text-xs font-semibold">
+                        Título 3 (H3)
+                      </SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+              </TooltipTrigger>
+              <TooltipContent side="bottom" sideOffset={6}>
+                Formato do bloco (Parágrafo ou Título)
+              </TooltipContent>
+            </Tooltip>
+          </div>
+
+          <div className="w-[1px] h-5 bg-border/60 mx-1" />
+
+          {/* Formatação Básica de Texto */}
+          <ToolbarButton
+            active={editor.isActive("bold")}
+            onClick={() => editor.chain().focus().toggleBold().run()}
+            tooltip="Negrito (Ctrl+B)"
           >
-            <SelectTrigger
-              className="h-8 w-[130px] text-xs font-medium bg-muted/40 border-border/60 hover:bg-muted/70"
-              onMouseDown={(e) => e.stopPropagation()}
-            >
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="paragraph" className="text-xs">
-                Parágrafo
-              </SelectItem>
-              <SelectItem value="h1" className="text-xs font-bold">
-                Título 1 (H1)
-              </SelectItem>
-              <SelectItem value="h2" className="text-xs font-bold">
-                Título 2 (H2)
-              </SelectItem>
-              <SelectItem value="h3" className="text-xs font-semibold">
-                Título 3 (H3)
-              </SelectItem>
-            </SelectContent>
-          </Select>
-        </div>
+            <i className="bx bx-bold text-base" />
+          </ToolbarButton>
 
-        <div className="w-[1px] h-5 bg-border/60 mx-1" />
+          <ToolbarButton
+            active={editor.isActive("italic")}
+            onClick={() => editor.chain().focus().toggleItalic().run()}
+            tooltip="Itálico (Ctrl+I)"
+          >
+            <i className="bx bx-italic text-base" />
+          </ToolbarButton>
 
-        {/* Formatação Básica de Texto (Negrito, Itálico, Sublinhado, Tachado, Código) */}
-        <ToolbarButton
-          active={editor.isActive("bold")}
-          onClick={() => editor.chain().focus().toggleBold().run()}
-          title="Negrito (Ctrl+B)"
-        >
-          <i className="bx bx-bold text-base" />
-        </ToolbarButton>
+          <ToolbarButton
+            active={editor.isActive("underline")}
+            onClick={() => editor.chain().focus().toggleUnderline().run()}
+            tooltip="Sublinhado (Ctrl+U)"
+          >
+            <i className="bx bx-underline text-base" />
+          </ToolbarButton>
 
-        <ToolbarButton
-          active={editor.isActive("italic")}
-          onClick={() => editor.chain().focus().toggleItalic().run()}
-          title="Itálico (Ctrl+I)"
-        >
-          <i className="bx bx-italic text-base" />
-        </ToolbarButton>
+          <ToolbarButton
+            active={editor.isActive("strike")}
+            onClick={() => editor.chain().focus().toggleStrike().run()}
+            tooltip="Tachado (Ctrl+Shift+X)"
+          >
+            <i className="bx bx-strikethrough text-base" />
+          </ToolbarButton>
 
-        <ToolbarButton
-          active={editor.isActive("underline")}
-          onClick={() => editor.chain().focus().toggleUnderline().run()}
-          title="Sublinhado (Ctrl+U)"
-        >
-          <i className="bx bx-underline text-base" />
-        </ToolbarButton>
+          <ToolbarButton
+            active={editor.isActive("code")}
+            onClick={() => editor.chain().focus().toggleCode().run()}
+            tooltip="Código inline (Ctrl+E)"
+          >
+            <i className="bx bx-code text-base" />
+          </ToolbarButton>
 
-        <ToolbarButton
-          active={editor.isActive("strike")}
-          onClick={() => editor.chain().focus().toggleStrike().run()}
-          title="Tachado (Ctrl+Shift+X)"
-        >
-          <i className="bx bx-strikethrough text-base" />
-        </ToolbarButton>
+          <div className="w-[1px] h-5 bg-border/60 mx-1" />
 
-        <ToolbarButton
-          active={editor.isActive("code")}
-          onClick={() => editor.chain().focus().toggleCode().run()}
-          title="Código inline (Ctrl+E)"
-        >
-          <i className="bx bx-code text-base" />
-        </ToolbarButton>
+          {/* Listas e Blocos */}
+          <ToolbarButton
+            active={editor.isActive("bulletList")}
+            onClick={() => editor.chain().focus().toggleBulletList().run()}
+            tooltip="Lista com marcadores"
+          >
+            <i className="bx bx-list-ul text-base" />
+          </ToolbarButton>
 
-        <div className="w-[1px] h-5 bg-border/60 mx-1" />
+          <ToolbarButton
+            active={editor.isActive("orderedList")}
+            onClick={() => editor.chain().focus().toggleOrderedList().run()}
+            tooltip="Lista numerada"
+          >
+            <i className="bx bx-list-ol text-base" />
+          </ToolbarButton>
 
-        {/* Listas e Blocos */}
-        <ToolbarButton
-          active={editor.isActive("bulletList")}
-          onClick={() => editor.chain().focus().toggleBulletList().run()}
-          title="Lista com marcadores"
-        >
-          <i className="bx bx-list-ul text-base" />
-        </ToolbarButton>
+          <ToolbarButton
+            active={editor.isActive("blockquote")}
+            onClick={() => editor.chain().focus().toggleBlockquote().run()}
+            tooltip="Citação em bloco"
+          >
+            <i className="bx bxs-quote-left text-base" />
+          </ToolbarButton>
 
-        <ToolbarButton
-          active={editor.isActive("orderedList")}
-          onClick={() => editor.chain().focus().toggleOrderedList().run()}
-          title="Lista numerada"
-        >
-          <i className="bx bx-list-ol text-base" />
-        </ToolbarButton>
+          <ToolbarButton
+            active={editor.isActive("codeBlock")}
+            onClick={() => editor.chain().focus().toggleCodeBlock().run()}
+            tooltip="Bloco de código (Code block)"
+          >
+            <i className="bx bx-code-block text-base" />
+          </ToolbarButton>
 
-        <ToolbarButton
-          active={editor.isActive("blockquote")}
-          onClick={() => editor.chain().focus().toggleBlockquote().run()}
-          title="Citação"
-        >
-          <i className="bx bxs-quote-left text-base" />
-        </ToolbarButton>
+          <ToolbarButton
+            onClick={() => editor.chain().focus().setHorizontalRule().run()}
+            tooltip="Linha horizontal divisória"
+          >
+            <i className="bx bx-minus text-base" />
+          </ToolbarButton>
 
-        <ToolbarButton
-          active={editor.isActive("codeBlock")}
-          onClick={() => editor.chain().focus().toggleCodeBlock().run()}
-          title="Bloco de código (Code block)"
-        >
-          <i className="bx bx-code-block text-base" />
-        </ToolbarButton>
+          <div className="w-[1px] h-5 bg-border/60 mx-1" />
 
-        <ToolbarButton
-          onClick={() => editor.chain().focus().setHorizontalRule().run()}
-          title="Linha horizontal divisória"
-        >
-          <i className="bx bx-minus text-base" />
-        </ToolbarButton>
-
-        <div className="w-[1px] h-5 bg-border/60 mx-1" />
-
-        {/* Link com Popover */}
-        <Popover open={linkOpen} onOpenChange={setLinkOpen}>
-          <PopoverTrigger asChild>
-            <Button
-              type="button"
-              variant="ghost"
-              size="icon"
-              className={cn(
-                "h-8 w-8 rounded text-muted-foreground transition-colors hover:text-foreground hover:bg-muted",
-                editor.isActive("link") &&
-                  "bg-blue-600/15 text-blue-600 dark:bg-blue-500/25 dark:text-blue-400 font-semibold border border-blue-500/30"
-              )}
-              onMouseDown={(e) => e.preventDefault()}
-              onClick={openLinkPopover}
-              title="Inserir ou editar link"
-            >
-              <i className="bx bx-link text-base" />
-            </Button>
-          </PopoverTrigger>
-          <PopoverContent className="w-80 p-3" align="start">
-            <div className="space-y-2">
-              <p className="text-xs font-medium text-foreground">
-                Inserir Link
-              </p>
-              <Input
-                placeholder="https://exemplo.com"
-                value={linkUrl}
-                onChange={(e) => setLinkUrl(e.target.value)}
-                onKeyDown={(e) => {
-                  if (e.key === "Enter") {
-                    e.preventDefault();
-                    applyLink();
-                  }
-                }}
-                className="h-8 text-xs"
-                autoFocus
-              />
-              <div className="flex items-center justify-between pt-1">
-                {editor.isActive("link") ? (
+          {/* Link com Popover */}
+          <Popover open={linkOpen} onOpenChange={setLinkOpen}>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <PopoverTrigger asChild>
                   <Button
                     type="button"
                     variant="ghost"
-                    size="sm"
-                    className="h-7 text-xs text-destructive hover:text-destructive"
-                    onClick={removeLink}
+                    size="icon"
+                    className={cn(
+                      "h-8 w-8 rounded text-muted-foreground transition-colors hover:text-foreground hover:bg-muted",
+                      editor.isActive("link") &&
+                        "bg-blue-600/15 text-blue-600 dark:bg-blue-500/25 dark:text-blue-400 font-semibold border border-blue-500/30"
+                    )}
+                    onMouseDown={(e) => e.preventDefault()}
+                    onClick={openLinkPopover}
                   >
-                    Remover link
+                    <i className="bx bx-link text-base" />
                   </Button>
-                ) : <span />}
-                <Button
-                  type="button"
-                  size="sm"
-                  className="h-7 text-xs"
-                  onClick={applyLink}
-                >
-                  Salvar
-                </Button>
+                </PopoverTrigger>
+              </TooltipTrigger>
+              <TooltipContent side="bottom" sideOffset={6}>
+                Inserir ou editar link
+              </TooltipContent>
+            </Tooltip>
+            <PopoverContent className="w-80 p-3" align="start">
+              <div className="space-y-2">
+                <p className="text-xs font-medium text-foreground">
+                  Inserir Link
+                </p>
+                <Input
+                  placeholder="https://exemplo.com"
+                  value={linkUrl}
+                  onChange={(e) => setLinkUrl(e.target.value)}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter") {
+                      e.preventDefault();
+                      applyLink();
+                    }
+                  }}
+                  className="h-8 text-xs"
+                  autoFocus
+                />
+                <div className="flex items-center justify-between pt-1">
+                  {editor.isActive("link") ? (
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="sm"
+                      className="h-7 text-xs text-destructive hover:text-destructive"
+                      onClick={removeLink}
+                    >
+                      Remover link
+                    </Button>
+                  ) : <span />}
+                  <Button
+                    type="button"
+                    size="sm"
+                    className="h-7 text-xs"
+                    onClick={applyLink}
+                  >
+                    Salvar
+                  </Button>
+                </div>
               </div>
-            </div>
-          </PopoverContent>
-        </Popover>
+            </PopoverContent>
+          </Popover>
 
-        <div className="w-[1px] h-5 bg-border/60 mx-1" />
+          <div className="w-[1px] h-5 bg-border/60 mx-1" />
 
-        {/* Ações de Histórico & Limpar */}
-        <ToolbarButton
-          disabled={!editor.can().undo()}
-          onClick={() => editor.chain().focus().undo().run()}
-          title="Desfazer (Ctrl+Z)"
-        >
-          <i className="bx bx-undo text-base" />
-        </ToolbarButton>
+          {/* Ações de Histórico & Limpar */}
+          <ToolbarButton
+            disabled={!editor.can().undo()}
+            onClick={() => editor.chain().focus().undo().run()}
+            tooltip="Desfazer (Ctrl+Z)"
+          >
+            <i className="bx bx-undo text-base" />
+          </ToolbarButton>
 
-        <ToolbarButton
-          disabled={!editor.can().redo()}
-          onClick={() => editor.chain().focus().redo().run()}
-          title="Refazer (Ctrl+Y)"
-        >
-          <i className="bx bx-redo text-base" />
-        </ToolbarButton>
+          <ToolbarButton
+            disabled={!editor.can().redo()}
+            onClick={() => editor.chain().focus().redo().run()}
+            tooltip="Refazer (Ctrl+Y)"
+          >
+            <i className="bx bx-redo text-base" />
+          </ToolbarButton>
 
-        <ToolbarButton
-          onClick={() =>
-            editor.chain().focus().unsetAllMarks().clearNodes().run()
-          }
-          title="Limpar formatação"
-        >
-          <i className="bx bx-eraser text-base" />
-        </ToolbarButton>
-      </div>
+          <ToolbarButton
+            onClick={() =>
+              editor.chain().focus().unsetAllMarks().clearNodes().run()
+            }
+            tooltip="Limpar formatação"
+          >
+            <i className="bx bx-eraser text-base" />
+          </ToolbarButton>
+        </div>
+      </TooltipProvider>
 
       {/* Área de Conteúdo TipTap */}
       <div
@@ -429,34 +452,40 @@ function ToolbarButton({
   active,
   disabled,
   onClick,
-  title,
+  tooltip,
   children,
 }: {
   active?: boolean;
   disabled?: boolean;
   onClick: () => void;
-  title: string;
+  tooltip: string;
   children: React.ReactNode;
 }) {
   return (
-    <Button
-      type="button"
-      variant="ghost"
-      size="icon"
-      className={cn(
-        "h-8 w-8 rounded text-muted-foreground transition-colors hover:text-foreground hover:bg-muted",
-        active &&
-          "bg-blue-600/15 text-blue-600 dark:bg-blue-500/25 dark:text-blue-400 font-semibold border border-blue-500/30"
-      )}
-      disabled={disabled}
-      onMouseDown={(e) => {
-        // Evita perder a seleção de texto ao clicar nos botões da toolbar
-        e.preventDefault();
-      }}
-      onClick={onClick}
-      title={title}
-    >
-      {children}
-    </Button>
+    <Tooltip>
+      <TooltipTrigger asChild>
+        <Button
+          type="button"
+          variant="ghost"
+          size="icon"
+          className={cn(
+            "h-8 w-8 rounded text-muted-foreground transition-colors hover:text-foreground hover:bg-muted",
+            active &&
+              "bg-blue-600/15 text-blue-600 dark:bg-blue-500/25 dark:text-blue-400 font-semibold border border-blue-500/30"
+          )}
+          disabled={disabled}
+          onMouseDown={(e) => {
+            // Evita perder a seleção de texto ao clicar nos botões da toolbar
+            e.preventDefault();
+          }}
+          onClick={onClick}
+        >
+          {children}
+        </Button>
+      </TooltipTrigger>
+      <TooltipContent side="bottom" sideOffset={6}>
+        {tooltip}
+      </TooltipContent>
+    </Tooltip>
   );
 }

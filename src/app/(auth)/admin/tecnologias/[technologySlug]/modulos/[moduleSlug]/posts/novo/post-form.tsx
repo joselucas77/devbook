@@ -118,6 +118,128 @@ export function PostForm({
   const displayCoverSrc = coverPreviewUrl || currentImage;
   const hasCover = Boolean(selectedCoverFile || coverPreviewUrl || currentImage);
 
+  // Chave única para o rascunho no localStorage
+  const storageKey = useMemo(() => {
+    return isEdit
+      ? `devbook_post_draft_edit_${initialPost?.id}`
+      : `devbook_post_draft_new_${technologySlug}_${moduleSlug}_${moduleId}`;
+  }, [isEdit, initialPost?.id, technologySlug, moduleSlug, moduleId]);
+
+  const [lastSavedDraft, setLastSavedDraft] = useState<string | null>(null);
+
+  // Restaura dados do localStorage na inicialização (apenas no cliente)
+  useEffect(() => {
+    try {
+      const saved = localStorage.getItem(storageKey);
+      if (!saved) return;
+      const parsed = JSON.parse(saved);
+      if (!parsed || typeof parsed !== "object") return;
+
+      const hasContent =
+        Boolean(parsed.title?.trim()) ||
+        Boolean(parsed.contentHtml?.trim()) ||
+        Boolean(parsed.summary?.trim()) ||
+        Boolean(parsed.slug?.trim());
+
+      if (hasContent) {
+        if (parsed.title) setValue("title", parsed.title, { shouldDirty: true, shouldValidate: true });
+        if (parsed.slug) setValue("slug", parsed.slug, { shouldDirty: true, shouldValidate: true });
+        if (parsed.summary) setValue("summary", parsed.summary, { shouldDirty: true });
+        if (parsed.isPublic !== undefined) setValue("isPublic", parsed.isPublic, { shouldDirty: true });
+        if (parsed.status) setValue("status", parsed.status, { shouldDirty: true });
+        if (parsed.contentHtml) {
+          setValue("content.html", parsed.contentHtml, { shouldDirty: true, shouldValidate: true });
+        }
+        if (parsed.image && !initialPost?.image) {
+          setValue("image", parsed.image, { shouldDirty: true });
+        }
+        if (parsed.savedAt) {
+          const date = new Date(parsed.savedAt);
+          setLastSavedDraft(
+            date.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })
+          );
+        }
+        toast.info("Rascunho recuperado", {
+          description: "Os dados foram restaurados do armazenamento local do navegador.",
+          duration: 5000,
+        });
+      }
+    } catch (e) {
+      console.warn("Falha ao recuperar rascunho do localStorage:", e);
+    }
+  }, [storageKey, setValue, initialPost?.image]);
+
+  // Salva automaticamente no localStorage com debounce de 800ms
+  const watchedTitle = watch("title");
+  const watchedSlug = watch("slug");
+  const watchedSummary = watch("summary");
+  const watchedIsPublic = watch("isPublic");
+  const watchedStatus = watch("status");
+  const watchedImage = watch("image");
+  const watchedContentHtml = watch("content.html");
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      try {
+        const payload = {
+          title: watchedTitle ?? "",
+          slug: watchedSlug ?? "",
+          summary: watchedSummary ?? "",
+          isPublic: watchedIsPublic ?? true,
+          status: watchedStatus ?? "DRAFT",
+          contentHtml: watchedContentHtml ?? "",
+          image: watchedImage ?? "",
+          savedAt: new Date().toISOString(),
+        };
+
+        const hasContent =
+          Boolean(payload.title.trim()) ||
+          Boolean(payload.contentHtml.trim()) ||
+          Boolean(payload.summary.trim()) ||
+          Boolean(payload.slug.trim());
+
+        if (hasContent) {
+          localStorage.setItem(storageKey, JSON.stringify(payload));
+          setLastSavedDraft(
+            new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })
+          );
+        }
+      } catch (e) {
+        console.warn("Erro ao salvar rascunho no localStorage:", e);
+      }
+    }, 800);
+
+    return () => clearTimeout(timer);
+  }, [
+    storageKey,
+    watchedTitle,
+    watchedSlug,
+    watchedSummary,
+    watchedIsPublic,
+    watchedStatus,
+    watchedImage,
+    watchedContentHtml,
+  ]);
+
+  const handleDiscardDraft = () => {
+    try {
+      localStorage.removeItem(storageKey);
+      setLastSavedDraft(null);
+      setValue("title", initialPost?.title ?? "", { shouldDirty: false, shouldValidate: false });
+      setValue("slug", initialPost?.slug ?? "", { shouldDirty: false, shouldValidate: false });
+      setValue("summary", initialPost?.summary ?? "", { shouldDirty: false, shouldValidate: false });
+      setValue("isPublic", initialPost?.isPublic ?? true, { shouldDirty: false });
+      setValue("status", initialPost?.status ?? "DRAFT", { shouldDirty: false });
+      setValue("content.html", initialPost?.content?.html ?? "", { shouldDirty: false, shouldValidate: false });
+      setValue("image", initialPost?.image ?? "", { shouldDirty: false });
+      toast.success("Rascunho descartado", {
+        description: "Os campos foram restaurados para os valores originais.",
+      });
+    } catch (e) {
+      console.warn("Erro ao descartar rascunho:", e);
+    }
+  };
+
   function handleCoverSelect(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0];
     if (!file) return;
@@ -242,6 +364,13 @@ export function PostForm({
         description: "Dados salvos com sucesso.",
       });
 
+      try {
+        localStorage.removeItem(storageKey);
+        setLastSavedDraft(null);
+      } catch {
+        // Ignora
+      }
+
       handleRemoveCover();
 
       router.push(
@@ -278,13 +407,32 @@ export function PostForm({
 
   return (
     <section className="max-w-3xl mx-auto mb-20">
-      <div className="mb-6">
-        <h1 className="text-2xl sm:text-3xl font-bold leading-tight mb-1">
-          {isEdit ? "Editar Post" : "Criar Post"}
-        </h1>
-        <p className="text-xs sm:text-sm text-muted-foreground">
-          {technologyName} / {moduleTitle}
-        </p>
+      <div className="mb-6 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+        <div>
+          <h1 className="text-2xl sm:text-3xl font-bold leading-tight mb-1">
+            {isEdit ? "Editar Post" : "Criar Post"}
+          </h1>
+          <p className="text-xs sm:text-sm text-muted-foreground">
+            {technologyName} / {moduleTitle}
+          </p>
+        </div>
+
+        {lastSavedDraft && (
+          <div className="flex items-center gap-2 self-start sm:self-auto bg-muted/60 border border-border/70 px-3 py-1.5 rounded-lg text-xs text-muted-foreground animate-in fade-in-0 duration-300">
+            <i className="bx bx-check-circle text-emerald-500 text-base" />
+            <span>Rascunho salvo ({lastSavedDraft})</span>
+            <Button
+              type="button"
+              variant="ghost"
+              size="sm"
+              onClick={handleDiscardDraft}
+              className="h-6 px-2 text-[11px] text-muted-foreground hover:text-destructive hover:bg-destructive/10"
+              title="Descartar rascunho salvo localmente"
+            >
+              Descartar
+            </Button>
+          </div>
+        )}
       </div>
 
       {hasAnyError && (
