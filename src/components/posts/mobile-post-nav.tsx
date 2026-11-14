@@ -3,7 +3,6 @@
 import { useState } from "react";
 import { HeadingItem } from "@/lib/toc";
 import { ModuleSidebar, ModuleSidebarPost } from "./module-sidebar";
-import { Button } from "@/components/ui/button";
 import {
   Sheet,
   SheetContent,
@@ -11,11 +10,6 @@ import {
   SheetTitle,
   SheetTrigger,
 } from "@/components/ui/sheet";
-import {
-  Collapsible,
-  CollapsibleContent,
-  CollapsibleTrigger,
-} from "@/components/ui/collapsible";
 
 interface MobilePostNavProps {
   technologySlug: string;
@@ -37,112 +31,83 @@ export function MobilePostNav({
   headings,
 }: MobilePostNavProps) {
   const [sheetOpen, setSheetOpen] = useState(false);
-  const [tocOpen, setTocOpen] = useState(false);
 
   const currentPostIndex = posts.findIndex((p) => p.slug === currentPostSlug);
   const currentPostNumber =
-    currentPostIndex >= 0 ? currentPostIndex + 1 : undefined;
+    currentPostIndex >= 0 ? currentPostIndex + 1 : 1;
 
-  const handleScrollTo = (id: string) => {
-    setTocOpen(false);
-    const el = document.getElementById(id);
-    if (el) {
-      const headerOffset = 90;
-      const elementPosition = el.getBoundingClientRect().top;
-      const offsetPosition =
-        elementPosition + window.pageYOffset - headerOffset;
+  const handleHeadingClick = (id: string) => {
+    setSheetOpen(false);
+    setTimeout(() => {
+      const el = document.getElementById(id);
+      if (el) {
+        const headerOffset = 90;
+        const elementPosition = el.getBoundingClientRect().top;
+        const offsetPosition =
+          elementPosition + window.pageYOffset - headerOffset;
 
-      window.scrollTo({
-        top: offsetPosition,
-        behavior: "smooth",
-      });
+        window.scrollTo({
+          top: offsetPosition,
+          behavior: "smooth",
+        });
 
-      window.history.pushState(null, "", `#${id}`);
-    }
+        window.history.pushState(null, "", `#${id}`);
+      }
+    }, 250);
   };
 
   return (
-    <div className="lg:hidden mb-6 space-y-3">
-      {/* Barra de Navegação do Módulo no Mobile */}
-      <div className="flex items-center justify-between gap-2 p-2.5 rounded-lg border border-border/70 bg-card/60 backdrop-blur-xs">
-        <Sheet open={sheetOpen} onOpenChange={setSheetOpen}>
-          <SheetTrigger asChild>
-            <Button
-              variant="outline"
-              size="sm"
-              className="h-8 gap-2 text-xs font-medium cursor-pointer"
-            >
-              <i className="bx bx-menu-alt-left text-base text-primary" />
-              <span>Aulas do Módulo</span>
-              {currentPostNumber && (
-                <span className="ml-1 px-1.5 py-0.2 rounded-full bg-primary/10 text-primary text-[10px] font-bold">
-                  {currentPostNumber}/{posts.length}
-                </span>
-              )}
-            </Button>
-          </SheetTrigger>
-
-          <SheetContent side="left" className="w-[300px] sm:w-[360px] p-5 overflow-y-auto">
-            <SheetHeader className="mb-4">
-              <SheetTitle className="text-sm font-semibold">
-                Navegação do Módulo
-              </SheetTitle>
-            </SheetHeader>
-
-            <ModuleSidebar
-              technologySlug={technologySlug}
-              technologyName={technologyName}
-              moduleSlug={moduleSlug}
-              moduleTitle={moduleTitle}
-              posts={posts}
-              currentPostSlug={currentPostSlug}
-              onPostClick={() => setSheetOpen(false)}
-            />
-          </SheetContent>
-        </Sheet>
-
-        {headings.length > 1 && (
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={() => setTocOpen((prev) => !prev)}
-            className="h-8 gap-1.5 text-xs text-muted-foreground hover:text-foreground cursor-pointer"
+    <div className="lg:hidden mb-5 w-full max-w-full">
+      <Sheet open={sheetOpen} onOpenChange={setSheetOpen}>
+        <SheetTrigger asChild>
+          <button
+            type="button"
+            className="w-full flex items-center justify-between p-3 rounded-xl border border-border/80 bg-card/80 backdrop-blur-xs text-left shadow-xs transition-colors hover:bg-muted/40 cursor-pointer active:scale-[0.99] min-w-0"
           >
-            <i className="bx bx-list-ul text-base text-primary" />
-            <span>Nesta página ({headings.length})</span>
-            <i
-              className={`bx bx-chevron-down text-sm transition-transform duration-200 ${
-                tocOpen ? "rotate-180" : ""
-              }`}
-            />
-          </Button>
-        )}
-      </div>
+            <div className="flex items-center gap-2.5 min-w-0 flex-1 mr-2">
+              <div className="h-8 w-8 rounded-lg bg-primary/10 text-primary flex items-center justify-center shrink-0">
+                <i className="bx bx-book-open text-lg" />
+              </div>
+              <div className="min-w-0 flex-1">
+                <p className="text-[10px] uppercase font-semibold tracking-wider text-muted-foreground truncate">
+                  Módulo • {moduleTitle}
+                </p>
+                <p className="text-xs font-bold text-foreground truncate">
+                  Ver aulas ({posts.length})
+                  {headings.length > 1 ? ` e tópicos (${headings.length})` : ""}
+                </p>
+              </div>
+            </div>
 
-      {/* Sumário Colapsável no Mobile */}
-      {headings.length > 1 && (
-        <Collapsible open={tocOpen} onOpenChange={setTocOpen}>
-          <CollapsibleContent className="p-3 rounded-lg border border-border/70 bg-card/80 space-y-2 animate-in fade-in-0 duration-200">
-            <p className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
-              Tópicos do Artigo
-            </p>
-            <nav className="space-y-1 pl-1 border-l border-border/60">
-              {headings.map((item) => (
-                <button
-                  key={item.id}
-                  type="button"
-                  onClick={() => handleScrollTo(item.id)}
-                  className={`block w-full text-left text-xs py-1 transition-colors text-muted-foreground hover:text-primary ${
-                    item.level === 3 ? "pl-3 text-[11px]" : "pl-1"
-                  }`}
-                >
-                  {item.text}
-                </button>
-              ))}
-            </nav>
-          </CollapsibleContent>
-        </Collapsible>
-      )}
+            <div className="flex items-center gap-1 shrink-0">
+              <span className="px-2 py-0.5 rounded-full bg-primary/10 text-primary font-bold text-[11px] whitespace-nowrap">
+                Aula {currentPostNumber}/{posts.length}
+              </span>
+              <i className="bx bx-chevron-right text-lg text-muted-foreground" />
+            </div>
+          </button>
+        </SheetTrigger>
+
+        <SheetContent side="left" className="w-[300px] sm:w-[350px] p-5 overflow-y-auto">
+          <SheetHeader className="mb-4">
+            <SheetTitle className="text-sm font-semibold">
+              Navegação
+            </SheetTitle>
+          </SheetHeader>
+
+          <ModuleSidebar
+            technologySlug={technologySlug}
+            technologyName={technologyName}
+            moduleSlug={moduleSlug}
+            moduleTitle={moduleTitle}
+            posts={posts}
+            currentPostSlug={currentPostSlug}
+            headings={headings}
+            onPostClick={() => setSheetOpen(false)}
+            onHeadingClick={handleHeadingClick}
+          />
+        </SheetContent>
+      </Sheet>
     </div>
   );
 }

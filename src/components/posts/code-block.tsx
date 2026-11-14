@@ -212,7 +212,7 @@ export function CodeBlock({
   return (
     <div
       className={cn(
-        "group relative my-6 w-full rounded-xl border border-zinc-800/80 bg-[#09090b] text-zinc-100 not-prose overflow-hidden shadow-sm selection:bg-blue-600/30 selection:text-white",
+        "group relative my-6 w-full max-w-full min-w-0 rounded-xl border border-zinc-800/80 bg-[#09090b] text-zinc-100 not-prose overflow-hidden shadow-sm selection:bg-blue-600/30 selection:text-white",
         className
       )}
     >
@@ -262,7 +262,7 @@ export function CodeBlock({
       </div>
 
       {/* Área do Código com Suporte a Scroll Horizontal */}
-      <div className="overflow-x-auto p-4 sm:p-5">
+      <div className="overflow-x-auto max-w-full p-4 sm:p-5">
         <div className="w-fit min-w-full font-mono text-xs sm:text-sm leading-6">
           {isSingleLine ? (
             /* Bloco de linha única: sem numeração de linha */

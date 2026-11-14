@@ -65,7 +65,7 @@ export function HeaderSite() {
       </header>
 
       {/* Barra de Pesquisa Flutuante Fixa no Canto Inferior (Mobile) */}
-      <div className="md:hidden fixed bottom-4 left-0 right-0 z-40 px-3 sm:px-4 flex justify-center pointer-events-none">
+      <div className="md:hidden fixed bottom-4 inset-x-0 z-40 px-3 sm:px-4 flex justify-center pointer-events-none max-w-full">
         <div className="pointer-events-auto w-full max-w-sm sm:max-w-md">
           <GlobalSearch variant="bottom-bar" />
         </div>

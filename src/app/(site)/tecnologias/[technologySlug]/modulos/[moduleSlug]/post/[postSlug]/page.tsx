@@ -165,7 +165,7 @@ export default async function PostPage({
       : null;
 
   return (
-    <div className="w-full max-w-7xl mx-auto pb-16">
+    <div className="w-full max-w-7xl mx-auto pb-24 md:pb-16 min-w-0">
       {/* Barra Responsiva (Mobile e Tablet): Abertura da Gaveta de Aulas + Sumário */}
       <MobilePostNav
         technologySlug={technology.slug}
@@ -178,7 +178,7 @@ export default async function PostPage({
       />
 
       {/* Grid de 3 Colunas no Desktop */}
-      <div className="flex gap-8 lg:gap-10 items-start">
+      <div className="flex flex-col lg:flex-row gap-8 lg:gap-10 items-start w-full max-w-full min-w-0">
         {/* COLUNA 1 (Esquerda - Navegação do Módulo): Fixa no Desktop */}
         <aside className="hidden lg:block w-64 shrink-0 sticky top-20 max-h-[calc(100vh-6rem)] overflow-y-auto pr-3 scrollbar-thin">
           <ModuleSidebar
@@ -192,7 +192,7 @@ export default async function PostPage({
         </aside>
 
         {/* COLUNA 2 (Centro - Conteúdo Principal do Artigo) */}
-        <main className="min-w-0 flex-1 max-w-3xl mx-auto px-1 sm:px-3">
+        <main className="min-w-0 flex-1 max-w-3xl mx-auto px-0 sm:px-3 w-full">
           {/* Breadcrumb discreto */}
           <div className="flex items-center gap-1.5 text-xs text-muted-foreground mb-4">
             <Link
@@ -239,7 +239,7 @@ export default async function PostPage({
           )}
 
           {/* Artigo / Conteúdo */}
-          <article className="prose dark:prose-invert prose-blue max-w-none">
+          <article className="prose dark:prose-invert prose-blue max-w-none w-full min-w-0">
             {htmlContent ? (
               <PostContent html={contentHtmlToRender} />
             ) : (

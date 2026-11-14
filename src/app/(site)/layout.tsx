@@ -9,9 +9,9 @@ export default function SiteLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <div className="min-h-screen flex flex-col bg-background text-foreground">
+    <div className="min-h-screen flex flex-col bg-background text-foreground overflow-x-clip">
       <HeaderSite />
-      <main className="container mx-auto px-4 py-8 md:py-12 flex-1">
+      <main className="container mx-auto px-4 py-8 md:py-12 flex-1 w-full max-w-full min-w-0">
         {children}
       </main>
       <Footer />
