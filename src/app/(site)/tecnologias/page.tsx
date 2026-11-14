@@ -17,7 +17,7 @@ export default async function TecnologiasPage() {
   });
 
   return (
-    <section className="mb-20">
+    <section className="mb-20 max-w-6xl mx-auto">
       <div className="flex items-center justify-between mb-8">
         <div>
           <h1 className="text-3xl font-bold tracking-tight">Tecnologias</h1>
