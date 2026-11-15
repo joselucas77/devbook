@@ -8,6 +8,7 @@ import { ModuleSidebar } from "@/components/posts/module-sidebar";
 import { TableOfContents } from "@/components/posts/table-of-contents";
 import { MobilePostNav } from "@/components/posts/mobile-post-nav";
 import { PostFooterNav } from "@/components/posts/post-footer-nav";
+import { PostScrollReset } from "@/components/posts/post-scroll-reset";
 import { formatDatePtBR } from "@/lib/format-date";
 import { extractHeadingsAndInjectIds, HeadingItem } from "@/lib/toc";
 import { slugifySmart } from "@/lib/slugify";
@@ -166,6 +167,9 @@ export default async function PostPage({
 
   return (
     <div className="w-full max-w-7xl mx-auto pb-4 md:pb-6 min-w-0">
+      {/* Reseta o scroll para o topo ao trocar de post */}
+      <PostScrollReset />
+
       {/* Barra Responsiva (Mobile e Tablet): Abertura da Gaveta de Posts + Sumário */}
       <MobilePostNav
         technologySlug={technology.slug}
