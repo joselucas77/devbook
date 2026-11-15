@@ -3,25 +3,17 @@
 import * as React from "react";
 import { format, isSameDay } from "date-fns";
 import { ptBR } from "date-fns/locale";
+
+import { Button } from "@/components/ui/button";
 import { Calendar } from "@/components/ui/calendar";
+import { Field, FieldGroup, FieldLabel } from "@/components/ui/field";
+import { Input } from "@/components/ui/input";
 import {
   Popover,
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import { Button } from "@/components/ui/button";
-import { Label } from "@/components/ui/label";
 import { cn } from "@/lib/utils";
-
-const HOURS = Array.from({ length: 24 }, (_, i) => String(i).padStart(2, "0"));
-const MINUTES = Array.from({ length: 60 }, (_, i) => String(i).padStart(2, "0"));
 
 export function getBrasiliaNow(): {
   dateObj: Date;
@@ -30,6 +22,7 @@ export function getBrasiliaNow(): {
   day: number;
   hour: number;
   minute: number;
+  second: number;
 } {
   const now = new Date();
   const formatter = new Intl.DateTimeFormat("en-CA", {
@@ -39,6 +32,7 @@ export function getBrasiliaNow(): {
     day: "2-digit",
     hour: "2-digit",
     minute: "2-digit",
+    second: "2-digit",
     hour12: false,
   });
 
@@ -53,6 +47,7 @@ export function getBrasiliaNow(): {
   const day = Number(map.day);
   const hour = Number(map.hour);
   const minute = Number(map.minute);
+  const second = Number(map.second || 0);
 
   return {
     dateObj: new Date(year, month - 1, day),
@@ -61,21 +56,20 @@ export function getBrasiliaNow(): {
     day,
     hour,
     minute,
+    second,
   };
 }
 
 export function parseScheduleValue(value?: string | null): {
   hasValue: boolean;
   date?: Date;
-  hour: string;
-  minute: string;
+  time: string;
 } {
   if (!value || !value.trim()) {
     return {
       hasValue: false,
       date: undefined,
-      hour: "12",
-      minute: "00",
+      time: "12:00:00",
     };
   }
 
@@ -96,6 +90,7 @@ export function parseScheduleValue(value?: string | null): {
         day: "2-digit",
         hour: "2-digit",
         minute: "2-digit",
+        second: "2-digit",
         hour12: false,
       });
 
@@ -108,12 +103,14 @@ export function parseScheduleValue(value?: string | null): {
       const year = Number(map.year);
       const month = Number(map.month);
       const day = Number(map.day);
+      const hour = map.hour.padStart(2, "0");
+      const minute = map.minute.padStart(2, "0");
+      const second = (map.second || "00").padStart(2, "0");
 
       return {
         hasValue: true,
         date: new Date(year, month - 1, day),
-        hour: map.hour.padStart(2, "0"),
-        minute: map.minute.padStart(2, "0"),
+        time: `${hour}:${minute}:${second}`,
       };
     }
   } catch {
@@ -123,21 +120,25 @@ export function parseScheduleValue(value?: string | null): {
   return {
     hasValue: false,
     date: undefined,
-    hour: "12",
-    minute: "00",
+    time: "12:00:00",
   };
 }
 
 export function composeIso(
   date: Date | undefined,
-  hour: string,
-  minute: string
+  timeString: string
 ): string {
   if (!date) return "";
   const yyyy = date.getFullYear();
   const mm = String(date.getMonth() + 1).padStart(2, "0");
   const dd = String(date.getDate()).padStart(2, "0");
-  return `${yyyy}-${mm}-${dd}T${hour}:${minute}:00-03:00`;
+
+  let [h = "12", m = "00", s = "00"] = (timeString || "12:00:00").split(":");
+  h = h.padStart(2, "0");
+  m = m.padStart(2, "0");
+  s = s.padStart(2, "0");
+
+  return `${yyyy}-${mm}-${dd}T${h}:${m}:${s}-03:00`;
 }
 
 export function PostSchedulePicker({
@@ -149,21 +150,18 @@ export function PostSchedulePicker({
   onChange: (isoString: string) => void;
   error?: string;
 }) {
-  const [popoverOpen, setPopoverOpen] = React.useState(false);
+  const [open, setOpen] = React.useState(false);
 
-  // Deriva data e hora a partir do valor recebido (sem loop de re-render)
+  // Deriva data e horário a partir do valor recebido (sem loop de re-render)
   const parsed = React.useMemo(() => parseScheduleValue(value), [value]);
 
-  const [fallbackHour, setFallbackHour] = React.useState("12");
-  const [fallbackMinute, setFallbackMinute] = React.useState("00");
+  const [fallbackTime, setFallbackTime] = React.useState("12:00:00");
 
   const selectedDate = parsed.date;
-  const selectedHour = parsed.hasValue ? parsed.hour : fallbackHour;
-  const selectedMinute = parsed.hasValue ? parsed.minute : fallbackMinute;
+  const selectedTime = parsed.hasValue ? parsed.time : fallbackTime;
 
   // Hora atual em Brasília
   const bNow = getBrasiliaNow();
-  const isTodaySelected = selectedDate ? isSameDay(selectedDate, bNow.dateObj) : false;
 
   // Interação do Usuário: Seleção de data no Calendário
   const handleDateSelect = (newDate: Date | undefined) => {
@@ -172,13 +170,13 @@ export function PostSchedulePicker({
       return;
     }
 
-    let targetHour = selectedHour;
-    let targetMinute = selectedMinute;
+    let targetTime = selectedTime;
 
-    // Se selecionou o dia de hoje, garante que o horário selecionado não seja no passado
+    // Se selecionou o dia de hoje, ajusta para horário futuro caso o atual já tenha passado
     if (isSameDay(newDate, bNow.dateObj)) {
-      const hNum = Number(targetHour);
-      const mNum = Number(targetMinute);
+      let [h = "0", m = "0"] = targetTime.split(":");
+      const hNum = Number(h);
+      const mNum = Number(m);
       if (hNum < bNow.hour || (hNum === bNow.hour && mNum <= bNow.minute)) {
         let validHour = bNow.hour;
         let validMin = bNow.minute + 5;
@@ -190,44 +188,21 @@ export function PostSchedulePicker({
           validHour = 23;
           validMin = 59;
         }
-        targetHour = String(validHour).padStart(2, "0");
-        targetMinute = String(validMin).padStart(2, "0");
-        setFallbackHour(targetHour);
-        setFallbackMinute(targetMinute);
+        targetTime = `${String(validHour).padStart(2, "0")}:${String(validMin).padStart(2, "0")}:00`;
+        setFallbackTime(targetTime);
       }
     }
 
-    onChange(composeIso(newDate, targetHour, targetMinute));
-    setPopoverOpen(false);
+    onChange(composeIso(newDate, targetTime));
+    setOpen(false);
   };
 
-  // Interação do Usuário: Mudança de hora
-  const handleHourChange = (newHour: string) => {
-    setFallbackHour(newHour);
-    let targetMinute = selectedMinute;
-
-    // Se hoje estiver selecionado e a hora for a hora atual, garante minuto no futuro
-    if (
-      isTodaySelected &&
-      Number(newHour) === bNow.hour &&
-      Number(targetMinute) <= bNow.minute
-    ) {
-      let validMin = bNow.minute + 5;
-      if (validMin >= 60) validMin = 59;
-      targetMinute = String(validMin).padStart(2, "0");
-      setFallbackMinute(targetMinute);
-    }
-
-    if (selectedDate) {
-      onChange(composeIso(selectedDate, newHour, targetMinute));
-    }
-  };
-
-  // Interação do Usuário: Mudança de minuto
-  const handleMinuteChange = (newMinute: string) => {
-    setFallbackMinute(newMinute);
-    if (selectedDate) {
-      onChange(composeIso(selectedDate, selectedHour, newMinute));
+  // Interação do Usuário: Mudança de horário (Input type="time" step="1")
+  const handleTimeChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const val = e.target.value;
+    setFallbackTime(val || "12:00:00");
+    if (selectedDate && val) {
+      onChange(composeIso(selectedDate, val));
     }
   };
 
@@ -237,11 +212,12 @@ export function PostSchedulePicker({
     const yyyy = selectedDate.getFullYear();
     const mm = String(selectedDate.getMonth() + 1).padStart(2, "0");
     const dd = String(selectedDate.getDate()).padStart(2, "0");
+    let [h = "12", m = "00", s = "00"] = (selectedTime || "12:00:00").split(":");
     const target = new Date(
-      `${yyyy}-${mm}-${dd}T${selectedHour}:${selectedMinute}:00-03:00`
+      `${yyyy}-${mm}-${dd}T${h.padStart(2, "0")}:${m.padStart(2, "0")}:${s.padStart(2, "0")}-03:00`
     );
     return target.getTime() <= Date.now();
-  }, [selectedDate, selectedHour, selectedMinute]);
+  }, [selectedDate, selectedTime]);
 
   return (
     <div className="rounded-lg border border-border/80 bg-muted/20 p-4 space-y-4">
@@ -253,111 +229,66 @@ export function PostSchedulePicker({
         </span>
       </div>
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-        {/* Componente Shadcn: Calendário com Popover */}
-        <div className="space-y-1.5">
-          <Label className="text-xs font-medium text-muted-foreground">
-            Data de Publicação
-          </Label>
-          <Popover open={popoverOpen} onOpenChange={setPopoverOpen}>
+      <FieldGroup className="flex-row items-end gap-3 flex-wrap">
+        {/* Campo de Data (com Shadcn Popover e Calendar pt-BR) */}
+        <Field className="flex-1 min-w-[200px]">
+          <FieldLabel htmlFor="date-picker-schedule" className="text-xs font-medium">
+            Data
+          </FieldLabel>
+          <Popover open={open} onOpenChange={setOpen}>
             <PopoverTrigger asChild>
               <Button
                 variant="outline"
+                id="date-picker-schedule"
                 className={cn(
-                  "w-full justify-start text-left font-normal h-9 bg-card hover:bg-accent/40 border-border text-xs sm:text-sm",
+                  "w-full justify-between font-normal h-9 bg-card hover:bg-accent/40 border-border text-xs sm:text-sm",
                   !selectedDate && "text-muted-foreground"
                 )}
               >
-                <i className="bx bx-calendar mr-2 text-base text-blue-500" />
                 {selectedDate ? (
                   format(selectedDate, "PPP", { locale: ptBR })
                 ) : (
-                  <span>Selecione uma data</span>
+                  <span>Selecione a data</span>
                 )}
+                <i className="bx bx-chevron-down text-base opacity-60 ml-2" />
               </Button>
             </PopoverTrigger>
-            <PopoverContent className="w-auto p-0" align="start">
+            <PopoverContent className="w-auto overflow-hidden p-0" align="start">
               <Calendar
                 mode="single"
                 selected={selectedDate}
-                onSelect={handleDateSelect}
-                disabled={(date) => {
+                captionLayout="dropdown"
+                defaultMonth={selectedDate}
+                locale={ptBR}
+                disabled={(d) => {
                   const check = new Date(
-                    date.getFullYear(),
-                    date.getMonth(),
-                    date.getDate()
+                    d.getFullYear(),
+                    d.getMonth(),
+                    d.getDate()
                   );
                   return check < bNow.dateObj;
                 }}
-                locale={ptBR}
+                onSelect={handleDateSelect}
               />
             </PopoverContent>
           </Popover>
-        </div>
+        </Field>
 
-        {/* Componentes Shadcn: Seletores de Horas e Minutos */}
-        <div className="space-y-1.5">
-          <Label className="text-xs font-medium text-muted-foreground">
-            Horário de Publicação
-          </Label>
-          <div className="flex items-center gap-2">
-            {/* Hora */}
-            <div className="flex-1">
-              <Select value={selectedHour} onValueChange={handleHourChange}>
-                <SelectTrigger className="h-9 font-mono text-xs sm:text-sm bg-card">
-                  <SelectValue placeholder="HH" />
-                </SelectTrigger>
-                <SelectContent className="max-h-56">
-                  {HOURS.map((h) => {
-                    const hNum = Number(h);
-                    const disabled = isTodaySelected && hNum < bNow.hour;
-                    return (
-                      <SelectItem
-                        key={h}
-                        value={h}
-                        disabled={disabled}
-                        className="font-mono text-xs"
-                      >
-                        {h}h
-                      </SelectItem>
-                    );
-                  })}
-                </SelectContent>
-              </Select>
-            </div>
-
-            <span className="text-muted-foreground font-bold">:</span>
-
-            {/* Minuto */}
-            <div className="flex-1">
-              <Select value={selectedMinute} onValueChange={handleMinuteChange}>
-                <SelectTrigger className="h-9 font-mono text-xs sm:text-sm bg-card">
-                  <SelectValue placeholder="MM" />
-                </SelectTrigger>
-                <SelectContent className="max-h-56">
-                  {MINUTES.map((m) => {
-                    const mNum = Number(m);
-                    const disabled =
-                      isTodaySelected &&
-                      Number(selectedHour) === bNow.hour &&
-                      mNum <= bNow.minute;
-                    return (
-                      <SelectItem
-                        key={m}
-                        value={m}
-                        disabled={disabled}
-                        className="font-mono text-xs"
-                      >
-                        {m} min
-                      </SelectItem>
-                    );
-                  })}
-                </SelectContent>
-              </Select>
-            </div>
-          </div>
-        </div>
-      </div>
+        {/* Campo de Horário (Shadcn Field com Input type="time" step="1") */}
+        <Field className="w-36">
+          <FieldLabel htmlFor="time-picker-schedule" className="text-xs font-medium">
+            Horário
+          </FieldLabel>
+          <Input
+            type="time"
+            id="time-picker-schedule"
+            step="1"
+            value={selectedTime}
+            onChange={handleTimeChange}
+            className="appearance-none bg-card font-mono text-xs sm:text-sm h-9 [&::-webkit-calendar-picker-indicator]:hidden [&::-webkit-calendar-picker-indicator]:appearance-none"
+          />
+        </Field>
+      </FieldGroup>
 
       {/* Resumo e Alertas de Validação */}
       {selectedDate && (
@@ -385,7 +316,7 @@ export function PostSchedulePicker({
               <strong>
                 {format(selectedDate, "dd 'de' MMMM 'de' yyyy", { locale: ptBR })}
               </strong>{" "}
-              às <strong>{selectedHour}:{selectedMinute}</strong> (Horário de Brasília).
+              às <strong>{selectedTime}</strong> (Horário de Brasília).
             </span>
           )}
         </div>
