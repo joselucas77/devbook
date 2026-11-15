@@ -17,6 +17,23 @@ function decodeHtmlEntities(str: string): string {
     .replace(/&amp;/g, "&");
 }
 
+/**
+ * Encapsula tabelas HTML em um container com rolagem horizontal (.table-wrapper),
+ * evitando transbordamento da página no mobile e preservando a legibilidade das colunas.
+ */
+function wrapTablesWithScroll(html: string): string {
+  if (!html || !html.includes("<table")) return html;
+
+  const unnested = html.replace(
+    /<div class="table-wrapper">([\s\S]*?<\/table>)<\/div>/gi,
+    "$1"
+  );
+  return unnested.replace(
+    /(<table[\s\S]*?<\/table>)/gi,
+    '<div class="table-wrapper">$1</div>'
+  );
+}
+
 type Segment =
   | { type: "html"; html: string }
   | { type: "code"; code: string; language?: string };
@@ -32,7 +49,7 @@ export function parsePostHtml(html: string): Segment[] {
   while ((match = preRegex.exec(html)) !== null) {
     const textBefore = html.slice(lastIndex, match.index);
     if (textBefore.trim().length > 0) {
-      segments.push({ type: "html", html: textBefore });
+      segments.push({ type: "html", html: wrapTablesWithScroll(textBefore) });
     }
 
     const inner = match[1];
@@ -62,7 +79,7 @@ export function parsePostHtml(html: string): Segment[] {
 
   const remaining = html.slice(lastIndex);
   if (remaining.trim().length > 0) {
-    segments.push({ type: "html", html: remaining });
+    segments.push({ type: "html", html: wrapTablesWithScroll(remaining) });
   }
 
   return segments;

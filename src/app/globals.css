@@ -388,18 +388,49 @@ body::-webkit-scrollbar {
   line-height: 1.6;
 }
 
+/* Container com rolagem horizontal para tabelas (evita que a página role no mobile) */
+.table-wrapper,
+.table-container,
+.tiptap-content .table-wrapper,
+.ProseMirror .tableWrapper {
+  width: 100%;
+  max-width: 100%;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior-x: contain;
+  margin: 1.5rem 0;
+  border-radius: 0.5rem;
+  border: 1px solid var(--color-border);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+}
+
 /* Tabelas TipTap no Editor e no Artigo */
+.table-wrapper table,
+.table-container table,
 .tiptap-content table,
 .ProseMirror table {
   border-collapse: collapse;
   table-layout: auto;
   width: 100%;
-  margin: 1.5rem 0;
-  overflow: hidden;
-  border-radius: 0.5rem;
-  border: 1px solid var(--color-border);
+  min-width: 100%;
+  margin: 0;
+  border: none;
 }
 
+/* Fallback direto caso uma tabela não esteja envelopada */
+.tiptap-content > table {
+  display: block;
+  max-width: 100%;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior-x: contain;
+  border: 1px solid var(--color-border);
+  border-radius: 0.5rem;
+  margin: 1.5rem 0;
+}
+
+.table-wrapper th,
+.table-container th,
 .tiptap-content table th,
 .ProseMirror table th {
   background-color: rgba(39, 39, 42, 0.45);
@@ -409,13 +440,19 @@ body::-webkit-scrollbar {
   border: 1px solid var(--color-border);
   color: var(--color-foreground);
   font-size: 0.875rem;
+  white-space: nowrap;
+  min-width: 100px;
 }
 
+:root:not(.dark) .table-wrapper th,
+:root:not(.dark) .table-container th,
 :root:not(.dark) .tiptap-content table th,
 :root:not(.dark) .ProseMirror table th {
   background-color: #f4f4f5;
 }
 
+.table-wrapper td,
+.table-container td,
 .tiptap-content table td,
 .ProseMirror table td {
   padding: 0.65rem 0.85rem;
@@ -424,22 +461,60 @@ body::-webkit-scrollbar {
   box-sizing: border-box;
   font-size: 0.875rem;
   color: var(--color-foreground);
+  min-width: 110px;
 }
 
+.table-wrapper tr:hover,
+.table-container tr:hover,
 .tiptap-content table tr:hover,
 .ProseMirror table tr:hover {
   background-color: rgba(255, 255, 255, 0.02);
 }
 
+:root:not(.dark) .table-wrapper tr:hover,
+:root:not(.dark) .table-container tr:hover,
 :root:not(.dark) .tiptap-content table tr:hover,
 :root:not(.dark) .ProseMirror table tr:hover {
   background-color: rgba(0, 0, 0, 0.02);
 }
 
-/* Indicador de redimensionamento e seleção de célula */
-.ProseMirror .tableWrapper {
-  overflow-x: auto;
-  margin: 1.5rem 0;
+/* Scrollbar visível e elegante para rolagem horizontal de tabelas */
+.table-wrapper::-webkit-scrollbar,
+.ProseMirror .tableWrapper::-webkit-scrollbar,
+.tiptap-content > table::-webkit-scrollbar {
+  height: 6px;
+}
+
+.table-wrapper::-webkit-scrollbar-track,
+.ProseMirror .tableWrapper::-webkit-scrollbar-track,
+.tiptap-content > table::-webkit-scrollbar-track {
+  background: rgba(0, 0, 0, 0.04);
+  border-radius: 9999px;
+}
+
+:root.dark .table-wrapper::-webkit-scrollbar-track,
+:root.dark .ProseMirror .tableWrapper::-webkit-scrollbar-track,
+:root.dark .tiptap-content > table::-webkit-scrollbar-track {
+  background: rgba(255, 255, 255, 0.04);
+}
+
+.table-wrapper::-webkit-scrollbar-thumb,
+.ProseMirror .tableWrapper::-webkit-scrollbar-thumb,
+.tiptap-content > table::-webkit-scrollbar-thumb {
+  background: rgba(0, 0, 0, 0.2);
+  border-radius: 9999px;
+}
+
+:root.dark .table-wrapper::-webkit-scrollbar-thumb,
+:root.dark .ProseMirror .tableWrapper::-webkit-scrollbar-thumb,
+:root.dark .tiptap-content > table::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.2);
+}
+
+.table-wrapper::-webkit-scrollbar-thumb:hover,
+:root.dark .table-wrapper::-webkit-scrollbar-thumb:hover,
+.tiptap-content > table::-webkit-scrollbar-thumb:hover {
+  background: #3b82f6;
 }
 
 .ProseMirror .column-resize-handle {
