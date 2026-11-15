@@ -122,6 +122,14 @@ export async function POST(req: Request) {
       finalContent = { html: "" };
     }
 
+    // Obtém a próxima ordem disponível para este post dentro do módulo
+    const lastPost = await prisma.post.findFirst({
+      where: { moduleId: data.moduleId },
+      orderBy: { order: "desc" },
+      select: { order: true },
+    });
+    const nextOrder = (lastPost?.order ?? -1) + 1;
+
     const created = await prisma.post.create({
       data: {
         title: data.title,
@@ -134,6 +142,7 @@ export async function POST(req: Request) {
         status: data.status,
         moduleId: data.moduleId,
         authorId,
+        order: nextOrder,
         publishedAt: data.status === "PUBLISHED" ? new Date() : null,
       },
     });

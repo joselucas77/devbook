@@ -5,7 +5,7 @@ export const revalidate = 3600;
 
 export default async function TecnologiasPage() {
   const tech = await prisma.technology.findMany({
-    orderBy: { updatedAt: "desc" },
+    orderBy: [{ order: "asc" }, { createdAt: "asc" }],
     select: {
       id: true,
       name: true,

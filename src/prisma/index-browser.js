@@ -139,6 +139,7 @@ exports.Prisma.TechnologyScalarFieldEnum = {
   description: 'description',
   image: 'image',
   category: 'category',
+  order: 'order',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 };
@@ -147,6 +148,7 @@ exports.Prisma.ModuleScalarFieldEnum = {
   id: 'id',
   title: 'title',
   slug: 'slug',
+  order: 'order',
   technologyId: 'technologyId',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
@@ -162,6 +164,7 @@ exports.Prisma.PostScalarFieldEnum = {
   content: 'content',
   isPublic: 'isPublic',
   status: 'status',
+  order: 'order',
   authorId: 'authorId',
   publishedAt: 'publishedAt',
   moduleId: 'moduleId',

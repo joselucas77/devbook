@@ -14,8 +14,19 @@ export async function POST(req: Request) {
       );
     }
 
+    // Obtém a próxima ordem disponível para este módulo dentro da tecnologia
+    const lastModule = await prisma.module.findFirst({
+      where: { technologyId: parsed.data.technologyId },
+      orderBy: { order: "desc" },
+      select: { order: true },
+    });
+    const nextOrder = (lastModule?.order ?? -1) + 1;
+
     const created = await prisma.module.create({
-      data: parsed.data,
+      data: {
+        ...parsed.data,
+        order: nextOrder,
+      },
     });
 
     return NextResponse.json(created, { status: 201 });

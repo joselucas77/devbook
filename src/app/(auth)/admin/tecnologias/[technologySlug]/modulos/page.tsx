@@ -36,11 +36,12 @@ export default async function AdminModulesPage({
 
   const modules = await prisma.module.findMany({
     where: { technologyId: technology.id },
-    orderBy: { createdAt: "desc" },
+    orderBy: [{ order: "asc" }, { createdAt: "asc" }],
     select: {
       id: true,
       title: true,
       slug: true,
+      order: true,
       createdAt: true,
       updatedAt: true,
       _count: { select: { posts: true } },
@@ -75,6 +76,7 @@ export default async function AdminModulesPage({
           id: m.id,
           title: m.title,
           slug: m.slug,
+          order: m.order,
           technologyId: technology.id,
           postsCount: m._count.posts,
           createdAt: m.createdAt.toISOString(),

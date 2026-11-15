@@ -51,11 +51,13 @@ import {
   type ModuleRow,
 } from "@/components/admin/module-modal";
 import { formatDateBR } from "@/lib/format-date";
+import { Badge } from "@/components/ui/badge";
 
 type Row = {
   id: number;
   title: string;
   slug: string;
+  order: number;
   technologyId: number;
   postsCount: number;
   createdAt: string;
@@ -74,6 +76,52 @@ export function ModulesTable({
   data: Row[];
 }) {
   const router = useRouter();
+
+  // local items state for optimistic reordering
+  const [items, setItems] = React.useState<Row[]>(data);
+  const [isReordering, setIsReordering] = React.useState(false);
+
+  React.useEffect(() => {
+    setItems(data);
+  }, [data]);
+
+  async function handleReorder(newItems: Row[]) {
+    const previous = items;
+    setItems(newItems);
+    setIsReordering(true);
+
+    try {
+      const res = await fetch("/api/admin/reorder", {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          type: "modules",
+          orderedIds: newItems.map((item) => item.id),
+        }),
+      });
+
+      if (!res.ok) {
+        const err = await res.json().catch(() => ({}));
+        throw new Error(err?.message ?? "Falha ao reordenar módulos");
+      }
+
+      toast.success("Ordem dos módulos atualizada com sucesso!");
+      router.refresh();
+    } catch (e: any) {
+      setItems(previous);
+      toast.error("Erro ao reordenar", { description: e?.message });
+    } finally {
+      setIsReordering(false);
+    }
+  }
+
+  function moveItem(fromIndex: number, toIndex: number) {
+    if (toIndex < 0 || toIndex >= items.length || fromIndex === toIndex) return;
+    const updated = [...items];
+    const [moved] = updated.splice(fromIndex, 1);
+    updated.splice(toIndex, 0, moved);
+    handleReorder(updated);
+  }
 
   // modal
   const [openModal, setOpenModal] = React.useState(false);
@@ -107,6 +155,54 @@ export function ModulesTable({
 
   const columns = React.useMemo<ColumnDef<Row>[]>(
     () => [
+      {
+        accessorKey: "order",
+        header: "Ordem",
+        cell: ({ row }) => {
+          const index = items.findIndex((it) => it.id === row.original.id);
+          const isFirst = index <= 0;
+          const isLast = index === items.length - 1;
+
+          return (
+            <div className="flex items-center gap-1.5">
+              <Badge
+                variant="outline"
+                className="font-mono text-xs px-1.5 py-0 min-w-[2rem] justify-center bg-muted/40"
+              >
+                #{index + 1}
+              </Badge>
+              <div className="flex items-center">
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="h-7 w-7 text-muted-foreground hover:text-foreground disabled:opacity-20"
+                  disabled={isFirst || isReordering}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    moveItem(index, index - 1);
+                  }}
+                  title="Mover para cima"
+                >
+                  <i className="bx bx-chevron-up text-lg" />
+                </Button>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="h-7 w-7 text-muted-foreground hover:text-foreground disabled:opacity-20"
+                  disabled={isLast || isReordering}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    moveItem(index, index + 1);
+                  }}
+                  title="Mover para baixo"
+                >
+                  <i className="bx bx-chevron-down text-lg" />
+                </Button>
+              </div>
+            </div>
+          );
+        },
+      },
       {
         accessorKey: "title",
         header: ({ column }) => (
@@ -152,6 +248,9 @@ export function ModulesTable({
         header: "",
         cell: ({ row }) => {
           const m = row.original;
+          const index = items.findIndex((it) => it.id === m.id);
+          const isFirst = index <= 0;
+          const isLast = index === items.length - 1;
 
           return (
             <div className="flex justify-end">
@@ -173,6 +272,26 @@ export function ModulesTable({
                       <i className="bx bx-file text-base mr-1.5" />
                       Acessar posts
                     </Link>
+                  </DropdownMenuItem>
+
+                  <DropdownMenuSeparator />
+
+                  <DropdownMenuItem
+                    disabled={isFirst || isReordering}
+                    onSelect={() => moveItem(index, 0)}
+                    className="gap-2 cursor-pointer"
+                  >
+                    <i className="bx bx-arrow-to-top text-base mr-1.5" />
+                    Mover para o topo
+                  </DropdownMenuItem>
+
+                  <DropdownMenuItem
+                    disabled={isLast || isReordering}
+                    onSelect={() => moveItem(index, items.length - 1)}
+                    className="gap-2 cursor-pointer"
+                  >
+                    <i className="bx bx-arrow-to-bottom text-base mr-1.5" />
+                    Mover para o final
                   </DropdownMenuItem>
 
                   <DropdownMenuSeparator />
@@ -207,7 +326,7 @@ export function ModulesTable({
         },
       },
     ],
-    [technologyId, technologySlug]
+    [items, isReordering, technologyId, technologySlug]
   );
 
   // table state
@@ -220,7 +339,7 @@ export function ModulesTable({
   const [rowSelection, setRowSelection] = React.useState({});
 
   const table = useReactTable({
-    data,
+    data: items,
     columns,
     state: { sorting, columnFilters, columnVisibility, rowSelection },
     onSortingChange: setSorting,

@@ -2778,10 +2778,12 @@ export namespace Prisma {
 
   export type TechnologyAvgAggregateOutputType = {
     id: number | null
+    order: number | null
   }
 
   export type TechnologySumAggregateOutputType = {
     id: number | null
+    order: number | null
   }
 
   export type TechnologyMinAggregateOutputType = {
@@ -2791,6 +2793,7 @@ export namespace Prisma {
     description: string | null
     image: string | null
     category: string | null
+    order: number | null
     createdAt: Date | null
     updatedAt: Date | null
   }
@@ -2802,6 +2805,7 @@ export namespace Prisma {
     description: string | null
     image: string | null
     category: string | null
+    order: number | null
     createdAt: Date | null
     updatedAt: Date | null
   }
@@ -2813,6 +2817,7 @@ export namespace Prisma {
     description: number
     image: number
     category: number
+    order: number
     createdAt: number
     updatedAt: number
     _all: number
@@ -2821,10 +2826,12 @@ export namespace Prisma {
 
   export type TechnologyAvgAggregateInputType = {
     id?: true
+    order?: true
   }
 
   export type TechnologySumAggregateInputType = {
     id?: true
+    order?: true
   }
 
   export type TechnologyMinAggregateInputType = {
@@ -2834,6 +2841,7 @@ export namespace Prisma {
     description?: true
     image?: true
     category?: true
+    order?: true
     createdAt?: true
     updatedAt?: true
   }
@@ -2845,6 +2853,7 @@ export namespace Prisma {
     description?: true
     image?: true
     category?: true
+    order?: true
     createdAt?: true
     updatedAt?: true
   }
@@ -2856,6 +2865,7 @@ export namespace Prisma {
     description?: true
     image?: true
     category?: true
+    order?: true
     createdAt?: true
     updatedAt?: true
     _all?: true
@@ -2954,6 +2964,7 @@ export namespace Prisma {
     description: string
     image: string | null
     category: string
+    order: number
     createdAt: Date
     updatedAt: Date
     _count: TechnologyCountAggregateOutputType | null
@@ -2984,6 +2995,7 @@ export namespace Prisma {
     description?: boolean
     image?: boolean
     category?: boolean
+    order?: boolean
     createdAt?: boolean
     updatedAt?: boolean
     modules?: boolean | Technology$modulesArgs<ExtArgs>
@@ -2997,6 +3009,7 @@ export namespace Prisma {
     description?: boolean
     image?: boolean
     category?: boolean
+    order?: boolean
     createdAt?: boolean
     updatedAt?: boolean
   }, ExtArgs["result"]["technology"]>
@@ -3008,6 +3021,7 @@ export namespace Prisma {
     description?: boolean
     image?: boolean
     category?: boolean
+    order?: boolean
     createdAt?: boolean
     updatedAt?: boolean
   }, ExtArgs["result"]["technology"]>
@@ -3019,11 +3033,12 @@ export namespace Prisma {
     description?: boolean
     image?: boolean
     category?: boolean
+    order?: boolean
     createdAt?: boolean
     updatedAt?: boolean
   }
 
-  export type TechnologyOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "name" | "slug" | "description" | "image" | "category" | "createdAt" | "updatedAt", ExtArgs["result"]["technology"]>
+  export type TechnologyOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "name" | "slug" | "description" | "image" | "category" | "order" | "createdAt" | "updatedAt", ExtArgs["result"]["technology"]>
   export type TechnologyInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     modules?: boolean | Technology$modulesArgs<ExtArgs>
     _count?: boolean | TechnologyCountOutputTypeDefaultArgs<ExtArgs>
@@ -3043,6 +3058,7 @@ export namespace Prisma {
       description: string
       image: string | null
       category: string
+      order: number
       createdAt: Date
       updatedAt: Date
     }, ExtArgs["result"]["technology"]>
@@ -3475,6 +3491,7 @@ export namespace Prisma {
     readonly description: FieldRef<"Technology", 'String'>
     readonly image: FieldRef<"Technology", 'String'>
     readonly category: FieldRef<"Technology", 'String'>
+    readonly order: FieldRef<"Technology", 'Int'>
     readonly createdAt: FieldRef<"Technology", 'DateTime'>
     readonly updatedAt: FieldRef<"Technology", 'DateTime'>
   }
@@ -3926,11 +3943,13 @@ export namespace Prisma {
 
   export type ModuleAvgAggregateOutputType = {
     id: number | null
+    order: number | null
     technologyId: number | null
   }
 
   export type ModuleSumAggregateOutputType = {
     id: number | null
+    order: number | null
     technologyId: number | null
   }
 
@@ -3938,6 +3957,7 @@ export namespace Prisma {
     id: number | null
     title: string | null
     slug: string | null
+    order: number | null
     technologyId: number | null
     createdAt: Date | null
     updatedAt: Date | null
@@ -3947,6 +3967,7 @@ export namespace Prisma {
     id: number | null
     title: string | null
     slug: string | null
+    order: number | null
     technologyId: number | null
     createdAt: Date | null
     updatedAt: Date | null
@@ -3956,6 +3977,7 @@ export namespace Prisma {
     id: number
     title: number
     slug: number
+    order: number
     technologyId: number
     createdAt: number
     updatedAt: number
@@ -3965,11 +3987,13 @@ export namespace Prisma {
 
   export type ModuleAvgAggregateInputType = {
     id?: true
+    order?: true
     technologyId?: true
   }
 
   export type ModuleSumAggregateInputType = {
     id?: true
+    order?: true
     technologyId?: true
   }
 
@@ -3977,6 +4001,7 @@ export namespace Prisma {
     id?: true
     title?: true
     slug?: true
+    order?: true
     technologyId?: true
     createdAt?: true
     updatedAt?: true
@@ -3986,6 +4011,7 @@ export namespace Prisma {
     id?: true
     title?: true
     slug?: true
+    order?: true
     technologyId?: true
     createdAt?: true
     updatedAt?: true
@@ -3995,6 +4021,7 @@ export namespace Prisma {
     id?: true
     title?: true
     slug?: true
+    order?: true
     technologyId?: true
     createdAt?: true
     updatedAt?: true
@@ -4091,6 +4118,7 @@ export namespace Prisma {
     id: number
     title: string
     slug: string
+    order: number
     technologyId: number
     createdAt: Date
     updatedAt: Date
@@ -4119,6 +4147,7 @@ export namespace Prisma {
     id?: boolean
     title?: boolean
     slug?: boolean
+    order?: boolean
     technologyId?: boolean
     createdAt?: boolean
     updatedAt?: boolean
@@ -4131,6 +4160,7 @@ export namespace Prisma {
     id?: boolean
     title?: boolean
     slug?: boolean
+    order?: boolean
     technologyId?: boolean
     createdAt?: boolean
     updatedAt?: boolean
@@ -4141,6 +4171,7 @@ export namespace Prisma {
     id?: boolean
     title?: boolean
     slug?: boolean
+    order?: boolean
     technologyId?: boolean
     createdAt?: boolean
     updatedAt?: boolean
@@ -4151,12 +4182,13 @@ export namespace Prisma {
     id?: boolean
     title?: boolean
     slug?: boolean
+    order?: boolean
     technologyId?: boolean
     createdAt?: boolean
     updatedAt?: boolean
   }
 
-  export type ModuleOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "title" | "slug" | "technologyId" | "createdAt" | "updatedAt", ExtArgs["result"]["module"]>
+  export type ModuleOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "title" | "slug" | "order" | "technologyId" | "createdAt" | "updatedAt", ExtArgs["result"]["module"]>
   export type ModuleInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     technology?: boolean | TechnologyDefaultArgs<ExtArgs>
     posts?: boolean | Module$postsArgs<ExtArgs>
@@ -4179,6 +4211,7 @@ export namespace Prisma {
       id: number
       title: string
       slug: string
+      order: number
       technologyId: number
       createdAt: Date
       updatedAt: Date
@@ -4610,6 +4643,7 @@ export namespace Prisma {
     readonly id: FieldRef<"Module", 'Int'>
     readonly title: FieldRef<"Module", 'String'>
     readonly slug: FieldRef<"Module", 'String'>
+    readonly order: FieldRef<"Module", 'Int'>
     readonly technologyId: FieldRef<"Module", 'Int'>
     readonly createdAt: FieldRef<"Module", 'DateTime'>
     readonly updatedAt: FieldRef<"Module", 'DateTime'>
@@ -5070,11 +5104,13 @@ export namespace Prisma {
 
   export type PostAvgAggregateOutputType = {
     id: number | null
+    order: number | null
     moduleId: number | null
   }
 
   export type PostSumAggregateOutputType = {
     id: number | null
+    order: number | null
     moduleId: number | null
   }
 
@@ -5087,6 +5123,7 @@ export namespace Prisma {
     image: string | null
     isPublic: boolean | null
     status: $Enums.PostStatus | null
+    order: number | null
     authorId: string | null
     publishedAt: Date | null
     moduleId: number | null
@@ -5103,6 +5140,7 @@ export namespace Prisma {
     image: string | null
     isPublic: boolean | null
     status: $Enums.PostStatus | null
+    order: number | null
     authorId: string | null
     publishedAt: Date | null
     moduleId: number | null
@@ -5120,6 +5158,7 @@ export namespace Prisma {
     content: number
     isPublic: number
     status: number
+    order: number
     authorId: number
     publishedAt: number
     moduleId: number
@@ -5131,11 +5170,13 @@ export namespace Prisma {
 
   export type PostAvgAggregateInputType = {
     id?: true
+    order?: true
     moduleId?: true
   }
 
   export type PostSumAggregateInputType = {
     id?: true
+    order?: true
     moduleId?: true
   }
 
@@ -5148,6 +5189,7 @@ export namespace Prisma {
     image?: true
     isPublic?: true
     status?: true
+    order?: true
     authorId?: true
     publishedAt?: true
     moduleId?: true
@@ -5164,6 +5206,7 @@ export namespace Prisma {
     image?: true
     isPublic?: true
     status?: true
+    order?: true
     authorId?: true
     publishedAt?: true
     moduleId?: true
@@ -5181,6 +5224,7 @@ export namespace Prisma {
     content?: true
     isPublic?: true
     status?: true
+    order?: true
     authorId?: true
     publishedAt?: true
     moduleId?: true
@@ -5285,6 +5329,7 @@ export namespace Prisma {
     content: JsonValue
     isPublic: boolean
     status: $Enums.PostStatus
+    order: number
     authorId: string | null
     publishedAt: Date | null
     moduleId: number
@@ -5321,6 +5366,7 @@ export namespace Prisma {
     content?: boolean
     isPublic?: boolean
     status?: boolean
+    order?: boolean
     authorId?: boolean
     publishedAt?: boolean
     moduleId?: boolean
@@ -5340,6 +5386,7 @@ export namespace Prisma {
     content?: boolean
     isPublic?: boolean
     status?: boolean
+    order?: boolean
     authorId?: boolean
     publishedAt?: boolean
     moduleId?: boolean
@@ -5359,6 +5406,7 @@ export namespace Prisma {
     content?: boolean
     isPublic?: boolean
     status?: boolean
+    order?: boolean
     authorId?: boolean
     publishedAt?: boolean
     moduleId?: boolean
@@ -5378,6 +5426,7 @@ export namespace Prisma {
     content?: boolean
     isPublic?: boolean
     status?: boolean
+    order?: boolean
     authorId?: boolean
     publishedAt?: boolean
     moduleId?: boolean
@@ -5385,7 +5434,7 @@ export namespace Prisma {
     updatedAt?: boolean
   }
 
-  export type PostOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "title" | "slug" | "concept" | "summary" | "image" | "content" | "isPublic" | "status" | "authorId" | "publishedAt" | "moduleId" | "createdAt" | "updatedAt", ExtArgs["result"]["post"]>
+  export type PostOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "title" | "slug" | "concept" | "summary" | "image" | "content" | "isPublic" | "status" | "order" | "authorId" | "publishedAt" | "moduleId" | "createdAt" | "updatedAt", ExtArgs["result"]["post"]>
   export type PostInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     author?: boolean | Post$authorArgs<ExtArgs>
     module?: boolean | ModuleDefaultArgs<ExtArgs>
@@ -5415,6 +5464,7 @@ export namespace Prisma {
       content: Prisma.JsonValue
       isPublic: boolean
       status: $Enums.PostStatus
+      order: number
       authorId: string | null
       publishedAt: Date | null
       moduleId: number
@@ -5854,6 +5904,7 @@ export namespace Prisma {
     readonly content: FieldRef<"Post", 'Json'>
     readonly isPublic: FieldRef<"Post", 'Boolean'>
     readonly status: FieldRef<"Post", 'PostStatus'>
+    readonly order: FieldRef<"Post", 'Int'>
     readonly authorId: FieldRef<"Post", 'String'>
     readonly publishedAt: FieldRef<"Post", 'DateTime'>
     readonly moduleId: FieldRef<"Post", 'Int'>
@@ -9615,6 +9666,7 @@ export namespace Prisma {
     description: 'description',
     image: 'image',
     category: 'category',
+    order: 'order',
     createdAt: 'createdAt',
     updatedAt: 'updatedAt'
   };
@@ -9626,6 +9678,7 @@ export namespace Prisma {
     id: 'id',
     title: 'title',
     slug: 'slug',
+    order: 'order',
     technologyId: 'technologyId',
     createdAt: 'createdAt',
     updatedAt: 'updatedAt'
@@ -9644,6 +9697,7 @@ export namespace Prisma {
     content: 'content',
     isPublic: 'isPublic',
     status: 'status',
+    order: 'order',
     authorId: 'authorId',
     publishedAt: 'publishedAt',
     moduleId: 'moduleId',
@@ -9943,6 +9997,7 @@ export namespace Prisma {
     description?: StringFilter<"Technology"> | string
     image?: StringNullableFilter<"Technology"> | string | null
     category?: StringFilter<"Technology"> | string
+    order?: IntFilter<"Technology"> | number
     createdAt?: DateTimeFilter<"Technology"> | Date | string
     updatedAt?: DateTimeFilter<"Technology"> | Date | string
     modules?: ModuleListRelationFilter
@@ -9955,6 +10010,7 @@ export namespace Prisma {
     description?: SortOrder
     image?: SortOrderInput | SortOrder
     category?: SortOrder
+    order?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
     modules?: ModuleOrderByRelationAggregateInput
@@ -9970,6 +10026,7 @@ export namespace Prisma {
     description?: StringFilter<"Technology"> | string
     image?: StringNullableFilter<"Technology"> | string | null
     category?: StringFilter<"Technology"> | string
+    order?: IntFilter<"Technology"> | number
     createdAt?: DateTimeFilter<"Technology"> | Date | string
     updatedAt?: DateTimeFilter<"Technology"> | Date | string
     modules?: ModuleListRelationFilter
@@ -9982,6 +10039,7 @@ export namespace Prisma {
     description?: SortOrder
     image?: SortOrderInput | SortOrder
     category?: SortOrder
+    order?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
     _count?: TechnologyCountOrderByAggregateInput
@@ -10001,6 +10059,7 @@ export namespace Prisma {
     description?: StringWithAggregatesFilter<"Technology"> | string
     image?: StringNullableWithAggregatesFilter<"Technology"> | string | null
     category?: StringWithAggregatesFilter<"Technology"> | string
+    order?: IntWithAggregatesFilter<"Technology"> | number
     createdAt?: DateTimeWithAggregatesFilter<"Technology"> | Date | string
     updatedAt?: DateTimeWithAggregatesFilter<"Technology"> | Date | string
   }
@@ -10012,6 +10071,7 @@ export namespace Prisma {
     id?: IntFilter<"Module"> | number
     title?: StringFilter<"Module"> | string
     slug?: StringFilter<"Module"> | string
+    order?: IntFilter<"Module"> | number
     technologyId?: IntFilter<"Module"> | number
     createdAt?: DateTimeFilter<"Module"> | Date | string
     updatedAt?: DateTimeFilter<"Module"> | Date | string
@@ -10023,6 +10083,7 @@ export namespace Prisma {
     id?: SortOrder
     title?: SortOrder
     slug?: SortOrder
+    order?: SortOrder
     technologyId?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
@@ -10038,6 +10099,7 @@ export namespace Prisma {
     NOT?: ModuleWhereInput | ModuleWhereInput[]
     title?: StringFilter<"Module"> | string
     slug?: StringFilter<"Module"> | string
+    order?: IntFilter<"Module"> | number
     technologyId?: IntFilter<"Module"> | number
     createdAt?: DateTimeFilter<"Module"> | Date | string
     updatedAt?: DateTimeFilter<"Module"> | Date | string
@@ -10049,6 +10111,7 @@ export namespace Prisma {
     id?: SortOrder
     title?: SortOrder
     slug?: SortOrder
+    order?: SortOrder
     technologyId?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
@@ -10066,6 +10129,7 @@ export namespace Prisma {
     id?: IntWithAggregatesFilter<"Module"> | number
     title?: StringWithAggregatesFilter<"Module"> | string
     slug?: StringWithAggregatesFilter<"Module"> | string
+    order?: IntWithAggregatesFilter<"Module"> | number
     technologyId?: IntWithAggregatesFilter<"Module"> | number
     createdAt?: DateTimeWithAggregatesFilter<"Module"> | Date | string
     updatedAt?: DateTimeWithAggregatesFilter<"Module"> | Date | string
@@ -10084,6 +10148,7 @@ export namespace Prisma {
     content?: JsonFilter<"Post">
     isPublic?: BoolFilter<"Post"> | boolean
     status?: EnumPostStatusFilter<"Post"> | $Enums.PostStatus
+    order?: IntFilter<"Post"> | number
     authorId?: StringNullableFilter<"Post"> | string | null
     publishedAt?: DateTimeNullableFilter<"Post"> | Date | string | null
     moduleId?: IntFilter<"Post"> | number
@@ -10103,6 +10168,7 @@ export namespace Prisma {
     content?: SortOrder
     isPublic?: SortOrder
     status?: SortOrder
+    order?: SortOrder
     authorId?: SortOrderInput | SortOrder
     publishedAt?: SortOrderInput | SortOrder
     moduleId?: SortOrder
@@ -10126,6 +10192,7 @@ export namespace Prisma {
     content?: JsonFilter<"Post">
     isPublic?: BoolFilter<"Post"> | boolean
     status?: EnumPostStatusFilter<"Post"> | $Enums.PostStatus
+    order?: IntFilter<"Post"> | number
     authorId?: StringNullableFilter<"Post"> | string | null
     publishedAt?: DateTimeNullableFilter<"Post"> | Date | string | null
     moduleId?: IntFilter<"Post"> | number
@@ -10145,6 +10212,7 @@ export namespace Prisma {
     content?: SortOrder
     isPublic?: SortOrder
     status?: SortOrder
+    order?: SortOrder
     authorId?: SortOrderInput | SortOrder
     publishedAt?: SortOrderInput | SortOrder
     moduleId?: SortOrder
@@ -10170,6 +10238,7 @@ export namespace Prisma {
     content?: JsonWithAggregatesFilter<"Post">
     isPublic?: BoolWithAggregatesFilter<"Post"> | boolean
     status?: EnumPostStatusWithAggregatesFilter<"Post"> | $Enums.PostStatus
+    order?: IntWithAggregatesFilter<"Post"> | number
     authorId?: StringNullableWithAggregatesFilter<"Post"> | string | null
     publishedAt?: DateTimeNullableWithAggregatesFilter<"Post"> | Date | string | null
     moduleId?: IntWithAggregatesFilter<"Post"> | number
@@ -10501,6 +10570,7 @@ export namespace Prisma {
     description: string
     image?: string | null
     category: string
+    order?: number
     createdAt?: Date | string
     updatedAt?: Date | string
     modules?: ModuleCreateNestedManyWithoutTechnologyInput
@@ -10513,6 +10583,7 @@ export namespace Prisma {
     description: string
     image?: string | null
     category: string
+    order?: number
     createdAt?: Date | string
     updatedAt?: Date | string
     modules?: ModuleUncheckedCreateNestedManyWithoutTechnologyInput
@@ -10524,6 +10595,7 @@ export namespace Prisma {
     description?: StringFieldUpdateOperationsInput | string
     image?: NullableStringFieldUpdateOperationsInput | string | null
     category?: StringFieldUpdateOperationsInput | string
+    order?: IntFieldUpdateOperationsInput | number
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     modules?: ModuleUpdateManyWithoutTechnologyNestedInput
@@ -10536,6 +10608,7 @@ export namespace Prisma {
     description?: StringFieldUpdateOperationsInput | string
     image?: NullableStringFieldUpdateOperationsInput | string | null
     category?: StringFieldUpdateOperationsInput | string
+    order?: IntFieldUpdateOperationsInput | number
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     modules?: ModuleUncheckedUpdateManyWithoutTechnologyNestedInput
@@ -10548,6 +10621,7 @@ export namespace Prisma {
     description: string
     image?: string | null
     category: string
+    order?: number
     createdAt?: Date | string
     updatedAt?: Date | string
   }
@@ -10558,6 +10632,7 @@ export namespace Prisma {
     description?: StringFieldUpdateOperationsInput | string
     image?: NullableStringFieldUpdateOperationsInput | string | null
     category?: StringFieldUpdateOperationsInput | string
+    order?: IntFieldUpdateOperationsInput | number
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
@@ -10569,6 +10644,7 @@ export namespace Prisma {
     description?: StringFieldUpdateOperationsInput | string
     image?: NullableStringFieldUpdateOperationsInput | string | null
     category?: StringFieldUpdateOperationsInput | string
+    order?: IntFieldUpdateOperationsInput | number
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
@@ -10576,6 +10652,7 @@ export namespace Prisma {
   export type ModuleCreateInput = {
     title: string
     slug: string
+    order?: number
     createdAt?: Date | string
     updatedAt?: Date | string
     technology: TechnologyCreateNestedOneWithoutModulesInput
@@ -10586,6 +10663,7 @@ export namespace Prisma {
     id?: number
     title: string
     slug: string
+    order?: number
     technologyId: number
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -10595,6 +10673,7 @@ export namespace Prisma {
   export type ModuleUpdateInput = {
     title?: StringFieldUpdateOperationsInput | string
     slug?: StringFieldUpdateOperationsInput | string
+    order?: IntFieldUpdateOperationsInput | number
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     technology?: TechnologyUpdateOneRequiredWithoutModulesNestedInput
@@ -10605,6 +10684,7 @@ export namespace Prisma {
     id?: IntFieldUpdateOperationsInput | number
     title?: StringFieldUpdateOperationsInput | string
     slug?: StringFieldUpdateOperationsInput | string
+    order?: IntFieldUpdateOperationsInput | number
     technologyId?: IntFieldUpdateOperationsInput | number
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -10615,6 +10695,7 @@ export namespace Prisma {
     id?: number
     title: string
     slug: string
+    order?: number
     technologyId: number
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -10623,6 +10704,7 @@ export namespace Prisma {
   export type ModuleUpdateManyMutationInput = {
     title?: StringFieldUpdateOperationsInput | string
     slug?: StringFieldUpdateOperationsInput | string
+    order?: IntFieldUpdateOperationsInput | number
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
@@ -10631,6 +10713,7 @@ export namespace Prisma {
     id?: IntFieldUpdateOperationsInput | number
     title?: StringFieldUpdateOperationsInput | string
     slug?: StringFieldUpdateOperationsInput | string
+    order?: IntFieldUpdateOperationsInput | number
     technologyId?: IntFieldUpdateOperationsInput | number
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -10645,6 +10728,7 @@ export namespace Prisma {
     content: JsonNullValueInput | InputJsonValue
     isPublic?: boolean
     status?: $Enums.PostStatus
+    order?: number
     publishedAt?: Date | string | null
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -10662,6 +10746,7 @@ export namespace Prisma {
     content: JsonNullValueInput | InputJsonValue
     isPublic?: boolean
     status?: $Enums.PostStatus
+    order?: number
     authorId?: string | null
     publishedAt?: Date | string | null
     moduleId: number
@@ -10678,6 +10763,7 @@ export namespace Prisma {
     content?: JsonNullValueInput | InputJsonValue
     isPublic?: BoolFieldUpdateOperationsInput | boolean
     status?: EnumPostStatusFieldUpdateOperationsInput | $Enums.PostStatus
+    order?: IntFieldUpdateOperationsInput | number
     publishedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -10695,6 +10781,7 @@ export namespace Prisma {
     content?: JsonNullValueInput | InputJsonValue
     isPublic?: BoolFieldUpdateOperationsInput | boolean
     status?: EnumPostStatusFieldUpdateOperationsInput | $Enums.PostStatus
+    order?: IntFieldUpdateOperationsInput | number
     authorId?: NullableStringFieldUpdateOperationsInput | string | null
     publishedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     moduleId?: IntFieldUpdateOperationsInput | number
@@ -10712,6 +10799,7 @@ export namespace Prisma {
     content: JsonNullValueInput | InputJsonValue
     isPublic?: boolean
     status?: $Enums.PostStatus
+    order?: number
     authorId?: string | null
     publishedAt?: Date | string | null
     moduleId: number
@@ -10728,6 +10816,7 @@ export namespace Prisma {
     content?: JsonNullValueInput | InputJsonValue
     isPublic?: BoolFieldUpdateOperationsInput | boolean
     status?: EnumPostStatusFieldUpdateOperationsInput | $Enums.PostStatus
+    order?: IntFieldUpdateOperationsInput | number
     publishedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -10743,6 +10832,7 @@ export namespace Prisma {
     content?: JsonNullValueInput | InputJsonValue
     isPublic?: BoolFieldUpdateOperationsInput | boolean
     status?: EnumPostStatusFieldUpdateOperationsInput | $Enums.PostStatus
+    order?: IntFieldUpdateOperationsInput | number
     authorId?: NullableStringFieldUpdateOperationsInput | string | null
     publishedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     moduleId?: IntFieldUpdateOperationsInput | number
@@ -11220,12 +11310,14 @@ export namespace Prisma {
     description?: SortOrder
     image?: SortOrder
     category?: SortOrder
+    order?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
   }
 
   export type TechnologyAvgOrderByAggregateInput = {
     id?: SortOrder
+    order?: SortOrder
   }
 
   export type TechnologyMaxOrderByAggregateInput = {
@@ -11235,6 +11327,7 @@ export namespace Prisma {
     description?: SortOrder
     image?: SortOrder
     category?: SortOrder
+    order?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
   }
@@ -11246,12 +11339,14 @@ export namespace Prisma {
     description?: SortOrder
     image?: SortOrder
     category?: SortOrder
+    order?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
   }
 
   export type TechnologySumOrderByAggregateInput = {
     id?: SortOrder
+    order?: SortOrder
   }
 
   export type IntWithAggregatesFilter<$PrismaModel = never> = {
@@ -11284,6 +11379,7 @@ export namespace Prisma {
     id?: SortOrder
     title?: SortOrder
     slug?: SortOrder
+    order?: SortOrder
     technologyId?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
@@ -11291,6 +11387,7 @@ export namespace Prisma {
 
   export type ModuleAvgOrderByAggregateInput = {
     id?: SortOrder
+    order?: SortOrder
     technologyId?: SortOrder
   }
 
@@ -11298,6 +11395,7 @@ export namespace Prisma {
     id?: SortOrder
     title?: SortOrder
     slug?: SortOrder
+    order?: SortOrder
     technologyId?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
@@ -11307,6 +11405,7 @@ export namespace Prisma {
     id?: SortOrder
     title?: SortOrder
     slug?: SortOrder
+    order?: SortOrder
     technologyId?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
@@ -11314,6 +11413,7 @@ export namespace Prisma {
 
   export type ModuleSumOrderByAggregateInput = {
     id?: SortOrder
+    order?: SortOrder
     technologyId?: SortOrder
   }
   export type JsonFilter<$PrismaModel = never> =
@@ -11383,6 +11483,7 @@ export namespace Prisma {
     content?: SortOrder
     isPublic?: SortOrder
     status?: SortOrder
+    order?: SortOrder
     authorId?: SortOrder
     publishedAt?: SortOrder
     moduleId?: SortOrder
@@ -11392,6 +11493,7 @@ export namespace Prisma {
 
   export type PostAvgOrderByAggregateInput = {
     id?: SortOrder
+    order?: SortOrder
     moduleId?: SortOrder
   }
 
@@ -11404,6 +11506,7 @@ export namespace Prisma {
     image?: SortOrder
     isPublic?: SortOrder
     status?: SortOrder
+    order?: SortOrder
     authorId?: SortOrder
     publishedAt?: SortOrder
     moduleId?: SortOrder
@@ -11420,6 +11523,7 @@ export namespace Prisma {
     image?: SortOrder
     isPublic?: SortOrder
     status?: SortOrder
+    order?: SortOrder
     authorId?: SortOrder
     publishedAt?: SortOrder
     moduleId?: SortOrder
@@ -11429,6 +11533,7 @@ export namespace Prisma {
 
   export type PostSumOrderByAggregateInput = {
     id?: SortOrder
+    order?: SortOrder
     moduleId?: SortOrder
   }
   export type JsonWithAggregatesFilter<$PrismaModel = never> =
@@ -11755,6 +11860,14 @@ export namespace Prisma {
     connect?: ModuleWhereUniqueInput | ModuleWhereUniqueInput[]
   }
 
+  export type IntFieldUpdateOperationsInput = {
+    set?: number
+    increment?: number
+    decrement?: number
+    multiply?: number
+    divide?: number
+  }
+
   export type ModuleUpdateManyWithoutTechnologyNestedInput = {
     create?: XOR<ModuleCreateWithoutTechnologyInput, ModuleUncheckedCreateWithoutTechnologyInput> | ModuleCreateWithoutTechnologyInput[] | ModuleUncheckedCreateWithoutTechnologyInput[]
     connectOrCreate?: ModuleCreateOrConnectWithoutTechnologyInput | ModuleCreateOrConnectWithoutTechnologyInput[]
@@ -11767,14 +11880,6 @@ export namespace Prisma {
     update?: ModuleUpdateWithWhereUniqueWithoutTechnologyInput | ModuleUpdateWithWhereUniqueWithoutTechnologyInput[]
     updateMany?: ModuleUpdateManyWithWhereWithoutTechnologyInput | ModuleUpdateManyWithWhereWithoutTechnologyInput[]
     deleteMany?: ModuleScalarWhereInput | ModuleScalarWhereInput[]
-  }
-
-  export type IntFieldUpdateOperationsInput = {
-    set?: number
-    increment?: number
-    decrement?: number
-    multiply?: number
-    divide?: number
   }
 
   export type ModuleUncheckedUpdateManyWithoutTechnologyNestedInput = {
@@ -12223,6 +12328,7 @@ export namespace Prisma {
     content: JsonNullValueInput | InputJsonValue
     isPublic?: boolean
     status?: $Enums.PostStatus
+    order?: number
     publishedAt?: Date | string | null
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -12239,6 +12345,7 @@ export namespace Prisma {
     content: JsonNullValueInput | InputJsonValue
     isPublic?: boolean
     status?: $Enums.PostStatus
+    order?: number
     publishedAt?: Date | string | null
     moduleId: number
     createdAt?: Date | string
@@ -12349,6 +12456,7 @@ export namespace Prisma {
     content?: JsonFilter<"Post">
     isPublic?: BoolFilter<"Post"> | boolean
     status?: EnumPostStatusFilter<"Post"> | $Enums.PostStatus
+    order?: IntFilter<"Post"> | number
     authorId?: StringNullableFilter<"Post"> | string | null
     publishedAt?: DateTimeNullableFilter<"Post"> | Date | string | null
     moduleId?: IntFilter<"Post"> | number
@@ -12359,6 +12467,7 @@ export namespace Prisma {
   export type ModuleCreateWithoutTechnologyInput = {
     title: string
     slug: string
+    order?: number
     createdAt?: Date | string
     updatedAt?: Date | string
     posts?: PostCreateNestedManyWithoutModuleInput
@@ -12368,6 +12477,7 @@ export namespace Prisma {
     id?: number
     title: string
     slug: string
+    order?: number
     createdAt?: Date | string
     updatedAt?: Date | string
     posts?: PostUncheckedCreateNestedManyWithoutModuleInput
@@ -12406,6 +12516,7 @@ export namespace Prisma {
     id?: IntFilter<"Module"> | number
     title?: StringFilter<"Module"> | string
     slug?: StringFilter<"Module"> | string
+    order?: IntFilter<"Module"> | number
     technologyId?: IntFilter<"Module"> | number
     createdAt?: DateTimeFilter<"Module"> | Date | string
     updatedAt?: DateTimeFilter<"Module"> | Date | string
@@ -12417,6 +12528,7 @@ export namespace Prisma {
     description: string
     image?: string | null
     category: string
+    order?: number
     createdAt?: Date | string
     updatedAt?: Date | string
   }
@@ -12428,6 +12540,7 @@ export namespace Prisma {
     description: string
     image?: string | null
     category: string
+    order?: number
     createdAt?: Date | string
     updatedAt?: Date | string
   }
@@ -12446,6 +12559,7 @@ export namespace Prisma {
     content: JsonNullValueInput | InputJsonValue
     isPublic?: boolean
     status?: $Enums.PostStatus
+    order?: number
     publishedAt?: Date | string | null
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -12462,6 +12576,7 @@ export namespace Prisma {
     content: JsonNullValueInput | InputJsonValue
     isPublic?: boolean
     status?: $Enums.PostStatus
+    order?: number
     authorId?: string | null
     publishedAt?: Date | string | null
     createdAt?: Date | string
@@ -12495,6 +12610,7 @@ export namespace Prisma {
     description?: StringFieldUpdateOperationsInput | string
     image?: NullableStringFieldUpdateOperationsInput | string | null
     category?: StringFieldUpdateOperationsInput | string
+    order?: IntFieldUpdateOperationsInput | number
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
@@ -12506,6 +12622,7 @@ export namespace Prisma {
     description?: StringFieldUpdateOperationsInput | string
     image?: NullableStringFieldUpdateOperationsInput | string | null
     category?: StringFieldUpdateOperationsInput | string
+    order?: IntFieldUpdateOperationsInput | number
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
@@ -12562,6 +12679,7 @@ export namespace Prisma {
   export type ModuleCreateWithoutPostsInput = {
     title: string
     slug: string
+    order?: number
     createdAt?: Date | string
     updatedAt?: Date | string
     technology: TechnologyCreateNestedOneWithoutModulesInput
@@ -12571,6 +12689,7 @@ export namespace Prisma {
     id?: number
     title: string
     slug: string
+    order?: number
     technologyId: number
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -12634,6 +12753,7 @@ export namespace Prisma {
   export type ModuleUpdateWithoutPostsInput = {
     title?: StringFieldUpdateOperationsInput | string
     slug?: StringFieldUpdateOperationsInput | string
+    order?: IntFieldUpdateOperationsInput | number
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     technology?: TechnologyUpdateOneRequiredWithoutModulesNestedInput
@@ -12643,6 +12763,7 @@ export namespace Prisma {
     id?: IntFieldUpdateOperationsInput | number
     title?: StringFieldUpdateOperationsInput | string
     slug?: StringFieldUpdateOperationsInput | string
+    order?: IntFieldUpdateOperationsInput | number
     technologyId?: IntFieldUpdateOperationsInput | number
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -12827,6 +12948,7 @@ export namespace Prisma {
     content: JsonNullValueInput | InputJsonValue
     isPublic?: boolean
     status?: $Enums.PostStatus
+    order?: number
     publishedAt?: Date | string | null
     moduleId: number
     createdAt?: Date | string
@@ -12917,6 +13039,7 @@ export namespace Prisma {
     content?: JsonNullValueInput | InputJsonValue
     isPublic?: BoolFieldUpdateOperationsInput | boolean
     status?: EnumPostStatusFieldUpdateOperationsInput | $Enums.PostStatus
+    order?: IntFieldUpdateOperationsInput | number
     publishedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -12933,6 +13056,7 @@ export namespace Prisma {
     content?: JsonNullValueInput | InputJsonValue
     isPublic?: BoolFieldUpdateOperationsInput | boolean
     status?: EnumPostStatusFieldUpdateOperationsInput | $Enums.PostStatus
+    order?: IntFieldUpdateOperationsInput | number
     publishedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     moduleId?: IntFieldUpdateOperationsInput | number
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -12949,6 +13073,7 @@ export namespace Prisma {
     content?: JsonNullValueInput | InputJsonValue
     isPublic?: BoolFieldUpdateOperationsInput | boolean
     status?: EnumPostStatusFieldUpdateOperationsInput | $Enums.PostStatus
+    order?: IntFieldUpdateOperationsInput | number
     publishedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     moduleId?: IntFieldUpdateOperationsInput | number
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -12959,6 +13084,7 @@ export namespace Prisma {
     id?: number
     title: string
     slug: string
+    order?: number
     createdAt?: Date | string
     updatedAt?: Date | string
   }
@@ -12966,6 +13092,7 @@ export namespace Prisma {
   export type ModuleUpdateWithoutTechnologyInput = {
     title?: StringFieldUpdateOperationsInput | string
     slug?: StringFieldUpdateOperationsInput | string
+    order?: IntFieldUpdateOperationsInput | number
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     posts?: PostUpdateManyWithoutModuleNestedInput
@@ -12975,6 +13102,7 @@ export namespace Prisma {
     id?: IntFieldUpdateOperationsInput | number
     title?: StringFieldUpdateOperationsInput | string
     slug?: StringFieldUpdateOperationsInput | string
+    order?: IntFieldUpdateOperationsInput | number
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     posts?: PostUncheckedUpdateManyWithoutModuleNestedInput
@@ -12984,6 +13112,7 @@ export namespace Prisma {
     id?: IntFieldUpdateOperationsInput | number
     title?: StringFieldUpdateOperationsInput | string
     slug?: StringFieldUpdateOperationsInput | string
+    order?: IntFieldUpdateOperationsInput | number
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
@@ -12998,6 +13127,7 @@ export namespace Prisma {
     content: JsonNullValueInput | InputJsonValue
     isPublic?: boolean
     status?: $Enums.PostStatus
+    order?: number
     authorId?: string | null
     publishedAt?: Date | string | null
     createdAt?: Date | string
@@ -13013,6 +13143,7 @@ export namespace Prisma {
     content?: JsonNullValueInput | InputJsonValue
     isPublic?: BoolFieldUpdateOperationsInput | boolean
     status?: EnumPostStatusFieldUpdateOperationsInput | $Enums.PostStatus
+    order?: IntFieldUpdateOperationsInput | number
     publishedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -13029,6 +13160,7 @@ export namespace Prisma {
     content?: JsonNullValueInput | InputJsonValue
     isPublic?: BoolFieldUpdateOperationsInput | boolean
     status?: EnumPostStatusFieldUpdateOperationsInput | $Enums.PostStatus
+    order?: IntFieldUpdateOperationsInput | number
     authorId?: NullableStringFieldUpdateOperationsInput | string | null
     publishedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -13045,6 +13177,7 @@ export namespace Prisma {
     content?: JsonNullValueInput | InputJsonValue
     isPublic?: BoolFieldUpdateOperationsInput | boolean
     status?: EnumPostStatusFieldUpdateOperationsInput | $Enums.PostStatus
+    order?: IntFieldUpdateOperationsInput | number
     authorId?: NullableStringFieldUpdateOperationsInput | string | null
     publishedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string

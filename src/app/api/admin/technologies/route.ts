@@ -16,6 +16,13 @@ export async function POST(req: Request) {
 
     const data = parsed.data;
 
+    // Obtém a próxima ordem disponível
+    const lastTech = await prisma.technology.findFirst({
+      orderBy: { order: "desc" },
+      select: { order: true },
+    });
+    const nextOrder = (lastTech?.order ?? -1) + 1;
+
     const created = await prisma.technology.create({
       data: {
         name: data.name,
@@ -23,6 +30,7 @@ export async function POST(req: Request) {
         description: data.description,
         category: data.category,
         image: data.image || null,
+        order: nextOrder,
       },
     });
 

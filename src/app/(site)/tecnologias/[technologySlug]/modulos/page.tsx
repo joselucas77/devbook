@@ -21,14 +21,14 @@ export default async function ModulosPage({
       category: true,
       description: true,
       modules: {
-        orderBy: { createdAt: "asc" },
+        orderBy: [{ order: "asc" }, { createdAt: "asc" }],
         select: {
           id: true,
           title: true,
           slug: true,
           posts: {
             where: { isPublic: true, status: "PUBLISHED" },
-            orderBy: { createdAt: "asc" },
+            orderBy: [{ order: "asc" }, { createdAt: "asc" }],
             select: {
               id: true,
               title: true,

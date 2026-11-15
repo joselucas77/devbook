@@ -7,7 +7,7 @@ export const metadata = {
 
 export default async function AdminPage() {
   const technologies = await prisma.technology.findMany({
-    orderBy: { createdAt: "desc" },
+    orderBy: [{ order: "asc" }, { createdAt: "asc" }],
     select: {
       id: true,
       name: true,
@@ -15,6 +15,7 @@ export default async function AdminPage() {
       category: true,
       description: true,
       image: true,
+      order: true,
       createdAt: true,
       updatedAt: true,
       _count: { select: { modules: true } },
@@ -42,6 +43,7 @@ export default async function AdminPage() {
           category: t.category,
           description: t.description,
           image: t.image,
+          order: t.order,
           modulesCount: t._count.modules,
           createdAt: t.createdAt.toISOString(),
           updatedAt: t.updatedAt.toISOString(),

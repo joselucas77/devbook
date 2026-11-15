@@ -65,7 +65,7 @@ export default async function AdminPostsPage({
 
   const posts = await prisma.post.findMany({
     where: { moduleId: module.id },
-    orderBy: { createdAt: "desc" },
+    orderBy: [{ order: "asc" }, { createdAt: "asc" }],
   });
 
   const data = posts.map((p) => ({
@@ -74,6 +74,7 @@ export default async function AdminPostsPage({
     slug: p.slug,
     status: p.status,
     isPublic: p.isPublic,
+    order: p.order,
     createdAt: p.createdAt.toISOString(),
   }));
 

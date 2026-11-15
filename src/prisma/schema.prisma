@@ -44,6 +44,7 @@ model Technology {
   description String
   image       String?
   category    String
+  order       Int      @default(0)
   modules     Module[]
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
@@ -53,6 +54,7 @@ model Module {
   id           Int        @id @default(autoincrement())
   title        String
   slug         String
+  order        Int        @default(0)
   technologyId Int
   technology   Technology @relation(fields: [technologyId], references: [id], onDelete: Cascade)
   posts        Post[]
@@ -73,6 +75,7 @@ model Post {
   content     Json
   isPublic    Boolean    @default(true)
   status      PostStatus @default(DRAFT)
+  order       Int        @default(0)
   authorId    String?
   author      User?      @relation("UserPosts", fields: [authorId], references: [id])
   publishedAt DateTime?

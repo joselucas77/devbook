@@ -121,6 +121,10 @@ export function DataTable<TData, TValue>({
                     >
                       {column.id === "title"
                         ? "Título"
+                        : column.id === "order"
+                        ? "Ordem"
+                        : column.id === "status"
+                        ? "Status"
                         : column.id === "isPublic"
                         ? "Público"
                         : column.id === "actions"

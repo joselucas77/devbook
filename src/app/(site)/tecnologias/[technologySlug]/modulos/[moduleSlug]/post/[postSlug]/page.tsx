@@ -84,9 +84,7 @@ export default async function PostPage({
       title: true,
       slug: true,
     },
-    orderBy: {
-      id: "asc",
-    },
+    orderBy: [{ order: "asc" }, { createdAt: "asc" }],
   });
 
   const data = await prisma.post.findUnique({
