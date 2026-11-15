@@ -11,7 +11,7 @@ export default function SiteLayout({
   return (
     <div className="min-h-screen flex flex-col bg-background text-foreground overflow-x-clip">
       <HeaderSite />
-      <main className="container mx-auto px-4 py-8 md:py-12 flex-1 w-full max-w-full min-w-0">
+      <main className="container mx-auto px-4 pt-6 sm:pt-8 md:pt-10 pb-4 md:pb-6 flex-1 w-full max-w-full min-w-0">
         {children}
       </main>
       <Footer />

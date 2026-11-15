@@ -174,26 +174,34 @@ export function GlobalSearch({
           className={cn(
             "relative flex items-center rounded-full bg-card/95 dark:bg-zinc-900/95 backdrop-blur-xl border border-border/80 shadow-2xl shadow-black/40 transition-all duration-300 ease-[cubic-bezier(0.16,1,0.3,1)] overflow-hidden",
             collapsed
-              ? "w-12 h-12 justify-center cursor-pointer hover:bg-muted/80 active:scale-95 px-0"
+              ? "w-12 h-12 justify-center cursor-pointer hover:bg-muted/80 active:scale-95 p-0"
               : "w-full px-3.5 h-11 sm:h-12 focus-within:border-blue-500/80 focus-within:ring-2 focus-within:ring-blue-500/20"
           )}
           title={collapsed ? "Pesquisar" : undefined}
         >
-          <i
+          {/* Ícone de pesquisa perfeitamente centralizado no botão quando minimizado */}
+          <div
             className={cn(
-              "bx bx-search shrink-0 transition-all duration-300 pointer-events-none",
+              "flex items-center justify-center shrink-0 transition-all duration-300 pointer-events-none",
               collapsed
-                ? "text-xl text-foreground m-0"
-                : "text-lg text-muted-foreground mr-2.5"
+                ? "w-12 h-12 text-foreground"
+                : "w-5 h-5 text-muted-foreground mr-2.5"
             )}
-          />
+          >
+            <i
+              className={cn(
+                "bx bx-search leading-none flex items-center justify-center",
+                collapsed ? "text-xl" : "text-lg"
+              )}
+            />
+          </div>
 
           <div
             className={cn(
-              "flex-1 flex items-center transition-all duration-200 min-w-0",
+              "transition-all duration-200 min-w-0",
               collapsed
-                ? "w-0 opacity-0 pointer-events-none -translate-x-2 invisible"
-                : "w-full opacity-100 pointer-events-auto translate-x-0 visible"
+                ? "w-0 h-0 overflow-hidden opacity-0 pointer-events-none flex-none invisible p-0 m-0"
+                : "flex-1 flex items-center w-full opacity-100 pointer-events-auto visible"
             )}
           >
             <input

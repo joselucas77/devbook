@@ -165,7 +165,7 @@ export default async function PostPage({
       : null;
 
   return (
-    <div className="w-full max-w-7xl mx-auto pb-24 md:pb-16 min-w-0">
+    <div className="w-full max-w-7xl mx-auto pb-4 md:pb-6 min-w-0">
       {/* Barra Responsiva (Mobile e Tablet): Abertura da Gaveta de Posts + Sumário */}
       <MobilePostNav
         technologySlug={technology.slug}
