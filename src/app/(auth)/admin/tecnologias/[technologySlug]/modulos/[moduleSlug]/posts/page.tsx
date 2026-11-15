@@ -97,7 +97,7 @@ export default async function AdminPostsPage({
             <span>{module.title}</span>
           </div>
           <h1 className="text-2xl md:text-3xl font-bold tracking-tight">
-            Posts: {module.title}
+            {module.title}
           </h1>
           <p className="text-sm text-muted-foreground mt-1">
             Gerencie os artigos e conteúdos pertencentes a este módulo.

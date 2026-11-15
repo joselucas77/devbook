@@ -60,7 +60,7 @@ export default async function AdminModulesPage({
             <span>{technology.name}</span>
           </div>
           <h1 className="text-2xl md:text-3xl font-bold tracking-tight">
-            Módulos: {technology.name}
+            {technology.name}
           </h1>
           <p className="text-sm text-muted-foreground mt-1">
             Gerencie os módulos e os artigos vinculados a esta tecnologia.
