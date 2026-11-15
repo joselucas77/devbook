@@ -47,17 +47,31 @@ interface SearchResponse {
 interface GlobalSearchProps {
   variant?: "header" | "bottom-bar";
   className?: string;
+  autoFocus?: boolean;
+  onClose?: () => void;
 }
 
 export function GlobalSearch({
   variant = "header",
   className,
+  autoFocus,
+  onClose,
 }: GlobalSearchProps) {
   const [query, setQuery] = useState("");
   const [results, setResults] = useState<SearchResponse | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [isOpen, setIsOpen] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
+  const inputRef = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    if (autoFocus && inputRef.current) {
+      const timer = setTimeout(() => {
+        inputRef.current?.focus();
+      }, 50);
+      return () => clearTimeout(timer);
+    }
+  }, [autoFocus]);
 
   const isBottomBar = variant === "bottom-bar";
 
@@ -102,12 +116,14 @@ export function GlobalSearch({
         !containerRef.current.contains(e.target as Node)
       ) {
         setIsOpen(false);
+        onClose?.();
       }
     }
 
     function handleKeyDown(e: KeyboardEvent) {
       if (e.key === "Escape") {
         setIsOpen(false);
+        onClose?.();
       }
     }
 
@@ -117,7 +133,7 @@ export function GlobalSearch({
       document.removeEventListener("mousedown", handleClickOutside);
       document.removeEventListener("keydown", handleKeyDown);
     };
-  }, []);
+  }, [onClose]);
 
   const totalResults =
     (results?.technologies.length ?? 0) +
@@ -127,6 +143,7 @@ export function GlobalSearch({
   function handleSelect() {
     setIsOpen(false);
     setQuery("");
+    onClose?.();
   }
 
   return (
@@ -143,7 +160,9 @@ export function GlobalSearch({
         <div className="relative flex items-center rounded-full bg-card/95 dark:bg-zinc-900/95 backdrop-blur-xl border border-border/80 shadow-2xl shadow-black/40 px-3.5 h-11 sm:h-12 transition-all focus-within:border-blue-500/80 focus-within:ring-2 focus-within:ring-blue-500/20 overflow-hidden">
           <i className="bx bx-search text-muted-foreground text-lg shrink-0 mr-2.5 pointer-events-none" />
           <input
+            ref={inputRef}
             type="text"
+            autoFocus={autoFocus}
             value={query}
             onChange={(e) => {
               const val = e.target.value;
