@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import { usePathname } from "next/navigation";
 import Link from "next/link";
 import Image from "next/image";
+import { cn } from "@/lib/utils";
 import { ThemeToggle } from "./theme-toggle";
 import { GlobalSearch } from "./global-search";
 
@@ -86,50 +87,53 @@ export function HeaderSite() {
           <div className="pointer-events-auto w-full max-w-sm sm:max-w-md">
             <GlobalSearch variant="bottom-bar" />
           </div>
-        ) : !isScrolled ? (
-          /* Na página do post, no topo (não rolou ainda): barra completa de busca */
-          <div className="pointer-events-auto w-full max-w-sm sm:max-w-md animate-in fade-in duration-200">
-            <GlobalSearch variant="bottom-bar" />
-          </div>
-        ) : isSearchExpanded ? (
-          /* Na página do post, rolou para baixo e abriu a busca: expande a barra com foco e botão fechar */
-          <div className="pointer-events-auto w-full max-w-sm sm:max-w-md flex items-center gap-2 animate-in fade-in zoom-in-95 duration-150">
-            <div className="flex-1 min-w-0">
+        ) : (
+          /* Na página do post: animação suave e elegante morphing */
+          <div
+            className={cn(
+              "w-full max-w-sm sm:max-w-md flex items-center justify-between pointer-events-none relative transition-all duration-300",
+              isScrolled ? "gap-2" : "gap-0"
+            )}
+          >
+            {/* GlobalSearch com animação de largura contínua */}
+            <div
+              className={cn(
+                "pointer-events-auto transition-all duration-300 ease-[cubic-bezier(0.16,1,0.3,1)] min-w-0",
+                isScrolled && !isSearchExpanded ? "w-12 shrink-0" : "flex-1"
+              )}
+            >
               <GlobalSearch
                 variant="bottom-bar"
-                autoFocus
+                collapsed={isScrolled && !isSearchExpanded}
+                autoFocus={isSearchExpanded}
+                onExpand={() => setIsSearchExpanded(true)}
                 onClose={() => setIsSearchExpanded(false)}
               />
             </div>
-            <button
-              type="button"
-              onClick={() => setIsSearchExpanded(false)}
-              className="h-11 w-11 shrink-0 rounded-full bg-card/95 dark:bg-zinc-900/95 backdrop-blur-xl border border-border/80 text-foreground flex items-center justify-center hover:bg-muted active:scale-95 transition-all shadow-xl"
-              aria-label="Fechar pesquisa"
-              title="Fechar pesquisa"
-            >
-              <i className="bx bx-x text-2xl" />
-            </button>
-          </div>
-        ) : (
-          /* Na página do post, rolou para baixo (contraído): botão de pesquisa à esquerda e subir ao topo à direita */
-          <div className="pointer-events-none w-full max-w-sm sm:max-w-md flex items-center justify-between">
-            {/* Botão de Pesquisa Contraído (apenas o ícone) */}
-            <button
-              type="button"
-              onClick={() => setIsSearchExpanded(true)}
-              className="pointer-events-auto h-12 w-12 rounded-full bg-card/95 dark:bg-zinc-900/95 backdrop-blur-xl border border-border/80 shadow-2xl shadow-black/40 flex items-center justify-center text-foreground hover:bg-muted/80 active:scale-95 transition-all duration-200 animate-in fade-in zoom-in-90"
-              aria-label="Pesquisar"
-              title="Pesquisar"
-            >
-              <i className="bx bx-search text-xl" />
-            </button>
+
+            {/* Botão de Fechar Busca (surge quando a busca foi expandida a partir do scroll) */}
+            {isScrolled && isSearchExpanded && (
+              <button
+                type="button"
+                onClick={() => setIsSearchExpanded(false)}
+                className="pointer-events-auto h-11 w-11 sm:h-12 sm:w-12 shrink-0 rounded-full bg-card/95 dark:bg-zinc-900/95 backdrop-blur-xl border border-border/80 text-foreground flex items-center justify-center hover:bg-muted active:scale-95 transition-all duration-200 animate-in fade-in zoom-in-75 shadow-xl"
+                aria-label="Fechar pesquisa"
+                title="Fechar pesquisa"
+              >
+                <i className="bx bx-x text-2xl" />
+              </button>
+            )}
 
             {/* Botão Flutuante Voltar ao Topo */}
             <button
               type="button"
               onClick={scrollToTop}
-              className="pointer-events-auto h-12 w-12 rounded-full bg-primary text-primary-foreground shadow-2xl shadow-primary/30 flex items-center justify-center hover:bg-primary/90 active:scale-95 transition-all duration-200 animate-in fade-in zoom-in-90"
+              className={cn(
+                "h-12 w-12 shrink-0 rounded-full bg-primary text-primary-foreground shadow-2xl shadow-primary/30 flex items-center justify-center hover:bg-primary/90 active:scale-95 transition-all duration-300 ease-[cubic-bezier(0.16,1,0.3,1)]",
+                isScrolled && !isSearchExpanded
+                  ? "pointer-events-auto opacity-100 scale-100 translate-y-0"
+                  : "pointer-events-none opacity-0 scale-50 translate-y-4 w-0 h-0 p-0 m-0 overflow-hidden border-0"
+              )}
               aria-label="Voltar ao início da página"
               title="Voltar ao início da página"
             >

@@ -59,16 +59,16 @@ export function ModuleSidebar({
         <div className="text-[11px] text-muted-foreground flex items-center gap-1.5">
           <i className="bx bx-book-open text-xs" />
           <span>
-            {posts.length} {posts.length === 1 ? "aula" : "aulas"} disponíveis
+            {posts.length} {posts.length === 1 ? "post" : "posts"} disponíveis
           </span>
         </div>
       </div>
 
-      {/* Tópicos da Aula Atual (Visível no Sheet mobile quando houver tópicos) */}
+      {/* Tópicos do Post Atual (Visível no Sheet mobile quando houver tópicos) */}
       {headings && headings.length > 1 && (
         <div className="space-y-2 pb-3 border-b border-border/60">
           <span className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground flex items-center gap-1">
-            <i className="bx bx-list-ul text-xs text-primary" /> Tópicos desta aula
+            <i className="bx bx-list-ul text-xs text-primary" /> Tópicos deste post
           </span>
           <nav className="space-y-1 pl-2 border-l border-border/60">
             {headings.map((item) => (
@@ -88,10 +88,10 @@ export function ModuleSidebar({
         </div>
       )}
 
-      {/* Lista de Aulas / Posts */}
+      {/* Lista de Posts */}
       <div className="space-y-1.5">
         <span className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
-          Aulas do Módulo
+          Posts do Módulo
         </span>
         <nav className="space-y-1">
           {posts.map((post, idx) => {

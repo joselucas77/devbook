@@ -71,7 +71,7 @@ export default async function PostPage({
     );
   }
 
-  // Busca todas as aulas/posts publicados deste módulo para a navegação
+  // Busca todos os posts publicados deste módulo para a navegação
   const modulePosts = await prisma.post.findMany({
     where: {
       moduleId: moduleItem.id,
@@ -156,7 +156,7 @@ export default async function PostPage({
       }));
   }
 
-  // Determina aula anterior e próxima
+  // Determina post anterior e próximo
   const currentIndex = modulePosts.findIndex((p) => p.slug === postSlug);
   const prevPost = currentIndex > 0 ? modulePosts[currentIndex - 1] : null;
   const nextPost =
@@ -166,7 +166,7 @@ export default async function PostPage({
 
   return (
     <div className="w-full max-w-7xl mx-auto pb-24 md:pb-16 min-w-0">
-      {/* Barra Responsiva (Mobile e Tablet): Abertura da Gaveta de Aulas + Sumário */}
+      {/* Barra Responsiva (Mobile e Tablet): Abertura da Gaveta de Posts + Sumário */}
       <MobilePostNav
         technologySlug={technology.slug}
         technologyName={technology.name}
@@ -331,7 +331,7 @@ export default async function PostPage({
             )}
           </article>
 
-          {/* Navegação de Rodapé (Aula Anterior / Próxima Aula) */}
+          {/* Navegação de Rodapé (Post Anterior / Próximo Post) */}
           <PostFooterNav
             technologySlug={technology.slug}
             moduleSlug={moduleItem.slug}

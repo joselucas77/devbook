@@ -73,7 +73,7 @@ export function MobilePostNav({
                   Módulo • {moduleTitle}
                 </p>
                 <p className="text-xs font-bold text-foreground truncate">
-                  Ver aulas e tópicos
+                  Ver posts e tópicos
                 </p>
               </div>
             </div>

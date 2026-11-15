@@ -25,7 +25,7 @@ export function PostFooterNav({
             className="group flex flex-col p-4 rounded-xl border border-border/70 bg-card hover:bg-muted/40 hover:border-primary/40 transition-all text-left shadow-xs min-w-0"
           >
             <span className="text-[11px] font-semibold text-muted-foreground uppercase tracking-wider flex items-center gap-1 group-hover:text-primary transition-colors">
-              <i className="bx bx-chevron-left text-base shrink-0" /> Aula anterior
+              <i className="bx bx-chevron-left text-base shrink-0" /> Post anterior
             </span>
             <span className="text-sm font-semibold text-foreground mt-1 line-clamp-2 group-hover:text-primary transition-colors break-words">
               {prevPost.title}
@@ -41,7 +41,7 @@ export function PostFooterNav({
             className="group flex flex-col p-4 rounded-xl border border-border/70 bg-card hover:bg-muted/40 hover:border-primary/40 transition-all text-right items-end shadow-xs min-w-0"
           >
             <span className="text-[11px] font-semibold text-muted-foreground uppercase tracking-wider flex items-center gap-1 group-hover:text-primary transition-colors">
-              Próxima aula <i className="bx bx-chevron-right text-base shrink-0" />
+              Próximo post <i className="bx bx-chevron-right text-base shrink-0" />
             </span>
             <span className="text-sm font-semibold text-foreground mt-1 line-clamp-2 group-hover:text-primary transition-colors break-words">
               {nextPost.title}
