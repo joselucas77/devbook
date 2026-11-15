@@ -39,14 +39,6 @@ export function ModuleSidebar({
     <div className={cn("space-y-4", className)}>
       {/* Cabeçalho do Módulo */}
       <div className="space-y-2 pb-3 border-b border-border/60">
-        <Link
-          href={`/tecnologias/${technologySlug}/modulos`}
-          className="inline-flex items-center gap-1.5 text-xs text-muted-foreground hover:text-foreground transition-colors group"
-        >
-          <i className="bx bx-arrow-back text-sm transition-transform group-hover:-translate-x-0.5" />
-          <span>Voltar para {technologyName}</span>
-        </Link>
-
         <div>
           <span className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
             Módulo
