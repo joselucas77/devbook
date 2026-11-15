@@ -136,6 +136,7 @@ export default async function AdminNewPostPage({
                 image: post.image,
                 isPublic: post.isPublic,
                 status: post.status,
+                scheduledFor: post.scheduledFor ? post.scheduledFor.toISOString() : null,
                 content: {
                   html: initialHtml,
                 },

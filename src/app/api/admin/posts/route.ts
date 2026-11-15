@@ -130,6 +130,20 @@ export async function POST(req: Request) {
     });
     const nextOrder = (lastPost?.order ?? -1) + 1;
 
+    let scheduledForDate: Date | null = null;
+    if (data.status === "SCHEDULED" && data.scheduledFor) {
+      let str = data.scheduledFor.trim();
+      if (/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}$/.test(str)) {
+        str += ":00-03:00";
+      } else if (/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}$/.test(str)) {
+        str += "-03:00";
+      }
+      const parsedD = new Date(str);
+      if (!isNaN(parsedD.getTime())) {
+        scheduledForDate = parsedD;
+      }
+    }
+
     const created = await prisma.post.create({
       data: {
         title: data.title,
@@ -140,6 +154,7 @@ export async function POST(req: Request) {
         content: finalContent,
         isPublic: data.isPublic,
         status: data.status,
+        scheduledFor: scheduledForDate,
         moduleId: data.moduleId,
         authorId,
         order: nextOrder,

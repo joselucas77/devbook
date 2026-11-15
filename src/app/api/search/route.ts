@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
+import { publishDueScheduledPosts } from "@/lib/publish-scheduled";
 
 export async function GET(req: Request) {
   try {
@@ -13,6 +14,8 @@ export async function GET(req: Request) {
         posts: [],
       });
     }
+
+    await publishDueScheduledPosts();
 
     const pattern = `%${q}%`;
 

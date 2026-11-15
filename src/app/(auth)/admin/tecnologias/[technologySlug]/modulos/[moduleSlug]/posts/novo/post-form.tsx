@@ -28,6 +28,7 @@ import {
 
 import { CreatePostSchema } from "@/lib/validations/post";
 import { slugifySmart } from "@/lib/slugify";
+import { formatForDateTimeLocal } from "@/lib/format-date";
 import { PostEditor } from "@/components/posts/editor";
 
 type CreatePostValues = z.infer<typeof CreatePostSchema>;
@@ -55,7 +56,8 @@ export function PostForm({
     summary?: string;
     image?: string | null;
     isPublic: boolean;
-    status: "DRAFT" | "PUBLISHED" | "ARCHIVED";
+    status: "DRAFT" | "PUBLISHED" | "ARCHIVED" | "SCHEDULED";
+    scheduledFor?: string | null;
     content: { html?: string; blocks?: unknown[] };
   };
 }) {
@@ -93,6 +95,9 @@ export function PostForm({
       image: initialPost?.image ?? "",
       isPublic: initialPost?.isPublic ?? true,
       status: initialPost?.status ?? "DRAFT",
+      scheduledFor: initialPost?.scheduledFor
+        ? formatForDateTimeLocal(initialPost.scheduledFor)
+        : "",
       content: {
         html: initialPost?.content?.html ?? "",
       },
@@ -149,6 +154,7 @@ export function PostForm({
         if (parsed.summary) setValue("summary", parsed.summary, { shouldDirty: true });
         if (parsed.isPublic !== undefined) setValue("isPublic", parsed.isPublic, { shouldDirty: true });
         if (parsed.status) setValue("status", parsed.status, { shouldDirty: true });
+        if (parsed.scheduledFor) setValue("scheduledFor", parsed.scheduledFor, { shouldDirty: true });
         if (parsed.contentHtml) {
           setValue("content.html", parsed.contentHtml, { shouldDirty: true, shouldValidate: true });
         }
@@ -177,6 +183,7 @@ export function PostForm({
   const watchedSummary = watch("summary");
   const watchedIsPublic = watch("isPublic");
   const watchedStatus = watch("status");
+  const watchedScheduledFor = watch("scheduledFor");
   const watchedImage = watch("image");
   const watchedContentHtml = watch("content.html");
 
@@ -195,6 +202,7 @@ export function PostForm({
           summary: watchedSummary ?? "",
           isPublic: watchedIsPublic ?? true,
           status: watchedStatus ?? "DRAFT",
+          scheduledFor: watchedScheduledFor ?? "",
           contentHtml: watchedContentHtml ?? "",
           image: watchedImage ?? "",
           savedAt: new Date().toISOString(),
@@ -328,6 +336,20 @@ export function PostForm({
     }
 
     try {
+      let scheduledForIso: string | null = null;
+      if (values.status === "SCHEDULED" && values.scheduledFor) {
+        let str = values.scheduledFor.trim();
+        if (/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}$/.test(str)) {
+          str += ":00-03:00";
+        } else if (/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}$/.test(str)) {
+          str += "-03:00";
+        }
+        const parsedD = new Date(str);
+        if (!isNaN(parsedD.getTime())) {
+          scheduledForIso = parsedD.toISOString();
+        }
+      }
+
       const res = await fetch(
         isEdit ? `/api/admin/posts/${initialPost!.id}` : "/api/admin/posts",
         {
@@ -337,6 +359,7 @@ export function PostForm({
             ...values,
             moduleId: Number(values.moduleId || moduleId),
             image: finalImageUrl,
+            scheduledFor: scheduledForIso,
           }),
         }
       );
@@ -399,9 +422,17 @@ export function PostForm({
         return;
       }
 
-      toast.success(isEdit ? "Post atualizado" : "Post criado", {
-        description: "Dados salvos com sucesso.",
-      });
+      toast.success(
+        values.status === "SCHEDULED"
+          ? (isEdit ? "Agendamento atualizado" : "Post agendado com sucesso")
+          : (isEdit ? "Post atualizado" : "Post criado"),
+        {
+          description:
+            values.status === "SCHEDULED"
+              ? "O post será publicado automaticamente na data e hora definidas."
+              : "Dados salvos com sucesso.",
+        }
+      );
 
       isSubmittedRef.current = true;
       if (saveTimerRef.current) {
@@ -424,6 +455,7 @@ export function PostForm({
         image: "",
         isPublic: true,
         status: "DRAFT",
+        scheduledFor: "",
         content: { html: "" },
       });
 
@@ -664,7 +696,7 @@ export function PostForm({
             )}
           </div>
 
-          <div className="flex items-center justify-between gap-4 pt-2">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pt-2">
             <div className="flex items-center gap-3">
               <Switch
                 checked={watch("isPublic")}
@@ -684,35 +716,63 @@ export function PostForm({
               </div>
             </div>
 
-            <Controller
-              control={control}
-              name="status"
-              render={({ field }) => (
-                <div className="w-[180px] space-y-1">
-                  <Label className="text-xs font-medium">Status</Label>
-                  <Select
-                    value={field.value}
-                    onValueChange={(v) =>
-                      field.onChange(v as CreatePostValues["status"])
-                    }
-                  >
-                    <SelectTrigger className="h-9">
-                      <SelectValue placeholder="Selecione" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="DRAFT">Rascunho</SelectItem>
-                      <SelectItem value="PUBLISHED">Publicado</SelectItem>
-                      <SelectItem value="ARCHIVED">Arquivado</SelectItem>
-                    </SelectContent>
-                  </Select>
-                  {errors.status?.message && (
-                    <p className="text-sm text-destructive">
-                      {errors.status.message}
+            <div className="flex flex-col sm:flex-row sm:items-center gap-3">
+              <Controller
+                control={control}
+                name="status"
+                render={({ field }) => (
+                  <div className="w-full sm:w-[190px] space-y-1">
+                    <Label className="text-xs font-medium">Status do Post</Label>
+                    <Select
+                      value={field.value}
+                      onValueChange={(v) => {
+                        field.onChange(v as CreatePostValues["status"]);
+                        if (v !== "SCHEDULED") {
+                          setValue("scheduledFor", "");
+                        }
+                      }}
+                    >
+                      <SelectTrigger className="h-9">
+                        <SelectValue placeholder="Selecione" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="DRAFT">Rascunho</SelectItem>
+                        <SelectItem value="PUBLISHED">Publicar agora</SelectItem>
+                        <SelectItem value="SCHEDULED">Agendar publicação</SelectItem>
+                        <SelectItem value="ARCHIVED">Arquivar</SelectItem>
+                      </SelectContent>
+                    </Select>
+                    {errors.status?.message && (
+                      <p className="text-sm text-destructive">
+                        {errors.status.message}
+                      </p>
+                    )}
+                  </div>
+                )}
+              />
+
+              {watchedStatus === "SCHEDULED" && (
+                <div className="w-full sm:w-[270px] space-y-1">
+                  <Label className="text-xs font-medium flex items-center gap-1.5 text-blue-500 dark:text-blue-400">
+                    <i className="bx bx-calendar-event text-sm" />
+                    Data e Horário (Brasília)
+                  </Label>
+                  <Input
+                    type="datetime-local"
+                    className="h-9 font-mono text-xs"
+                    {...register("scheduledFor")}
+                  />
+                  {errors.scheduledFor?.message && (
+                    <p className="text-xs text-destructive">
+                      {errors.scheduledFor.message}
                     </p>
                   )}
+                  <p className="text-[11px] text-muted-foreground">
+                    Publicação automática no horário de Brasília.
+                  </p>
                 </div>
               )}
-            />
+            </div>
           </div>
         </Card>
 
@@ -770,10 +830,15 @@ export function PostForm({
                 <i className="bx bx-loader-alt animate-spin text-base" />
                 Salvando...
               </>
+            ) : watchedStatus === "SCHEDULED" ? (
+              <>
+                <i className="bx bx-calendar-event text-base" />
+                {isEdit ? "Atualizar Agendamento" : "Agendar Post"}
+              </>
             ) : (
               <>
                 <i className="bx bx-save text-base" />
-                Salvar Post
+                {isEdit ? "Atualizar Post" : "Salvar Post"}
               </>
             )}
           </Button>

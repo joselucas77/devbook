@@ -15,14 +15,16 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Badge } from "@/components/ui/badge";
+import { formatDateTimeBR } from "@/lib/format-date";
 
 type Row = {
   id: number;
   title: string;
   slug: string;
-  status: "DRAFT" | "PUBLISHED" | "ARCHIVED";
+  status: "DRAFT" | "PUBLISHED" | "ARCHIVED" | "SCHEDULED";
   isPublic: boolean;
   order: number;
+  scheduledFor?: string | null;
   createdAt: string;
 };
 
@@ -164,6 +166,27 @@ export function PostsTable({
         header: "Status",
         cell: ({ row }) => {
           const status = row.original.status;
+          const scheduledFor = row.original.scheduledFor;
+
+          if (status === "SCHEDULED") {
+            return (
+              <div className="flex flex-col gap-1 items-start">
+                <Badge
+                  variant="outline"
+                  className="text-xs bg-amber-500/10 text-amber-600 dark:text-amber-400 border-amber-500/30 gap-1"
+                >
+                  <i className="bx bx-time-five text-xs" />
+                  Agendado
+                </Badge>
+                {scheduledFor && (
+                  <span className="text-[11px] text-muted-foreground whitespace-nowrap font-mono">
+                    {formatDateTimeBR(scheduledFor)}
+                  </span>
+                )}
+              </div>
+            );
+          }
+
           return (
             <Badge
               variant={

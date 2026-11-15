@@ -165,6 +165,7 @@ exports.Prisma.PostScalarFieldEnum = {
   isPublic: 'isPublic',
   status: 'status',
   order: 'order',
+  scheduledFor: 'scheduledFor',
   authorId: 'authorId',
   publishedAt: 'publishedAt',
   moduleId: 'moduleId',
@@ -241,7 +242,8 @@ exports.UserRole = exports.$Enums.UserRole = {
 exports.PostStatus = exports.$Enums.PostStatus = {
   DRAFT: 'DRAFT',
   PUBLISHED: 'PUBLISHED',
-  ARCHIVED: 'ARCHIVED'
+  ARCHIVED: 'ARCHIVED',
+  SCHEDULED: 'SCHEDULED'
 };
 
 exports.Prisma.ModelName = {

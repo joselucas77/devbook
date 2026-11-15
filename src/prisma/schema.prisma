@@ -12,6 +12,7 @@ enum PostStatus {
   DRAFT
   PUBLISHED
   ARCHIVED
+  SCHEDULED
 }
 
 enum UserRole {
@@ -66,23 +67,24 @@ model Module {
 }
 
 model Post {
-  id          Int        @id @default(autoincrement())
-  title       String
-  slug        String
-  concept     String?    @default("")
-  summary     String     @default("")
-  image       String?
-  content     Json
-  isPublic    Boolean    @default(true)
-  status      PostStatus @default(DRAFT)
-  order       Int        @default(0)
-  authorId    String?
-  author      User?      @relation("UserPosts", fields: [authorId], references: [id])
-  publishedAt DateTime?
-  moduleId    Int
-  module      Module     @relation(fields: [moduleId], references: [id], onDelete: Cascade)
-  createdAt   DateTime   @default(now())
-  updatedAt   DateTime   @updatedAt
+  id           Int        @id @default(autoincrement())
+  title        String
+  slug         String
+  concept      String?    @default("")
+  summary      String     @default("")
+  image        String?
+  content      Json
+  isPublic     Boolean    @default(true)
+  status       PostStatus @default(DRAFT)
+  order        Int        @default(0)
+  scheduledFor DateTime?
+  authorId     String?
+  author       User?      @relation("UserPosts", fields: [authorId], references: [id])
+  publishedAt  DateTime?
+  moduleId     Int
+  module       Module     @relation(fields: [moduleId], references: [id], onDelete: Cascade)
+  createdAt    DateTime   @default(now())
+  updatedAt    DateTime   @updatedAt
 
   @@unique([moduleId, slug])
   @@index([moduleId])

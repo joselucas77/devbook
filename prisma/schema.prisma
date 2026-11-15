@@ -12,6 +12,7 @@ enum PostStatus {
   DRAFT
   PUBLISHED
   ARCHIVED
+  SCHEDULED
 }
 
 enum UserRole {
@@ -73,10 +74,11 @@ model Post {
   summary     String     @default("")
   image       String?
   content     Json
-  isPublic    Boolean    @default(true)
-  status      PostStatus @default(DRAFT)
-  order       Int        @default(0)
-  authorId    String?
+  isPublic     Boolean    @default(true)
+  status       PostStatus @default(DRAFT)
+  order        Int        @default(0)
+  scheduledFor DateTime?
+  authorId     String?
   author      User?      @relation("UserPosts", fields: [authorId], references: [id])
   publishedAt DateTime?
   moduleId    Int

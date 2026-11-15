@@ -1,9 +1,12 @@
 import { FeaturedCard } from "@/components/technologies/featured-card";
 import { prisma } from "@/lib/prisma";
+import { publishDueScheduledPosts } from "@/lib/publish-scheduled";
 
 export const revalidate = 3600;
 
 export default async function TecnologiasPage() {
+  await publishDueScheduledPosts();
+
   const tech = await prisma.technology.findMany({
     orderBy: [{ order: "asc" }, { createdAt: "asc" }],
     select: {

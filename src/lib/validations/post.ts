@@ -43,44 +43,66 @@ export const SummaryBlockSchema = z.object({
   text: z.string().min(1),
 });
 
-export const CreatePostSchema = z.object({
-  moduleId: z.number().int().positive("ID do módulo inválido"),
-  title: z.string().min(1, "Título obrigatório"),
-  slug: z.string().min(1, "Slug obrigatório"),
-  concept: z.string().nullable().optional(),
-  summary: z.string().nullable().optional(),
-  image: z.string().nullable().optional(),
-  isPublic: z.boolean(),
-  status: z.enum(["DRAFT", "PUBLISHED", "ARCHIVED"]),
-  content: z
-    .object({
-      html: z.string().nullable().optional(),
-      blocks: z.array(z.any()).nullable().optional(),
-    })
-    .refine(
-      (data) => {
-        if (typeof data.html === "string") {
-          const stripped = data.html.replace(/<[^>]*>/g, "").trim();
-          if (
-            stripped.length > 0 ||
-            data.html.includes("<img") ||
-            data.html.includes("<hr") ||
-            data.html.includes("<code") ||
-            data.html.includes("<pre")
-          ) {
+export const CreatePostSchema = z
+  .object({
+    moduleId: z.number().int().positive("ID do módulo inválido"),
+    title: z.string().min(1, "Título obrigatório"),
+    slug: z.string().min(1, "Slug obrigatório"),
+    concept: z.string().nullable().optional(),
+    summary: z.string().nullable().optional(),
+    image: z.string().nullable().optional(),
+    isPublic: z.boolean(),
+    status: z.enum(["DRAFT", "PUBLISHED", "ARCHIVED", "SCHEDULED"]),
+    scheduledFor: z.string().nullable().optional(),
+    content: z
+      .object({
+        html: z.string().nullable().optional(),
+        blocks: z.array(z.any()).nullable().optional(),
+      })
+      .refine(
+        (data) => {
+          if (typeof data.html === "string") {
+            const stripped = data.html.replace(/<[^>]*>/g, "").trim();
+            if (
+              stripped.length > 0 ||
+              data.html.includes("<img") ||
+              data.html.includes("<hr") ||
+              data.html.includes("<code") ||
+              data.html.includes("<pre")
+            ) {
+              return true;
+            }
+          }
+          if (Array.isArray(data.blocks) && data.blocks.length > 0) {
             return true;
           }
+          return false;
+        },
+        {
+          message: "O conteúdo do post não pode ficar vazio.",
+          path: ["html"],
         }
-        if (Array.isArray(data.blocks) && data.blocks.length > 0) {
-          return true;
+      ),
+  })
+  .refine(
+    (data) => {
+      if (data.status === "SCHEDULED") {
+        if (!data.scheduledFor || !data.scheduledFor.trim()) {
+          return false;
         }
-        return false;
-      },
-      {
-        message: "O conteúdo do post não pode ficar vazio.",
-        path: ["html"],
+        let str = data.scheduledFor.trim();
+        if (/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}$/.test(str)) {
+          str += ":00-03:00";
+        }
+        const d = new Date(str);
+        return !isNaN(d.getTime());
       }
-    ),
-});
+      return true;
+    },
+    {
+      message: "Selecione a data e o horário para o agendamento.",
+      path: ["scheduledFor"],
+    }
+  );
 
 export type CreatePostValues = z.infer<typeof CreatePostSchema>;

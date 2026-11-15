@@ -56,7 +56,8 @@ export namespace $Enums {
   export const PostStatus: {
   DRAFT: 'DRAFT',
   PUBLISHED: 'PUBLISHED',
-  ARCHIVED: 'ARCHIVED'
+  ARCHIVED: 'ARCHIVED',
+  SCHEDULED: 'SCHEDULED'
 };
 
 export type PostStatus = (typeof PostStatus)[keyof typeof PostStatus]
@@ -5124,6 +5125,7 @@ export namespace Prisma {
     isPublic: boolean | null
     status: $Enums.PostStatus | null
     order: number | null
+    scheduledFor: Date | null
     authorId: string | null
     publishedAt: Date | null
     moduleId: number | null
@@ -5141,6 +5143,7 @@ export namespace Prisma {
     isPublic: boolean | null
     status: $Enums.PostStatus | null
     order: number | null
+    scheduledFor: Date | null
     authorId: string | null
     publishedAt: Date | null
     moduleId: number | null
@@ -5159,6 +5162,7 @@ export namespace Prisma {
     isPublic: number
     status: number
     order: number
+    scheduledFor: number
     authorId: number
     publishedAt: number
     moduleId: number
@@ -5190,6 +5194,7 @@ export namespace Prisma {
     isPublic?: true
     status?: true
     order?: true
+    scheduledFor?: true
     authorId?: true
     publishedAt?: true
     moduleId?: true
@@ -5207,6 +5212,7 @@ export namespace Prisma {
     isPublic?: true
     status?: true
     order?: true
+    scheduledFor?: true
     authorId?: true
     publishedAt?: true
     moduleId?: true
@@ -5225,6 +5231,7 @@ export namespace Prisma {
     isPublic?: true
     status?: true
     order?: true
+    scheduledFor?: true
     authorId?: true
     publishedAt?: true
     moduleId?: true
@@ -5330,6 +5337,7 @@ export namespace Prisma {
     isPublic: boolean
     status: $Enums.PostStatus
     order: number
+    scheduledFor: Date | null
     authorId: string | null
     publishedAt: Date | null
     moduleId: number
@@ -5367,6 +5375,7 @@ export namespace Prisma {
     isPublic?: boolean
     status?: boolean
     order?: boolean
+    scheduledFor?: boolean
     authorId?: boolean
     publishedAt?: boolean
     moduleId?: boolean
@@ -5387,6 +5396,7 @@ export namespace Prisma {
     isPublic?: boolean
     status?: boolean
     order?: boolean
+    scheduledFor?: boolean
     authorId?: boolean
     publishedAt?: boolean
     moduleId?: boolean
@@ -5407,6 +5417,7 @@ export namespace Prisma {
     isPublic?: boolean
     status?: boolean
     order?: boolean
+    scheduledFor?: boolean
     authorId?: boolean
     publishedAt?: boolean
     moduleId?: boolean
@@ -5427,6 +5438,7 @@ export namespace Prisma {
     isPublic?: boolean
     status?: boolean
     order?: boolean
+    scheduledFor?: boolean
     authorId?: boolean
     publishedAt?: boolean
     moduleId?: boolean
@@ -5434,7 +5446,7 @@ export namespace Prisma {
     updatedAt?: boolean
   }
 
-  export type PostOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "title" | "slug" | "concept" | "summary" | "image" | "content" | "isPublic" | "status" | "order" | "authorId" | "publishedAt" | "moduleId" | "createdAt" | "updatedAt", ExtArgs["result"]["post"]>
+  export type PostOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "title" | "slug" | "concept" | "summary" | "image" | "content" | "isPublic" | "status" | "order" | "scheduledFor" | "authorId" | "publishedAt" | "moduleId" | "createdAt" | "updatedAt", ExtArgs["result"]["post"]>
   export type PostInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     author?: boolean | Post$authorArgs<ExtArgs>
     module?: boolean | ModuleDefaultArgs<ExtArgs>
@@ -5465,6 +5477,7 @@ export namespace Prisma {
       isPublic: boolean
       status: $Enums.PostStatus
       order: number
+      scheduledFor: Date | null
       authorId: string | null
       publishedAt: Date | null
       moduleId: number
@@ -5905,6 +5918,7 @@ export namespace Prisma {
     readonly isPublic: FieldRef<"Post", 'Boolean'>
     readonly status: FieldRef<"Post", 'PostStatus'>
     readonly order: FieldRef<"Post", 'Int'>
+    readonly scheduledFor: FieldRef<"Post", 'DateTime'>
     readonly authorId: FieldRef<"Post", 'String'>
     readonly publishedAt: FieldRef<"Post", 'DateTime'>
     readonly moduleId: FieldRef<"Post", 'Int'>
@@ -9698,6 +9712,7 @@ export namespace Prisma {
     isPublic: 'isPublic',
     status: 'status',
     order: 'order',
+    scheduledFor: 'scheduledFor',
     authorId: 'authorId',
     publishedAt: 'publishedAt',
     moduleId: 'moduleId',
@@ -10149,6 +10164,7 @@ export namespace Prisma {
     isPublic?: BoolFilter<"Post"> | boolean
     status?: EnumPostStatusFilter<"Post"> | $Enums.PostStatus
     order?: IntFilter<"Post"> | number
+    scheduledFor?: DateTimeNullableFilter<"Post"> | Date | string | null
     authorId?: StringNullableFilter<"Post"> | string | null
     publishedAt?: DateTimeNullableFilter<"Post"> | Date | string | null
     moduleId?: IntFilter<"Post"> | number
@@ -10169,6 +10185,7 @@ export namespace Prisma {
     isPublic?: SortOrder
     status?: SortOrder
     order?: SortOrder
+    scheduledFor?: SortOrderInput | SortOrder
     authorId?: SortOrderInput | SortOrder
     publishedAt?: SortOrderInput | SortOrder
     moduleId?: SortOrder
@@ -10193,6 +10210,7 @@ export namespace Prisma {
     isPublic?: BoolFilter<"Post"> | boolean
     status?: EnumPostStatusFilter<"Post"> | $Enums.PostStatus
     order?: IntFilter<"Post"> | number
+    scheduledFor?: DateTimeNullableFilter<"Post"> | Date | string | null
     authorId?: StringNullableFilter<"Post"> | string | null
     publishedAt?: DateTimeNullableFilter<"Post"> | Date | string | null
     moduleId?: IntFilter<"Post"> | number
@@ -10213,6 +10231,7 @@ export namespace Prisma {
     isPublic?: SortOrder
     status?: SortOrder
     order?: SortOrder
+    scheduledFor?: SortOrderInput | SortOrder
     authorId?: SortOrderInput | SortOrder
     publishedAt?: SortOrderInput | SortOrder
     moduleId?: SortOrder
@@ -10239,6 +10258,7 @@ export namespace Prisma {
     isPublic?: BoolWithAggregatesFilter<"Post"> | boolean
     status?: EnumPostStatusWithAggregatesFilter<"Post"> | $Enums.PostStatus
     order?: IntWithAggregatesFilter<"Post"> | number
+    scheduledFor?: DateTimeNullableWithAggregatesFilter<"Post"> | Date | string | null
     authorId?: StringNullableWithAggregatesFilter<"Post"> | string | null
     publishedAt?: DateTimeNullableWithAggregatesFilter<"Post"> | Date | string | null
     moduleId?: IntWithAggregatesFilter<"Post"> | number
@@ -10729,6 +10749,7 @@ export namespace Prisma {
     isPublic?: boolean
     status?: $Enums.PostStatus
     order?: number
+    scheduledFor?: Date | string | null
     publishedAt?: Date | string | null
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -10747,6 +10768,7 @@ export namespace Prisma {
     isPublic?: boolean
     status?: $Enums.PostStatus
     order?: number
+    scheduledFor?: Date | string | null
     authorId?: string | null
     publishedAt?: Date | string | null
     moduleId: number
@@ -10764,6 +10786,7 @@ export namespace Prisma {
     isPublic?: BoolFieldUpdateOperationsInput | boolean
     status?: EnumPostStatusFieldUpdateOperationsInput | $Enums.PostStatus
     order?: IntFieldUpdateOperationsInput | number
+    scheduledFor?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     publishedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -10782,6 +10805,7 @@ export namespace Prisma {
     isPublic?: BoolFieldUpdateOperationsInput | boolean
     status?: EnumPostStatusFieldUpdateOperationsInput | $Enums.PostStatus
     order?: IntFieldUpdateOperationsInput | number
+    scheduledFor?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     authorId?: NullableStringFieldUpdateOperationsInput | string | null
     publishedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     moduleId?: IntFieldUpdateOperationsInput | number
@@ -10800,6 +10824,7 @@ export namespace Prisma {
     isPublic?: boolean
     status?: $Enums.PostStatus
     order?: number
+    scheduledFor?: Date | string | null
     authorId?: string | null
     publishedAt?: Date | string | null
     moduleId: number
@@ -10817,6 +10842,7 @@ export namespace Prisma {
     isPublic?: BoolFieldUpdateOperationsInput | boolean
     status?: EnumPostStatusFieldUpdateOperationsInput | $Enums.PostStatus
     order?: IntFieldUpdateOperationsInput | number
+    scheduledFor?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     publishedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -10833,6 +10859,7 @@ export namespace Prisma {
     isPublic?: BoolFieldUpdateOperationsInput | boolean
     status?: EnumPostStatusFieldUpdateOperationsInput | $Enums.PostStatus
     order?: IntFieldUpdateOperationsInput | number
+    scheduledFor?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     authorId?: NullableStringFieldUpdateOperationsInput | string | null
     publishedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     moduleId?: IntFieldUpdateOperationsInput | number
@@ -11484,6 +11511,7 @@ export namespace Prisma {
     isPublic?: SortOrder
     status?: SortOrder
     order?: SortOrder
+    scheduledFor?: SortOrder
     authorId?: SortOrder
     publishedAt?: SortOrder
     moduleId?: SortOrder
@@ -11507,6 +11535,7 @@ export namespace Prisma {
     isPublic?: SortOrder
     status?: SortOrder
     order?: SortOrder
+    scheduledFor?: SortOrder
     authorId?: SortOrder
     publishedAt?: SortOrder
     moduleId?: SortOrder
@@ -11524,6 +11553,7 @@ export namespace Prisma {
     isPublic?: SortOrder
     status?: SortOrder
     order?: SortOrder
+    scheduledFor?: SortOrder
     authorId?: SortOrder
     publishedAt?: SortOrder
     moduleId?: SortOrder
@@ -12329,6 +12359,7 @@ export namespace Prisma {
     isPublic?: boolean
     status?: $Enums.PostStatus
     order?: number
+    scheduledFor?: Date | string | null
     publishedAt?: Date | string | null
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -12346,6 +12377,7 @@ export namespace Prisma {
     isPublic?: boolean
     status?: $Enums.PostStatus
     order?: number
+    scheduledFor?: Date | string | null
     publishedAt?: Date | string | null
     moduleId: number
     createdAt?: Date | string
@@ -12457,6 +12489,7 @@ export namespace Prisma {
     isPublic?: BoolFilter<"Post"> | boolean
     status?: EnumPostStatusFilter<"Post"> | $Enums.PostStatus
     order?: IntFilter<"Post"> | number
+    scheduledFor?: DateTimeNullableFilter<"Post"> | Date | string | null
     authorId?: StringNullableFilter<"Post"> | string | null
     publishedAt?: DateTimeNullableFilter<"Post"> | Date | string | null
     moduleId?: IntFilter<"Post"> | number
@@ -12560,6 +12593,7 @@ export namespace Prisma {
     isPublic?: boolean
     status?: $Enums.PostStatus
     order?: number
+    scheduledFor?: Date | string | null
     publishedAt?: Date | string | null
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -12577,6 +12611,7 @@ export namespace Prisma {
     isPublic?: boolean
     status?: $Enums.PostStatus
     order?: number
+    scheduledFor?: Date | string | null
     authorId?: string | null
     publishedAt?: Date | string | null
     createdAt?: Date | string
@@ -12949,6 +12984,7 @@ export namespace Prisma {
     isPublic?: boolean
     status?: $Enums.PostStatus
     order?: number
+    scheduledFor?: Date | string | null
     publishedAt?: Date | string | null
     moduleId: number
     createdAt?: Date | string
@@ -13040,6 +13076,7 @@ export namespace Prisma {
     isPublic?: BoolFieldUpdateOperationsInput | boolean
     status?: EnumPostStatusFieldUpdateOperationsInput | $Enums.PostStatus
     order?: IntFieldUpdateOperationsInput | number
+    scheduledFor?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     publishedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -13057,6 +13094,7 @@ export namespace Prisma {
     isPublic?: BoolFieldUpdateOperationsInput | boolean
     status?: EnumPostStatusFieldUpdateOperationsInput | $Enums.PostStatus
     order?: IntFieldUpdateOperationsInput | number
+    scheduledFor?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     publishedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     moduleId?: IntFieldUpdateOperationsInput | number
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -13074,6 +13112,7 @@ export namespace Prisma {
     isPublic?: BoolFieldUpdateOperationsInput | boolean
     status?: EnumPostStatusFieldUpdateOperationsInput | $Enums.PostStatus
     order?: IntFieldUpdateOperationsInput | number
+    scheduledFor?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     publishedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     moduleId?: IntFieldUpdateOperationsInput | number
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -13128,6 +13167,7 @@ export namespace Prisma {
     isPublic?: boolean
     status?: $Enums.PostStatus
     order?: number
+    scheduledFor?: Date | string | null
     authorId?: string | null
     publishedAt?: Date | string | null
     createdAt?: Date | string
@@ -13144,6 +13184,7 @@ export namespace Prisma {
     isPublic?: BoolFieldUpdateOperationsInput | boolean
     status?: EnumPostStatusFieldUpdateOperationsInput | $Enums.PostStatus
     order?: IntFieldUpdateOperationsInput | number
+    scheduledFor?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     publishedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -13161,6 +13202,7 @@ export namespace Prisma {
     isPublic?: BoolFieldUpdateOperationsInput | boolean
     status?: EnumPostStatusFieldUpdateOperationsInput | $Enums.PostStatus
     order?: IntFieldUpdateOperationsInput | number
+    scheduledFor?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     authorId?: NullableStringFieldUpdateOperationsInput | string | null
     publishedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -13178,6 +13220,7 @@ export namespace Prisma {
     isPublic?: BoolFieldUpdateOperationsInput | boolean
     status?: EnumPostStatusFieldUpdateOperationsInput | $Enums.PostStatus
     order?: IntFieldUpdateOperationsInput | number
+    scheduledFor?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     authorId?: NullableStringFieldUpdateOperationsInput | string | null
     publishedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string

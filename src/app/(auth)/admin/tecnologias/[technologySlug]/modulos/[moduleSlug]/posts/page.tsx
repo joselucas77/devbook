@@ -2,6 +2,7 @@ import Link from "next/link";
 import { prisma } from "@/lib/prisma";
 import { PostsTable } from "./posts-table";
 import { Button } from "@/components/ui/button";
+import { publishDueScheduledPosts } from "@/lib/publish-scheduled";
 
 export default async function AdminPostsPage({
   params,
@@ -63,6 +64,8 @@ export default async function AdminPostsPage({
     );
   }
 
+  await publishDueScheduledPosts();
+
   const posts = await prisma.post.findMany({
     where: { moduleId: module.id },
     orderBy: [{ order: "asc" }, { createdAt: "asc" }],
@@ -75,6 +78,7 @@ export default async function AdminPostsPage({
     status: p.status,
     isPublic: p.isPublic,
     order: p.order,
+    scheduledFor: p.scheduledFor ? p.scheduledFor.toISOString() : null,
     createdAt: p.createdAt.toISOString(),
   }));
 

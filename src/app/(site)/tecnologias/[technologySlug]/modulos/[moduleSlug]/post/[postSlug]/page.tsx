@@ -13,6 +13,7 @@ import { formatDatePtBR } from "@/lib/format-date";
 import { extractHeadingsAndInjectIds, HeadingItem } from "@/lib/toc";
 import { slugifySmart } from "@/lib/slugify";
 import { PostContentBlock } from "@/types/post";
+import { publishDueScheduledPosts } from "@/lib/publish-scheduled";
 
 export const revalidate = 3600;
 
@@ -71,6 +72,8 @@ export default async function PostPage({
       </div>
     );
   }
+
+  await publishDueScheduledPosts();
 
   // Busca todos os posts publicados deste módulo para a navegação
   const modulePosts = await prisma.post.findMany({

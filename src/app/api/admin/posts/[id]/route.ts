@@ -107,6 +107,20 @@ export async function PATCH(
       }
     }
 
+    let scheduledForDate: Date | null = null;
+    if (data.status === "SCHEDULED" && data.scheduledFor) {
+      let str = data.scheduledFor.trim();
+      if (/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}$/.test(str)) {
+        str += ":00-03:00";
+      } else if (/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}$/.test(str)) {
+        str += "-03:00";
+      }
+      const parsedD = new Date(str);
+      if (!isNaN(parsedD.getTime())) {
+        scheduledForDate = parsedD;
+      }
+    }
+
     const nextPublishedAt =
       data.status === "PUBLISHED" ? (existing.publishedAt ?? new Date()) : null;
 
@@ -130,6 +144,7 @@ export async function PATCH(
         content: finalContent,
         isPublic: data.isPublic,
         status: data.status,
+        scheduledFor: scheduledForDate,
         moduleId: data.moduleId,
         publishedAt: nextPublishedAt,
       },
