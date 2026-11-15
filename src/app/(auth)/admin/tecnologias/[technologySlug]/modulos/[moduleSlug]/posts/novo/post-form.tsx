@@ -30,6 +30,7 @@ import { CreatePostSchema } from "@/lib/validations/post";
 import { slugifySmart } from "@/lib/slugify";
 import { formatForDateTimeLocal } from "@/lib/format-date";
 import { PostEditor } from "@/components/posts/editor";
+import { PostSchedulePicker } from "@/components/admin/post-schedule-picker";
 
 type CreatePostValues = z.infer<typeof CreatePostSchema>;
 
@@ -696,7 +697,7 @@ export function PostForm({
             )}
           </div>
 
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pt-2">
+          <div className="flex items-center justify-between gap-4 pt-2">
             <div className="flex items-center gap-3">
               <Switch
                 checked={watch("isPublic")}
@@ -716,64 +717,59 @@ export function PostForm({
               </div>
             </div>
 
-            <div className="flex flex-col sm:flex-row sm:items-center gap-3">
-              <Controller
-                control={control}
-                name="status"
-                render={({ field }) => (
-                  <div className="w-full sm:w-[190px] space-y-1">
-                    <Label className="text-xs font-medium">Status do Post</Label>
-                    <Select
-                      value={field.value}
-                      onValueChange={(v) => {
-                        field.onChange(v as CreatePostValues["status"]);
-                        if (v !== "SCHEDULED") {
-                          setValue("scheduledFor", "");
-                        }
-                      }}
-                    >
-                      <SelectTrigger className="h-9">
-                        <SelectValue placeholder="Selecione" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="DRAFT">Rascunho</SelectItem>
-                        <SelectItem value="PUBLISHED">Publicar agora</SelectItem>
-                        <SelectItem value="SCHEDULED">Agendar publicação</SelectItem>
-                        <SelectItem value="ARCHIVED">Arquivar</SelectItem>
-                      </SelectContent>
-                    </Select>
-                    {errors.status?.message && (
-                      <p className="text-sm text-destructive">
-                        {errors.status.message}
-                      </p>
-                    )}
-                  </div>
-                )}
-              />
-
-              {watchedStatus === "SCHEDULED" && (
-                <div className="w-full sm:w-[270px] space-y-1">
-                  <Label className="text-xs font-medium flex items-center gap-1.5 text-blue-500 dark:text-blue-400">
-                    <i className="bx bx-calendar-event text-sm" />
-                    Data e Horário (Brasília)
-                  </Label>
-                  <Input
-                    type="datetime-local"
-                    className="h-9 font-mono text-xs"
-                    {...register("scheduledFor")}
-                  />
-                  {errors.scheduledFor?.message && (
-                    <p className="text-xs text-destructive">
-                      {errors.scheduledFor.message}
+            <Controller
+              control={control}
+              name="status"
+              render={({ field }) => (
+                <div className="w-[190px] space-y-1">
+                  <Label className="text-xs font-medium">Status do Post</Label>
+                  <Select
+                    value={field.value}
+                    onValueChange={(v) => {
+                      field.onChange(v as CreatePostValues["status"]);
+                      if (v !== "SCHEDULED") {
+                        setValue("scheduledFor", "");
+                      }
+                    }}
+                  >
+                    <SelectTrigger className="h-9">
+                      <SelectValue placeholder="Selecione" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="DRAFT">Rascunho</SelectItem>
+                      <SelectItem value="PUBLISHED">Publicar agora</SelectItem>
+                      <SelectItem value="SCHEDULED">Agendar publicação</SelectItem>
+                      <SelectItem value="ARCHIVED">Arquivar</SelectItem>
+                    </SelectContent>
+                  </Select>
+                  {errors.status?.message && (
+                    <p className="text-sm text-destructive">
+                      {errors.status.message}
                     </p>
                   )}
-                  <p className="text-[11px] text-muted-foreground">
-                    Publicação automática no horário de Brasília.
-                  </p>
                 </div>
               )}
-            </div>
+            />
           </div>
+
+          {/* Opção de Data e Horário com componentes Shadcn embaixo */}
+          {watchedStatus === "SCHEDULED" && (
+            <div className="pt-4 border-t border-border/60">
+              <Controller
+                control={control}
+                name="scheduledFor"
+                render={({ field }) => (
+                  <PostSchedulePicker
+                    value={field.value}
+                    onChange={(iso) => {
+                      field.onChange(iso);
+                    }}
+                    error={errors.scheduledFor?.message}
+                  />
+                )}
+              />
+            </div>
+          )}
         </Card>
 
         {/* Bloco Único de Conteúdo */}

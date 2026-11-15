@@ -14,54 +14,25 @@ export function HeaderSite() {
 
   const [isScrolled, setIsScrolled] = useState(false);
   const [isSearchExpanded, setIsSearchExpanded] = useState(false);
-  const [isScreenIdle, setIsScreenIdle] = useState(false);
-
-  // Monitora scroll e inatividade da tela para esmaecer botões flutuantes (mobile)
+  // Monitora o scroll na página de leitura do post (mobile)
   useEffect(() => {
-    let idleTimer: NodeJS.Timeout | null = null;
-
-    const resetIdleTimer = () => {
-      setIsScreenIdle(false);
-      if (idleTimer) {
-        clearTimeout(idleTimer);
-      }
-      idleTimer = setTimeout(() => {
-        setIsScreenIdle(true);
-      }, 1500);
-    };
-
-    // Inicia o timer ao carregar a página (apaga após 1.5s com a tela parada)
-    resetIdleTimer();
+    if (!isPostReadingPage) {
+      setIsScrolled(false);
+      setIsSearchExpanded(false);
+      return;
+    }
 
     const handleScroll = () => {
-      if (isPostReadingPage) {
-        const scrolled = window.scrollY > 120;
-        setIsScrolled(scrolled);
-        if (!scrolled) {
-          setIsSearchExpanded(false);
-        }
+      const scrolled = window.scrollY > 120;
+      setIsScrolled(scrolled);
+      if (!scrolled) {
+        setIsSearchExpanded(false);
       }
-      resetIdleTimer();
     };
 
-    const handleInteraction = () => {
-      resetIdleTimer();
-    };
-
+    handleScroll();
     window.addEventListener("scroll", handleScroll, { passive: true });
-    window.addEventListener("touchstart", handleInteraction, { passive: true });
-    window.addEventListener("touchmove", handleInteraction, { passive: true });
-    window.addEventListener("touchend", handleInteraction, { passive: true });
-    window.addEventListener("wheel", handleInteraction, { passive: true });
-
-    return () => {
-      if (idleTimer) clearTimeout(idleTimer);
-      window.removeEventListener("scroll", handleScroll);
-      window.removeEventListener("touchstart", handleInteraction);
-      window.removeEventListener("touchmove", handleInteraction);
-      window.removeEventListener("touchend", handleInteraction);
-      window.removeEventListener("wheel", handleInteraction);
-    };
+    return () => window.removeEventListener("scroll", handleScroll);
   }, [isPostReadingPage, pathname]);
 
   const scrollToTop = () => {
@@ -70,8 +41,6 @@ export function HeaderSite() {
       behavior: "smooth",
     });
   };
-
-  const shouldDim = isScreenIdle && !isSearchExpanded;
 
   return (
     <>
@@ -111,14 +80,7 @@ export function HeaderSite() {
       </header>
 
       {/* Barra de Pesquisa / Ações Flutuantes no Canto Inferior (Mobile) */}
-      <div
-        className={cn(
-          "md:hidden fixed bottom-4 inset-x-0 z-40 px-3 sm:px-4 flex justify-center pointer-events-none max-w-full transition-opacity duration-500 ease-in-out",
-          shouldDim
-            ? "opacity-30 hover:opacity-100 focus-within:opacity-100 active:opacity-100"
-            : "opacity-100"
-        )}
-      >
+      <div className="md:hidden fixed bottom-4 inset-x-0 z-40 px-3 sm:px-4 flex justify-center pointer-events-none max-w-full">
         {!isPostReadingPage ? (
           /* Comportamento padrão em outras páginas: barra de busca completa */
           <div className="pointer-events-auto w-full max-w-sm sm:max-w-md">

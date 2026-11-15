@@ -84,25 +84,40 @@ export const CreatePostSchema = z
         }
       ),
   })
-  .refine(
-    (data) => {
-      if (data.status === "SCHEDULED") {
-        if (!data.scheduledFor || !data.scheduledFor.trim()) {
-          return false;
-        }
-        let str = data.scheduledFor.trim();
-        if (/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}$/.test(str)) {
-          str += ":00-03:00";
-        }
-        const d = new Date(str);
-        return !isNaN(d.getTime());
+  .superRefine((data, ctx) => {
+    if (data.status === "SCHEDULED") {
+      if (!data.scheduledFor || !data.scheduledFor.trim()) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          message: "Selecione a data e o horário para o agendamento.",
+          path: ["scheduledFor"],
+        });
+        return;
       }
-      return true;
-    },
-    {
-      message: "Selecione a data e o horário para o agendamento.",
-      path: ["scheduledFor"],
+      let str = data.scheduledFor.trim();
+      if (/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}$/.test(str)) {
+        str += ":00-03:00";
+      } else if (/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}$/.test(str)) {
+        str += "-03:00";
+      }
+      const d = new Date(str);
+      if (isNaN(d.getTime())) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          message: "Data e horário inválidos.",
+          path: ["scheduledFor"],
+        });
+        return;
+      }
+      if (d.getTime() <= Date.now() - 60000) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          message:
+            "A data e o horário agendados devem ser no futuro (Horário de Brasília).",
+          path: ["scheduledFor"],
+        });
+      }
     }
-  );
+  });
 
 export type CreatePostValues = z.infer<typeof CreatePostSchema>;
