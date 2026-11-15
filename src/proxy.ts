@@ -51,7 +51,8 @@ export default async function proxy(request: NextRequest) {
     pathname === "/admin/cadastro-secreto" ||
     pathname.startsWith("/tecnologias") ||
     pathname.startsWith("/api/auth") ||
-    pathname.startsWith("/api/search")
+    pathname.startsWith("/api/search") ||
+    pathname.startsWith("/api/cron")
   ) {
     return NextResponse.next();
   }
