@@ -30,7 +30,10 @@ import { CreatePostSchema } from "@/lib/validations/post";
 import { slugifySmart } from "@/lib/slugify";
 import { formatForDateTimeLocal } from "@/lib/format-date";
 import { PostEditor } from "@/components/posts/editor";
-import { PostSchedulePicker } from "@/components/admin/post-schedule-picker";
+import {
+  PostSchedulePicker,
+  getBrasiliaNow,
+} from "@/components/admin/post-schedule-picker";
 
 type CreatePostValues = z.infer<typeof CreatePostSchema>;
 
@@ -238,6 +241,7 @@ export function PostForm({
     watchedSummary,
     watchedIsPublic,
     watchedStatus,
+    watchedScheduledFor,
     watchedImage,
     watchedContentHtml,
   ]);
@@ -726,9 +730,27 @@ export function PostForm({
                   <Select
                     value={field.value}
                     onValueChange={(v) => {
-                      field.onChange(v as CreatePostValues["status"]);
-                      if (v !== "SCHEDULED") {
-                        setValue("scheduledFor", "");
+                      const nextStatus = v as CreatePostValues["status"];
+                      field.onChange(nextStatus);
+                      if (nextStatus === "SCHEDULED") {
+                        const current = getValues("scheduledFor");
+                        if (!current || !current.trim()) {
+                          const bNow = getBrasiliaNow();
+                          const tomorrow = new Date(bNow.dateObj);
+                          tomorrow.setDate(tomorrow.getDate() + 1);
+                          const yyyy = tomorrow.getFullYear();
+                          const mm = String(tomorrow.getMonth() + 1).padStart(2, "0");
+                          const dd = String(tomorrow.getDate()).padStart(2, "0");
+                          setValue("scheduledFor", `${yyyy}-${mm}-${dd}T12:00:00-03:00`, {
+                            shouldValidate: true,
+                            shouldDirty: true,
+                          });
+                        }
+                      } else {
+                        setValue("scheduledFor", "", {
+                          shouldValidate: true,
+                          shouldDirty: true,
+                        });
                       }
                     }}
                   >
