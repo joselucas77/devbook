@@ -253,7 +253,7 @@ export function PostSchedulePicker({
                 <i className="bx bx-chevron-down text-base opacity-60 ml-2" />
               </Button>
             </PopoverTrigger>
-            <PopoverContent className="w-auto overflow-hidden p-0" align="start">
+            <PopoverContent className="w-auto p-0" align="start">
               <Calendar
                 mode="single"
                 selected={selectedDate}
