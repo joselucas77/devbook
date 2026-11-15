@@ -6,6 +6,11 @@ import StarterKit from "@tiptap/starter-kit";
 import Underline from "@tiptap/extension-underline";
 import Link from "@tiptap/extension-link";
 import Placeholder from "@tiptap/extension-placeholder";
+import { Table } from "@tiptap/extension-table";
+import { TableRow } from "@tiptap/extension-table-row";
+import { TableCell } from "@tiptap/extension-table-cell";
+import { TableHeader } from "@tiptap/extension-table-header";
+import { toast } from "sonner";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -44,6 +49,10 @@ export function PostEditor({
 }: PostEditorProps) {
   const [linkUrl, setLinkUrl] = useState("");
   const [linkOpen, setLinkOpen] = useState(false);
+  const [tableOpen, setTableOpen] = useState(false);
+  const [tableRows, setTableRows] = useState(3);
+  const [tableCols, setTableCols] = useState(3);
+  const [, setTick] = useState(0);
 
   const editor = useEditor({
     extensions: [
@@ -73,12 +82,13 @@ export function PostEditor({
             class: "list-decimal pl-6 space-y-1 my-3",
           },
         },
-        horizontalRule: {
-          HTMLAttributes: {
-            class: "my-6 border-border",
-          },
-        },
       }),
+      Table.configure({
+        resizable: true,
+      }),
+      TableRow,
+      TableHeader,
+      TableCell,
       Underline,
       Link.configure({
         openOnClick: false,
@@ -104,13 +114,30 @@ export function PostEditor({
       onChange(html);
     },
     immediatelyRender: false,
+    shouldRerenderOnTransaction: true,
   });
+
+  // Garante que qualquer transação ou clique no editor re-renderize os botões da toolbar
+  useEffect(() => {
+    if (!editor) return;
+    const handleUpdate = () => setTick((t) => t + 1);
+    editor.on("transaction", handleUpdate);
+    editor.on("selectionUpdate", handleUpdate);
+    return () => {
+      editor.off("transaction", handleUpdate);
+      editor.off("selectionUpdate", handleUpdate);
+    };
+  }, [editor]);
 
   // Mantém sincronizado caso o valor externo seja carregado/alterado
   useEffect(() => {
     if (!editor) return;
-    if (value !== editor.getHTML()) {
+    const currentHtml = editor.getHTML();
+    if (value !== currentHtml) {
       editor.commands.setContent(value || "", { emitUpdate: false });
+      if (!value) {
+        editor.commands.unsetAllMarks();
+      }
     }
   }, [value, editor]);
 
@@ -179,6 +206,15 @@ export function PostEditor({
     setLinkOpen(false);
   };
 
+  const insertTable = (rows: number, cols: number) => {
+    editor
+      .chain()
+      .focus()
+      .insertTable({ rows, cols, withHeaderRow: true })
+      .run();
+    setTableOpen(false);
+  };
+
   const textContent = editor.getText();
   const wordCount = textContent.trim()
     ? textContent.trim().split(/\s+/).length
@@ -235,7 +271,7 @@ export function PostEditor({
 
           <div className="w-[1px] h-5 bg-border/60 mx-1" />
 
-          {/* Formatação Básica de Texto */}
+          {/* Formatação Básica de Texto (Negrito, Itálico, Sublinhado, Tachado) */}
           <ToolbarButton
             active={editor.isActive("bold")}
             onClick={() => editor.chain().focus().toggleBold().run()}
@@ -266,14 +302,6 @@ export function PostEditor({
             tooltip="Tachado (Ctrl+Shift+X)"
           >
             <i className="bx bx-strikethrough text-base" />
-          </ToolbarButton>
-
-          <ToolbarButton
-            active={editor.isActive("code")}
-            onClick={() => editor.chain().focus().toggleCode().run()}
-            tooltip="Código inline (Ctrl+E)"
-          >
-            <i className="bx bx-code text-base" />
           </ToolbarButton>
 
           <div className="w-[1px] h-5 bg-border/60 mx-1" />
@@ -311,12 +339,210 @@ export function PostEditor({
             <i className="bx bx-code-block text-base" />
           </ToolbarButton>
 
-          <ToolbarButton
-            onClick={() => editor.chain().focus().setHorizontalRule().run()}
-            tooltip="Linha horizontal divisória"
-          >
-            <i className="bx bx-minus text-base" />
-          </ToolbarButton>
+          {/* Tabela com Popover interativo */}
+          <Popover open={tableOpen} onOpenChange={setTableOpen}>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <PopoverTrigger asChild>
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="icon"
+                    className={cn(
+                      "h-8 w-8 rounded text-muted-foreground transition-colors hover:text-foreground hover:bg-muted",
+                      editor.isActive("table") &&
+                        "bg-blue-600/15 text-blue-600 dark:bg-blue-500/25 dark:text-blue-400 font-semibold border border-blue-500/30"
+                    )}
+                    onMouseDown={(e) => e.preventDefault()}
+                  >
+                    <i className="bx bx-table text-base" />
+                  </Button>
+                </PopoverTrigger>
+              </TooltipTrigger>
+              <TooltipContent side="bottom" sideOffset={6}>
+                {editor.isActive("table") ? "Gerenciar tabela" : "Inserir tabela"}
+              </TooltipContent>
+            </Tooltip>
+            <PopoverContent className="w-64 p-3" align="start">
+              {editor.isActive("table") ? (
+                <div className="space-y-2.5">
+                  <div className="flex items-center justify-between pb-1 border-b border-border/60">
+                    <span className="text-xs font-semibold text-foreground flex items-center gap-1.5">
+                      <i className="bx bx-table text-blue-500" />
+                      Tabela Selecionada
+                    </span>
+                  </div>
+
+                  <div className="space-y-1">
+                    <p className="text-[11px] font-medium text-muted-foreground uppercase tracking-wider">
+                      Linhas
+                    </p>
+                    <div className="grid grid-cols-2 gap-1.5">
+                      <Button
+                        type="button"
+                        variant="outline"
+                        size="sm"
+                        className="h-7 text-xs justify-start px-2"
+                        onClick={() => editor.chain().focus().addRowBefore().run()}
+                      >
+                        <i className="bx bx-plus mr-1" /> Acima
+                      </Button>
+                      <Button
+                        type="button"
+                        variant="outline"
+                        size="sm"
+                        className="h-7 text-xs justify-start px-2"
+                        onClick={() => editor.chain().focus().addRowAfter().run()}
+                      >
+                        <i className="bx bx-plus mr-1" /> Abaixo
+                      </Button>
+                    </div>
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="sm"
+                      className="h-7 w-full text-xs text-rose-500 hover:text-rose-600 justify-start px-2"
+                      onClick={() => editor.chain().focus().deleteRow().run()}
+                    >
+                      <i className="bx bx-trash mr-1.5" /> Excluir linha
+                    </Button>
+                  </div>
+
+                  <div className="space-y-1 pt-1 border-t border-border/40">
+                    <p className="text-[11px] font-medium text-muted-foreground uppercase tracking-wider">
+                      Colunas
+                    </p>
+                    <div className="grid grid-cols-2 gap-1.5">
+                      <Button
+                        type="button"
+                        variant="outline"
+                        size="sm"
+                        className="h-7 text-xs justify-start px-2"
+                        onClick={() => editor.chain().focus().addColumnBefore().run()}
+                      >
+                        <i className="bx bx-plus mr-1" /> À esquerda
+                      </Button>
+                      <Button
+                        type="button"
+                        variant="outline"
+                        size="sm"
+                        className="h-7 text-xs justify-start px-2"
+                        onClick={() => editor.chain().focus().addColumnAfter().run()}
+                      >
+                        <i className="bx bx-plus mr-1" /> À direita
+                      </Button>
+                    </div>
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="sm"
+                      className="h-7 w-full text-xs text-rose-500 hover:text-rose-600 justify-start px-2"
+                      onClick={() => editor.chain().focus().deleteColumn().run()}
+                    >
+                      <i className="bx bx-trash mr-1.5" /> Excluir coluna
+                    </Button>
+                  </div>
+
+                  <div className="pt-1.5 border-t border-border/60">
+                    <Button
+                      type="button"
+                      variant="destructive"
+                      size="sm"
+                      className="h-7 w-full text-xs"
+                      onClick={() => {
+                        editor.chain().focus().deleteTable().run();
+                        setTableOpen(false);
+                      }}
+                    >
+                      <i className="bx bx-trash mr-1.5" /> Excluir tabela inteira
+                    </Button>
+                  </div>
+                </div>
+              ) : (
+                <div className="space-y-3">
+                  <div className="flex items-center justify-between pb-1 border-b border-border/60">
+                    <span className="text-xs font-semibold text-foreground flex items-center gap-1.5">
+                      <i className="bx bx-table text-blue-500" />
+                      Inserir Tabela
+                    </span>
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-2">
+                    <div className="space-y-1">
+                      <label className="text-[11px] text-muted-foreground font-medium">
+                        Linhas
+                      </label>
+                      <Input
+                        type="number"
+                        min={1}
+                        max={20}
+                        value={tableRows}
+                        onChange={(e) => setTableRows(Math.max(1, parseInt(e.target.value) || 1))}
+                        className="h-7 text-xs"
+                      />
+                    </div>
+                    <div className="space-y-1">
+                      <label className="text-[11px] text-muted-foreground font-medium">
+                        Colunas
+                      </label>
+                      <Input
+                        type="number"
+                        min={1}
+                        max={10}
+                        value={tableCols}
+                        onChange={(e) => setTableCols(Math.max(1, parseInt(e.target.value) || 1))}
+                        className="h-7 text-xs"
+                      />
+                    </div>
+                  </div>
+
+                  <div className="space-y-1.5">
+                    <span className="text-[10px] text-muted-foreground uppercase font-medium">
+                      Atalhos rápidos:
+                    </span>
+                    <div className="flex items-center gap-1.5">
+                      <Button
+                        type="button"
+                        variant="outline"
+                        size="sm"
+                        className="h-6 text-[11px] flex-1 px-1"
+                        onClick={() => insertTable(2, 2)}
+                      >
+                        2 × 2
+                      </Button>
+                      <Button
+                        type="button"
+                        variant="outline"
+                        size="sm"
+                        className="h-6 text-[11px] flex-1 px-1"
+                        onClick={() => insertTable(3, 3)}
+                      >
+                        3 × 3
+                      </Button>
+                      <Button
+                        type="button"
+                        variant="outline"
+                        size="sm"
+                        className="h-6 text-[11px] flex-1 px-1"
+                        onClick={() => insertTable(4, 4)}
+                      >
+                        4 × 4
+                      </Button>
+                    </div>
+                  </div>
+
+                  <Button
+                    type="button"
+                    size="sm"
+                    className="h-7 w-full text-xs"
+                    onClick={() => insertTable(tableRows, tableCols)}
+                  >
+                    Inserir Tabela
+                  </Button>
+                </div>
+              )}
+            </PopoverContent>
+          </Popover>
 
           <div className="w-[1px] h-5 bg-border/60 mx-1" />
 
@@ -390,7 +616,7 @@ export function PostEditor({
 
           <div className="w-[1px] h-5 bg-border/60 mx-1" />
 
-          {/* Ações de Histórico & Limpar */}
+          {/* Ações de Histórico & Limpeza */}
           <ToolbarButton
             disabled={!editor.can().undo()}
             onClick={() => editor.chain().focus().undo().run()}
@@ -411,9 +637,29 @@ export function PostEditor({
             onClick={() =>
               editor.chain().focus().unsetAllMarks().clearNodes().run()
             }
-            tooltip="Limpar formatação"
+            tooltip="Limpar formatação do texto"
           >
             <i className="bx bx-eraser text-base" />
+          </ToolbarButton>
+
+          <ToolbarButton
+            onClick={() => {
+              if (editor.isEmpty) {
+                toast.info("O editor já está vazio.");
+                return;
+              }
+              if (
+                window.confirm(
+                  "Tem certeza que deseja apagar todo o conteúdo do post?"
+                )
+              ) {
+                editor.chain().focus().clearContent(true).run();
+                toast.success("Conteúdo apagado com sucesso.");
+              }
+            }}
+            tooltip="Apagar todo o conteúdo do post"
+          >
+            <i className="bx bx-trash text-base text-rose-500 hover:text-rose-600" />
           </ToolbarButton>
         </div>
       </TooltipProvider>

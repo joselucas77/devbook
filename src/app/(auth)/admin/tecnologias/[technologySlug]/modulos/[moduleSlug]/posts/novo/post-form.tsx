@@ -126,6 +126,8 @@ export function PostForm({
   }, [isEdit, initialPost?.id, technologySlug, moduleSlug, moduleId]);
 
   const [lastSavedDraft, setLastSavedDraft] = useState<string | null>(null);
+  const isSubmittedRef = useRef(false);
+  const saveTimerRef = useRef<NodeJS.Timeout | null>(null);
 
   // Restaura dados do localStorage na inicialização (apenas no cliente)
   useEffect(() => {
@@ -179,7 +181,13 @@ export function PostForm({
   const watchedContentHtml = watch("content.html");
 
   useEffect(() => {
-    const timer = setTimeout(() => {
+    if (isSubmittedRef.current) return;
+    if (saveTimerRef.current) {
+      clearTimeout(saveTimerRef.current);
+    }
+
+    saveTimerRef.current = setTimeout(() => {
+      if (isSubmittedRef.current) return;
       try {
         const payload = {
           title: watchedTitle ?? "",
@@ -209,7 +217,11 @@ export function PostForm({
       }
     }, 800);
 
-    return () => clearTimeout(timer);
+    return () => {
+      if (saveTimerRef.current) {
+        clearTimeout(saveTimerRef.current);
+      }
+    };
   }, [
     storageKey,
     watchedTitle,
@@ -225,13 +237,19 @@ export function PostForm({
     try {
       localStorage.removeItem(storageKey);
       setLastSavedDraft(null);
-      setValue("title", initialPost?.title ?? "", { shouldDirty: false, shouldValidate: false });
-      setValue("slug", initialPost?.slug ?? "", { shouldDirty: false, shouldValidate: false });
-      setValue("summary", initialPost?.summary ?? "", { shouldDirty: false, shouldValidate: false });
-      setValue("isPublic", initialPost?.isPublic ?? true, { shouldDirty: false });
-      setValue("status", initialPost?.status ?? "DRAFT", { shouldDirty: false });
-      setValue("content.html", initialPost?.content?.html ?? "", { shouldDirty: false, shouldValidate: false });
-      setValue("image", initialPost?.image ?? "", { shouldDirty: false });
+      form.reset({
+        moduleId,
+        title: initialPost?.title ?? "",
+        slug: initialPost?.slug ?? "",
+        concept: initialPost?.concept ?? "",
+        summary: initialPost?.summary ?? "",
+        image: initialPost?.image ?? "",
+        isPublic: initialPost?.isPublic ?? true,
+        status: initialPost?.status ?? "DRAFT",
+        content: {
+          html: initialPost?.content?.html ?? "",
+        },
+      });
       toast.success("Rascunho descartado", {
         description: "Os campos foram restaurados para os valores originais.",
       });
@@ -385,12 +403,29 @@ export function PostForm({
         description: "Dados salvos com sucesso.",
       });
 
+      isSubmittedRef.current = true;
+      if (saveTimerRef.current) {
+        clearTimeout(saveTimerRef.current);
+      }
+
       try {
         localStorage.removeItem(storageKey);
         setLastSavedDraft(null);
       } catch {
         // Ignora
       }
+
+      form.reset({
+        moduleId,
+        title: "",
+        slug: "",
+        concept: "",
+        summary: "",
+        image: "",
+        isPublic: true,
+        status: "DRAFT",
+        content: { html: "" },
+      });
 
       handleRemoveCover();
 
