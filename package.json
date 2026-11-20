@@ -73,6 +73,7 @@
     "sanitize-html": "^2.18.2",
     "serwist": "^9.5.12",
     "sharp": "^0.35.5",
+    "shiki": "^4.6.0",
     "sonner": "^2.0.7",
     "tailwind-merge": "^3.6.0",
     "tailwindcss": "^4.0.0",

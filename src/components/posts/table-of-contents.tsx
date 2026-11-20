@@ -10,17 +10,15 @@ interface TableOfContentsProps {
 }
 
 export function TableOfContents({ headings, className }: TableOfContentsProps) {
-  const [activeId, setActiveId] = useState<string>("");
+  const [activeId, setActiveId] = useState<string>(() => {
+    if (typeof window !== "undefined" && window.location.hash) {
+      return window.location.hash.replace("#", "");
+    }
+    return headings[0]?.id || "";
+  });
 
   useEffect(() => {
     if (!headings.length) return;
-
-    // Se houver hash inicial na URL, usa ele
-    if (typeof window !== "undefined" && window.location.hash) {
-      setActiveId(window.location.hash.replace("#", ""));
-    } else if (headings[0]) {
-      setActiveId(headings[0].id);
-    }
 
     const observer = new IntersectionObserver(
       (entries) => {

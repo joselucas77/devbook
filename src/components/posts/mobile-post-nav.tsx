@@ -73,7 +73,7 @@ export function MobilePostNav({
                   Módulo • {moduleTitle}
                 </p>
                 <p className="text-xs font-bold text-foreground truncate">
-                  Ver posts e tópicos
+                  Post {currentPostNumber} de {posts.length} • Ver sumário
                 </p>
               </div>
             </div>

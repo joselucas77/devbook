@@ -2,6 +2,7 @@
 
 import { useMemo } from "react";
 import { CodeBlock } from "@/components/posts/code-block";
+import type { PostSegment } from "@/lib/parse-post-html";
 
 function decodeHtmlEntities(str: string): string {
   return str
@@ -17,10 +18,6 @@ function decodeHtmlEntities(str: string): string {
     .replace(/&amp;/g, "&");
 }
 
-/**
- * Encapsula tabelas HTML em um container com rolagem horizontal (.table-wrapper),
- * evitando transbordamento da página no mobile e preservando a legibilidade das colunas.
- */
 function wrapTablesWithScroll(html: string): string {
   if (!html || !html.includes("<table")) return html;
 
@@ -34,14 +31,10 @@ function wrapTablesWithScroll(html: string): string {
   );
 }
 
-type Segment =
-  | { type: "html"; html: string }
-  | { type: "code"; code: string; language?: string };
-
-export function parsePostHtml(html: string): Segment[] {
+export function parsePostHtmlClient(html: string): PostSegment[] {
   if (!html) return [];
 
-  const segments: Segment[] = [];
+  const segments: PostSegment[] = [];
   const preRegex = /<pre(?:\s+[^>]*)?>([\s\S]*?)<\/pre>/gi;
   let lastIndex = 0;
   let match: RegExpExecArray | null;
@@ -85,8 +78,18 @@ export function parsePostHtml(html: string): Segment[] {
   return segments;
 }
 
-export function PostContent({ html }: { html: string }) {
-  const segments = useMemo(() => parsePostHtml(html), [html]);
+interface PostContentProps {
+  html?: string;
+  segments?: PostSegment[];
+}
+
+export function PostContent({ html, segments: precalculatedSegments }: PostContentProps) {
+  const segments = useMemo(() => {
+    if (precalculatedSegments && precalculatedSegments.length > 0) {
+      return precalculatedSegments;
+    }
+    return html ? parsePostHtmlClient(html) : [];
+  }, [html, precalculatedSegments]);
 
   if (!segments.length) {
     return null;
@@ -110,6 +113,8 @@ export function PostContent({ html }: { html: string }) {
             key={idx}
             code={seg.code}
             language={seg.language}
+            filename={seg.filename}
+            highlightedHtml={seg.highlightedHtml}
           />
         );
       })}

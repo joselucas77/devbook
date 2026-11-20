@@ -32,17 +32,18 @@ export function SidebarProvider({
   open?: boolean;
   onOpenChange?: (open: boolean) => void;
 }) {
-  const [_open, _setOpen] = React.useState(defaultOpen);
+  const [_open, _setOpen] = React.useState(() => {
+    if (typeof window !== "undefined") {
+      try {
+        const saved = localStorage.getItem("devbook:sidebar_state");
+        if (saved !== null) {
+          return saved === "true";
+        }
+      } catch {}
+    }
+    return defaultOpen;
+  });
   const open = openProp ?? _open;
-
-  React.useEffect(() => {
-    try {
-      const saved = localStorage.getItem("devbook:sidebar_state");
-      if (saved !== null) {
-        _setOpen(saved === "true");
-      }
-    } catch {}
-  }, []);
 
   const setOpen = React.useCallback(
     (value: boolean) => {

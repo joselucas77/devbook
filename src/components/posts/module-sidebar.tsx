@@ -41,7 +41,7 @@ export function ModuleSidebar({
       <div className="space-y-2 pb-3 border-b border-border/60">
         <div>
           <span className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
-            Módulo
+            {technologyName ? `${technologyName} • Módulo` : "Módulo"}
           </span>
           <h2 className="text-sm font-bold text-foreground leading-snug line-clamp-2">
             {moduleTitle}

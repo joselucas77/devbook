@@ -539,3 +539,36 @@ body::-webkit-scrollbar {
   background: rgba(59, 130, 246, 0.15);
   pointer-events: none;
 }
+
+/* Shiki Syntax Highlighter */
+.shiki-wrapper pre {
+  background-color: transparent !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  font-family: inherit !important;
+  font-size: inherit !important;
+  line-height: inherit !important;
+}
+
+.shiki-wrapper code {
+  display: grid;
+  counter-reset: line;
+}
+
+.shiki-wrapper .line {
+  display: inline-block;
+  min-height: 1.5rem;
+}
+
+.shiki-wrapper:not(.shiki-single-line) .line::before {
+  counter-increment: line;
+  content: counter(line);
+  display: inline-block;
+  width: 2rem;
+  margin-right: 1.25rem;
+  text-align: right;
+  color: #71717a;
+  user-select: none;
+  opacity: 0.5;
+  font-size: 0.75rem;
+}

@@ -13,6 +13,9 @@ import { formatDatePtBR } from "@/lib/format-date";
 import { extractHeadingsAndInjectIds, HeadingItem } from "@/lib/toc";
 import { slugifySmart } from "@/lib/slugify";
 import { PostContentBlock } from "@/types/post";
+import { parsePostHtmlServer } from "@/lib/parse-post-html";
+import { highlightCode } from "@/lib/shiki";
+import type { PostNavItem } from "@/components/posts/post-footer-nav";
 
 export const revalidate = 3600;
 
@@ -53,7 +56,7 @@ export default async function PostPage({
         slug: moduleSlug,
       },
     },
-    select: { id: true, title: true, slug: true },
+    select: { id: true, title: true, slug: true, order: true },
   });
 
   if (!moduleItem) {
@@ -155,13 +158,96 @@ export default async function PostPage({
       }));
   }
 
-  // Determina post anterior e próximo
+  // Determina post anterior e próximo (dentro do módulo ou navegando entre módulos)
   const currentIndex = modulePosts.findIndex((p) => p.slug === postSlug);
-  const prevPost = currentIndex > 0 ? modulePosts[currentIndex - 1] : null;
-  const nextPost =
-    currentIndex >= 0 && currentIndex < modulePosts.length - 1
-      ? modulePosts[currentIndex + 1]
-      : null;
+  let prevNav: PostNavItem | null = null;
+  let nextNav: PostNavItem | null = null;
+
+  if (currentIndex > 0) {
+    prevNav = {
+      title: modulePosts[currentIndex - 1].title,
+      slug: modulePosts[currentIndex - 1].slug,
+      moduleSlug: moduleItem.slug,
+    };
+  } else {
+    // Busca o post anterior no módulo anterior da tecnologia
+    const prevModule = await prisma.module.findFirst({
+      where: {
+        technologyId: technology.id,
+        order: { lt: moduleItem.order },
+      },
+      orderBy: { order: "desc" },
+      select: {
+        title: true,
+        slug: true,
+        posts: {
+          where: { isPublic: true, status: "PUBLISHED" },
+          orderBy: [{ order: "desc" }, { createdAt: "desc" }],
+          take: 1,
+          select: { title: true, slug: true },
+        },
+      },
+    });
+    if (prevModule && prevModule.posts[0]) {
+      prevNav = {
+        title: prevModule.posts[0].title,
+        slug: prevModule.posts[0].slug,
+        moduleSlug: prevModule.slug,
+        moduleTitle: prevModule.title,
+      };
+    }
+  }
+
+  if (currentIndex >= 0 && currentIndex < modulePosts.length - 1) {
+    nextNav = {
+      title: modulePosts[currentIndex + 1].title,
+      slug: modulePosts[currentIndex + 1].slug,
+      moduleSlug: moduleItem.slug,
+    };
+  } else {
+    // Busca o primeiro post do próximo módulo da tecnologia
+    const nextModule = await prisma.module.findFirst({
+      where: {
+        technologyId: technology.id,
+        order: { gt: moduleItem.order },
+      },
+      orderBy: { order: "asc" },
+      select: {
+        title: true,
+        slug: true,
+        posts: {
+          where: { isPublic: true, status: "PUBLISHED" },
+          orderBy: [{ order: "asc" }, { createdAt: "asc" }],
+          take: 1,
+          select: { title: true, slug: true },
+        },
+      },
+    });
+    if (nextModule && nextModule.posts[0]) {
+      nextNav = {
+        title: nextModule.posts[0].title,
+        slug: nextModule.posts[0].slug,
+        moduleSlug: nextModule.slug,
+        moduleTitle: nextModule.title,
+      };
+    }
+  }
+
+  // Prepara os segmentos com realce de sintaxe Shiki no servidor
+  const postSegments = contentHtmlToRender
+    ? await parsePostHtmlServer(contentHtmlToRender)
+    : [];
+
+  // Se o post usar o formato de blocos estruturados, pré-processa os códigos com Shiki
+  const highlightedBlocks = await Promise.all(
+    blocks.map(async (block) => {
+      if (block.type === "code") {
+        const highlighted = await highlightCode(block.code, block.language);
+        return { ...block, highlightedHtml: highlighted };
+      }
+      return block;
+    })
+  );
 
   return (
     <div className="w-full max-w-7xl mx-auto pb-4 md:pb-6 min-w-0">
@@ -243,9 +329,12 @@ export default async function PostPage({
           {/* Artigo / Conteúdo */}
           <article className="prose dark:prose-invert prose-blue max-w-none w-full min-w-0">
             {htmlContent ? (
-              <PostContent html={contentHtmlToRender} />
+              <PostContent
+                segments={postSegments}
+                html={contentHtmlToRender}
+              />
             ) : (
-              blocks.map((block, index) => {
+              highlightedBlocks.map((block, index) => {
                 switch (block.type) {
                   case "heading": {
                     const headingId = slugifySmart(block.text || `secao-${index + 1}`);
@@ -304,6 +393,7 @@ export default async function PostPage({
                           code={block.code}
                           language={block.language ?? "txt"}
                           filename={block.filename ?? "index.html"}
+                          highlightedHtml={block.highlightedHtml}
                         />
                         {block.explanation ? (
                           <p className="text-sm text-muted-foreground mt-2 italic">
@@ -333,12 +423,11 @@ export default async function PostPage({
             )}
           </article>
 
-          {/* Navegação de Rodapé (Post Anterior / Próximo Post) */}
+          {/* Navegação de Rodapé (Post Anterior / Próximo Post contínuo entre módulos) */}
           <PostFooterNav
             technologySlug={technology.slug}
-            moduleSlug={moduleItem.slug}
-            prevPost={prevPost}
-            nextPost={nextPost}
+            prevNav={prevNav}
+            nextNav={nextNav}
           />
         </main>
 

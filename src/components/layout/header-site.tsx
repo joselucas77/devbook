@@ -1,24 +1,42 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import Link from "next/link";
 import Image from "next/image";
 import { cn } from "@/lib/utils";
+import { Button } from "@/components/ui/button";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import { ThemeToggle } from "./theme-toggle";
 import { GlobalSearch } from "./global-search";
 
-export function HeaderSite() {
+interface HeaderSiteProps {
+  user?: {
+    name: string;
+    email: string;
+    role: string;
+  } | null;
+}
+
+export function HeaderSite({ user }: HeaderSiteProps) {
   const pathname = usePathname();
+  const router = useRouter();
   const isPostReadingPage = Boolean(pathname && pathname.includes("/post/"));
 
-  const [isScrolled, setIsScrolled] = useState(false);
+  const [isScrolled, setIsScrolled] = useState(() =>
+    typeof window !== "undefined" ? window.scrollY > 120 : false
+  );
   const [isSearchExpanded, setIsSearchExpanded] = useState(false);
+
   // Monitora o scroll na página de leitura do post (mobile)
   useEffect(() => {
     if (!isPostReadingPage) {
-      setIsScrolled(false);
-      setIsSearchExpanded(false);
       return;
     }
 
@@ -30,16 +48,24 @@ export function HeaderSite() {
       }
     };
 
-    handleScroll();
     window.addEventListener("scroll", handleScroll, { passive: true });
     return () => window.removeEventListener("scroll", handleScroll);
-  }, [isPostReadingPage, pathname]);
+  }, [isPostReadingPage]);
 
   const scrollToTop = () => {
     window.scrollTo({
       top: 0,
       behavior: "smooth",
     });
+  };
+
+  const handleLogout = async () => {
+    try {
+      await fetch("/api/auth/logout", { method: "POST" });
+      router.refresh();
+    } catch (e) {
+      console.error("Erro ao sair:", e);
+    }
   };
 
   return (
@@ -67,7 +93,7 @@ export function HeaderSite() {
             </Link>
           </div>
 
-          {/* Direita: Campo de Pesquisa (Desktop) e ThemeToggle */}
+          {/* Direita: Campo de Pesquisa, ThemeToggle e Menu de Usuário */}
           <div className="flex items-center gap-2 sm:gap-3 shrink-0">
             {/* Campo de Pesquisa Global (Desktop posicionado à direita) */}
             <div className="hidden md:block w-48 sm:w-60 lg:w-72">
@@ -75,6 +101,68 @@ export function HeaderSite() {
             </div>
 
             <ThemeToggle />
+
+            {/* Menu de Usuário ou Botão Entrar */}
+            {user ? (
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className="h-9 gap-1.5 px-2 sm:px-2.5 rounded-full border-border/70 bg-card hover:bg-muted text-xs cursor-pointer"
+                  >
+                    <div className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-blue-500/15 text-blue-500 font-semibold text-[11px] uppercase">
+                      {user.name ? user.name.charAt(0) : "U"}
+                    </div>
+                    <span className="hidden sm:inline text-xs font-medium max-w-[90px] truncate">
+                      {user.name.split(" ")[0]}
+                    </span>
+                    <i className="bx bx-chevron-down text-xs text-muted-foreground" />
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end" className="w-56 shadow-lg">
+                  <div className="px-3 py-2 border-b border-border/50">
+                    <p className="text-xs font-semibold text-foreground truncate">
+                      {user.name}
+                    </p>
+                    <p className="text-[11px] text-muted-foreground truncate">
+                      {user.email}
+                    </p>
+                  </div>
+
+                  {(user.role === "ADMIN" || user.role === "EDITOR") && (
+                    <DropdownMenuItem asChild>
+                      <Link href="/admin" className="cursor-pointer gap-2 py-2">
+                        <i className="bx bx-slider-alt text-base text-blue-400" />
+                        <span>Painel Administrativo</span>
+                      </Link>
+                    </DropdownMenuItem>
+                  )}
+
+                  <DropdownMenuSeparator />
+
+                  <DropdownMenuItem
+                    onClick={handleLogout}
+                    className="cursor-pointer text-destructive focus:text-destructive gap-2 py-2"
+                  >
+                    <i className="bx bx-log-out text-base" />
+                    <span>Sair da conta</span>
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+            ) : (
+              <Button
+                asChild
+                variant="ghost"
+                size="sm"
+                className="h-9 gap-1.5 px-3 text-xs sm:text-sm font-medium hover:bg-muted"
+              >
+                <Link href="/login">
+                  <i className="bx bx-log-in text-base text-muted-foreground" />
+                  <span className="hidden sm:inline">Entrar</span>
+                </Link>
+              </Button>
+            )}
           </div>
         </div>
       </header>
