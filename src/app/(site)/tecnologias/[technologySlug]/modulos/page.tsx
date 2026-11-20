@@ -2,7 +2,6 @@ import Link from "next/link";
 import { Badge } from "@/components/ui/badge";
 import { prisma } from "@/lib/prisma";
 import { ModuleFolder } from "@/components/modules/module-folder";
-import { publishDueScheduledPosts } from "@/lib/publish-scheduled";
 
 export const revalidate = 3600;
 
@@ -12,8 +11,6 @@ export default async function ModulosPage({
   params: Promise<{ technologySlug: string }>;
 }) {
   const { technologySlug: slug } = await params;
-
-  await publishDueScheduledPosts();
 
   const technology = await prisma.technology.findUnique({
     where: { slug },

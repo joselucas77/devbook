@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { CreatePostSchema } from "@/lib/validations/post";
 import { slugifySmart } from "@/lib/slugify";
+import { revalidatePostCache } from "@/lib/revalidate";
 
 export async function PATCH(
   req: Request,
@@ -75,7 +76,12 @@ export async function PATCH(
 
     const moduleExists = await prisma.module.findUnique({
       where: { id: data.moduleId },
-      select: { id: true, title: true },
+      select: {
+        id: true,
+        title: true,
+        slug: true,
+        technology: { select: { slug: true } },
+      },
     });
 
     if (!moduleExists) {
@@ -150,6 +156,19 @@ export async function PATCH(
       },
     });
 
+    revalidatePostCache({
+      techSlug: moduleExists.technology.slug,
+      moduleSlug: moduleExists.slug,
+      postSlug: updated.slug,
+    });
+    if (existing.slug !== updated.slug) {
+      revalidatePostCache({
+        techSlug: moduleExists.technology.slug,
+        moduleSlug: moduleExists.slug,
+        postSlug: existing.slug,
+      });
+    }
+
     return NextResponse.json(updated);
   } catch (e: any) {
     console.error("Erro ao atualizar post:", e);
@@ -214,7 +233,17 @@ export async function DELETE(
 
     const post = await prisma.post.findUnique({
       where: { id },
-      select: { id: true, title: true },
+      select: {
+        id: true,
+        title: true,
+        slug: true,
+        module: {
+          select: {
+            slug: true,
+            technology: { select: { slug: true } },
+          },
+        },
+      },
     });
 
     if (!post) {
@@ -225,6 +254,12 @@ export async function DELETE(
     }
 
     await prisma.post.delete({ where: { id } });
+
+    revalidatePostCache({
+      techSlug: post.module.technology.slug,
+      moduleSlug: post.module.slug,
+      postSlug: post.slug,
+    });
 
     return NextResponse.json({ message: "Post deletado com sucesso", id });
   } catch (e: any) {

@@ -6,12 +6,10 @@ export const dynamic = "force-dynamic";
 export async function GET(req: Request) {
   try {
     const authHeader = req.headers.get("authorization");
-    const cronSecret = process.env.CRON_SECRET;
+    const cronSecret = process.env.CRON_SECRET?.trim();
 
-    // Se CRON_SECRET estiver definido no ambiente e for enviado header de autorização,
-    // garantimos a validação. Se for requisição interna da Vercel ou monitor gratuito,
-    // executamos com segurança já que a ação é estritamente idempotente.
-    if (cronSecret && authHeader && authHeader !== `Bearer ${cronSecret}`) {
+    // Se CRON_SECRET estiver configurado, a requisição DEVE conter o cabeçalho Authorization correto
+    if (cronSecret && authHeader !== `Bearer ${cronSecret}`) {
       return NextResponse.json({ message: "Não autorizado" }, { status: 401 });
     }
 

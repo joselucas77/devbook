@@ -76,7 +76,7 @@ export interface Post {
   summary?: string;
   content: PostContent;
   isPublic: boolean;
-  status: "DRAFT" | "PUBLISHED" | "ARCHIVED";
+  status: "DRAFT" | "PUBLISHED" | "ARCHIVED" | "SCHEDULED";
   moduleId: number;
   authorId?: string | null;
   publishedAt: Date | string | null;

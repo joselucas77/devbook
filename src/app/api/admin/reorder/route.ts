@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { revalidatePath } from "next/cache";
 import { prisma } from "@/lib/prisma";
 
 export async function PATCH(req: Request) {
@@ -45,6 +46,13 @@ export async function PATCH(req: Request) {
         { message: "Tipo de entidade desconhecido." },
         { status: 400 }
       );
+    }
+
+    try {
+      revalidatePath("/tecnologias");
+      revalidatePath("/(site)", "layout");
+    } catch (e) {
+      console.warn("Aviso ao revalidar cache após reordenação:", e);
     }
 
     return NextResponse.json({

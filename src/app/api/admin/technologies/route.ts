@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { CreateTechnologySchema } from "@/lib/validations/technology";
+import { revalidateTechnologyCache } from "@/lib/revalidate";
 
 export async function POST(req: Request) {
   try {
@@ -33,6 +34,8 @@ export async function POST(req: Request) {
         order: nextOrder,
       },
     });
+
+    revalidateTechnologyCache(created.slug);
 
     return NextResponse.json(created, { status: 201 });
   } catch (error: any) {

@@ -4,6 +4,7 @@ import { prisma } from "@/lib/prisma";
 import { CreatePostSchema } from "@/lib/validations/post";
 import { slugifySmart } from "@/lib/slugify";
 import { getAuthCookieName, verifyAuthToken } from "@/lib/jwt-auth";
+import { revalidatePostCache } from "@/lib/revalidate";
 
 export async function POST(req: Request) {
   try {
@@ -58,7 +59,12 @@ export async function POST(req: Request) {
     // 1. Verifica se o módulo existe
     const moduleItem = await prisma.module.findUnique({
       where: { id: data.moduleId },
-      select: { id: true, title: true },
+      select: {
+        id: true,
+        title: true,
+        slug: true,
+        technology: { select: { slug: true } },
+      },
     });
 
     if (!moduleItem) {
@@ -160,6 +166,12 @@ export async function POST(req: Request) {
         order: nextOrder,
         publishedAt: data.status === "PUBLISHED" ? new Date() : null,
       },
+    });
+
+    revalidatePostCache({
+      techSlug: moduleItem.technology.slug,
+      moduleSlug: moduleItem.slug,
+      postSlug: created.slug,
     });
 
     return NextResponse.json(created, { status: 201 });

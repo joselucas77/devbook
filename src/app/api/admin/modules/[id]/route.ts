@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { UpdateModuleSchema } from "@/lib/validations/module";
+import { revalidateModuleCache } from "@/lib/revalidate";
 
 export async function PATCH(
   req: Request,
@@ -27,7 +28,12 @@ export async function PATCH(
     const updated = await prisma.module.update({
       where: { id },
       data: parsed.data,
+      include: {
+        technology: { select: { slug: true } },
+      },
     });
+
+    revalidateModuleCache(updated.technology?.slug);
 
     return NextResponse.json(updated);
   } catch (error: any) {
@@ -51,7 +57,18 @@ export async function DELETE(
       return NextResponse.json({ message: "ID inválido." }, { status: 400 });
     }
 
+    const existing = await prisma.module.findUnique({
+      where: { id },
+      select: {
+        id: true,
+        technology: { select: { slug: true } },
+      },
+    });
+
     await prisma.module.delete({ where: { id } });
+
+    revalidateModuleCache(existing?.technology?.slug);
+
     return NextResponse.json({ ok: true });
   } catch (error: any) {
     console.error("Erro ao deletar módulo:", error);

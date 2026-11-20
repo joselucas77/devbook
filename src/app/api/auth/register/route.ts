@@ -12,8 +12,6 @@ const RegisterBodySchema = z.object({
   secretKey: z.string().optional(),
 });
 
-const DEFAULT_ADMIN_SECRET = "devbook-admin-master-2026";
-
 export async function POST(req: Request) {
   try {
     const json = await req.json();
@@ -44,10 +42,19 @@ export async function POST(req: Request) {
 
     // Se estiver tentando criar como ADMIN
     if (role === "ADMIN") {
-      const expectedSecret =
-        process.env.ADMIN_REGISTER_SECRET || DEFAULT_ADMIN_SECRET;
+      const expectedSecret = process.env.ADMIN_REGISTER_SECRET?.trim();
 
-      if (!secretKey || secretKey.trim() !== expectedSecret.trim()) {
+      if (!expectedSecret) {
+        return NextResponse.json(
+          {
+            message:
+              "O registro de administrador está desabilitado no momento (variável de ambiente não configurada).",
+          },
+          { status: 403 }
+        );
+      }
+
+      if (!secretKey || secretKey.trim() !== expectedSecret) {
         return NextResponse.json(
           { message: "Chave secreta de autorização de administrador inválida." },
           { status: 403 }

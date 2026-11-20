@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { UpdateTechnologySchema } from "@/lib/validations/technology";
+import { revalidateTechnologyCache } from "@/lib/revalidate";
 
 export async function PATCH(
   req: Request,
@@ -26,6 +27,11 @@ export async function PATCH(
 
     const data = parsed.data;
 
+    const existing = await prisma.technology.findUnique({
+      where: { id },
+      select: { slug: true },
+    });
+
     const updated = await prisma.technology.update({
       where: { id },
       data: {
@@ -36,6 +42,11 @@ export async function PATCH(
         ...(data.image !== undefined ? { image: data.image || null } : {}),
       },
     });
+
+    revalidateTechnologyCache(updated.slug);
+    if (existing?.slug && existing.slug !== updated.slug) {
+      revalidateTechnologyCache(existing.slug);
+    }
 
     return NextResponse.json(updated);
   } catch (error: any) {
@@ -59,7 +70,15 @@ export async function DELETE(
       return NextResponse.json({ message: "ID inválido." }, { status: 400 });
     }
 
+    const existing = await prisma.technology.findUnique({
+      where: { id },
+      select: { slug: true },
+    });
+
     await prisma.technology.delete({ where: { id } });
+
+    revalidateTechnologyCache(existing?.slug);
+
     return NextResponse.json({ ok: true });
   } catch (error: any) {
     console.error("Erro ao deletar tecnologia:", error);
