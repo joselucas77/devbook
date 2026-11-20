@@ -16,6 +16,11 @@ import { PostContentBlock } from "@/types/post";
 import { parsePostHtmlServer } from "@/lib/parse-post-html";
 import { highlightCode } from "@/lib/shiki";
 import type { PostNavItem } from "@/components/posts/post-footer-nav";
+import {
+  BookmarkButton,
+  MarkAsReadCard,
+  calculateReadingTime,
+} from "@/components/posts/post-actions";
 
 export const revalidate = 3600;
 
@@ -302,18 +307,42 @@ export default async function PostPage({
             </span>
           </div>
 
-          {/* Título do Post */}
-          <h1 className="text-2xl sm:text-3xl md:text-4xl font-extrabold tracking-tight leading-tight mb-3 text-foreground break-words">
-            {data.title}
-          </h1>
+          {/* Título do Post & Ações */}
+          <div className="flex items-start justify-between gap-4 mb-3">
+            <h1 className="text-2xl sm:text-3xl md:text-4xl font-extrabold tracking-tight leading-tight text-foreground break-words flex-1">
+              {data.title}
+            </h1>
+            <BookmarkButton
+              post={{
+                slug: data.slug,
+                title: data.title,
+                technologySlug: technology.slug,
+                technologyName: technology.name,
+                moduleSlug: moduleItem.slug,
+                moduleTitle: moduleItem.title,
+              }}
+            />
+          </div>
 
-          {/* Data de publicação */}
-          {data.publishedAt && (
-            <div className="flex items-center gap-1.5 text-xs text-muted-foreground mb-6">
-              <i className="bx bx-calendar text-sm" />
-              <span>Publicado em {published}</span>
+          {/* Data de publicação & Tempo de Leitura */}
+          <div className="flex flex-wrap items-center gap-4 text-xs text-muted-foreground mb-6">
+            {data.publishedAt && (
+              <div className="flex items-center gap-1.5">
+                <i className="bx bx-calendar text-sm" />
+                <span>Publicado em {published}</span>
+              </div>
+            )}
+            <div className="flex items-center gap-1.5 text-muted-foreground">
+              <i className="bx bx-time-five text-sm text-blue-400" />
+              <span>
+                {calculateReadingTime(
+                  contentHtmlToRender ||
+                    blocks.map((b) => ("text" in b ? b.text : "")).join(" ")
+                )}{" "}
+                min de leitura
+              </span>
             </div>
-          )}
+          </div>
 
           {/* Imagem de Capa (se houver) */}
           {data.image && (
@@ -422,6 +451,9 @@ export default async function PostPage({
               })
             )}
           </article>
+
+          {/* Marcar como lido / Progresso do módulo */}
+          <MarkAsReadCard postSlug={data.slug} />
 
           {/* Navegação de Rodapé (Post Anterior / Próximo Post contínuo entre módulos) */}
           <PostFooterNav

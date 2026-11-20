@@ -1,15 +1,17 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { useEditor, EditorContent } from "@tiptap/react";
 import StarterKit from "@tiptap/starter-kit";
 import Underline from "@tiptap/extension-underline";
 import Link from "@tiptap/extension-link";
 import Placeholder from "@tiptap/extension-placeholder";
+import ImageExtension from "@tiptap/extension-image";
 import { Table } from "@tiptap/extension-table";
 import { TableRow } from "@tiptap/extension-table-row";
 import { TableCell } from "@tiptap/extension-table-cell";
 import { TableHeader } from "@tiptap/extension-table-header";
+import { Callout, CalloutType } from "./callout-extension";
 import { toast } from "sonner";
 
 import { Button } from "@/components/ui/button";
@@ -52,6 +54,11 @@ export function PostEditor({
   const [tableOpen, setTableOpen] = useState(false);
   const [tableRows, setTableRows] = useState(3);
   const [tableCols, setTableCols] = useState(3);
+  const [calloutOpen, setCalloutOpen] = useState(false);
+  const [imageOpen, setImageOpen] = useState(false);
+  const [imageUrl, setImageUrl] = useState("");
+  const [isUploadingImage, setIsUploadingImage] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
   const [, setTick] = useState(0);
 
   const editor = useEditor({
@@ -90,6 +97,14 @@ export function PostEditor({
       TableHeader,
       TableCell,
       Underline,
+      ImageExtension.configure({
+        allowBase64: true,
+        HTMLAttributes: {
+          class:
+            "rounded-xl border border-border/80 max-w-full my-6 shadow-sm mx-auto object-cover",
+        },
+      }),
+      Callout,
       Link.configure({
         openOnClick: false,
         autolink: true,
@@ -213,6 +228,59 @@ export function PostEditor({
       .insertTable({ rows, cols, withHeaderRow: true })
       .run();
     setTableOpen(false);
+  };
+
+  const handleImageFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    if (!file.type.startsWith("image/")) {
+      toast.error("Formato inválido", {
+        description: "Selecione um arquivo de imagem válido.",
+      });
+      return;
+    }
+
+    setIsUploadingImage(true);
+    try {
+      const formData = new FormData();
+      formData.append("file", file);
+
+      const res = await fetch("/api/admin/upload", {
+        method: "POST",
+        body: formData,
+      });
+
+      if (!res.ok) {
+        const err = await res.json().catch(() => ({}));
+        throw new Error(err?.message || "Falha ao enviar imagem");
+      }
+
+      const data = await res.json();
+      editor.chain().focus().setImage({ src: data.url, alt: file.name }).run();
+      toast.success("Imagem inserida com sucesso!");
+      setImageOpen(false);
+    } catch (err: unknown) {
+      toast.error("Erro no envio", {
+        description: err instanceof Error ? err.message : "Falha ao processar imagem",
+      });
+    } finally {
+      setIsUploadingImage(false);
+      if (fileInputRef.current) fileInputRef.current.value = "";
+    }
+  };
+
+  const handleImageUrlInsert = () => {
+    if (!imageUrl.trim()) return;
+    editor.chain().focus().setImage({ src: imageUrl.trim() }).run();
+    setImageUrl("");
+    setImageOpen(false);
+    toast.success("Imagem inserida!");
+  };
+
+  const toggleCallout = (type: CalloutType) => {
+    editor.chain().focus().toggleCallout({ type }).run();
+    setCalloutOpen(false);
   };
 
   const textContent = editor.getText();
@@ -608,6 +676,173 @@ export function PostEditor({
                     onClick={applyLink}
                   >
                     Salvar
+                  </Button>
+                </div>
+              </div>
+            </PopoverContent>
+          </Popover>
+
+          {/* Destaque / Callout */}
+          <Popover open={calloutOpen} onOpenChange={setCalloutOpen}>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <PopoverTrigger asChild>
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="icon"
+                    className={cn(
+                      "h-8 w-8 rounded text-muted-foreground transition-colors hover:text-foreground hover:bg-muted",
+                      editor.isActive("callout") &&
+                        "bg-blue-600/15 text-blue-600 dark:bg-blue-500/25 dark:text-blue-400 font-semibold border border-blue-500/30"
+                    )}
+                    onMouseDown={(e) => e.preventDefault()}
+                  >
+                    <i className="bx bx-bulb text-base" />
+                  </Button>
+                </PopoverTrigger>
+              </TooltipTrigger>
+              <TooltipContent side="bottom" sideOffset={6}>
+                Inserir caixa de destaque (Callout)
+              </TooltipContent>
+            </Tooltip>
+            <PopoverContent className="w-56 p-2" align="start">
+              <p className="text-xs font-semibold px-2 py-1 text-muted-foreground">
+                Caixa de Destaque
+              </p>
+              <div className="space-y-1">
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="sm"
+                  className="w-full justify-start text-xs gap-2 text-blue-500 hover:text-blue-600 hover:bg-blue-500/10 cursor-pointer"
+                  onClick={() => toggleCallout("info")}
+                >
+                  <i className="bx bx-info-circle text-base" />
+                  <span>Nota informativa</span>
+                </Button>
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="sm"
+                  className="w-full justify-start text-xs gap-2 text-emerald-500 hover:text-emerald-600 hover:bg-emerald-500/10 cursor-pointer"
+                  onClick={() => toggleCallout("tip")}
+                >
+                  <i className="bx bx-bulb text-base" />
+                  <span>Dica útil</span>
+                </Button>
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="sm"
+                  className="w-full justify-start text-xs gap-2 text-amber-500 hover:text-amber-600 hover:bg-amber-500/10 cursor-pointer"
+                  onClick={() => toggleCallout("warning")}
+                >
+                  <i className="bx bx-error text-base" />
+                  <span>Aviso importante</span>
+                </Button>
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="sm"
+                  className="w-full justify-start text-xs gap-2 text-rose-500 hover:text-rose-600 hover:bg-rose-500/10 cursor-pointer"
+                  onClick={() => toggleCallout("danger")}
+                >
+                  <i className="bx bx-shield-x text-base" />
+                  <span>Atenção / Perigo</span>
+                </Button>
+              </div>
+            </PopoverContent>
+          </Popover>
+
+          {/* Inserir Imagem no Artigo */}
+          <Popover open={imageOpen} onOpenChange={setImageOpen}>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <PopoverTrigger asChild>
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="icon"
+                    className="h-8 w-8 rounded text-muted-foreground transition-colors hover:text-foreground hover:bg-muted"
+                    onMouseDown={(e) => e.preventDefault()}
+                  >
+                    <i className="bx bx-image-add text-base" />
+                  </Button>
+                </PopoverTrigger>
+              </TooltipTrigger>
+              <TooltipContent side="bottom" sideOffset={6}>
+                Inserir imagem no corpo do post
+              </TooltipContent>
+            </Tooltip>
+            <PopoverContent className="w-80 p-3" align="start">
+              <div className="space-y-3">
+                <p className="text-xs font-semibold text-foreground">
+                  Inserir Imagem no Artigo
+                </p>
+
+                <div>
+                  <input
+                    ref={fileInputRef}
+                    type="file"
+                    accept="image/*"
+                    onChange={handleImageFileUpload}
+                    className="hidden"
+                  />
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    disabled={isUploadingImage}
+                    onClick={() => fileInputRef.current?.click()}
+                    className="w-full text-xs gap-2 h-9 border-dashed cursor-pointer"
+                  >
+                    <i
+                      className={cn(
+                        "bx",
+                        isUploadingImage
+                          ? "bx-loader-alt animate-spin"
+                          : "bx-upload",
+                        "text-base"
+                      )}
+                    />
+                    <span>
+                      {isUploadingImage
+                        ? "Otimizando e enviando..."
+                        : "Upload do computador"}
+                    </span>
+                  </Button>
+                </div>
+
+                <div className="relative flex items-center justify-center">
+                  <div className="absolute inset-0 flex items-center">
+                    <span className="w-full border-t border-border/60" />
+                  </div>
+                  <span className="relative bg-popover px-2 text-[10px] uppercase text-muted-foreground">
+                    ou por link
+                  </span>
+                </div>
+
+                <div className="flex gap-2">
+                  <Input
+                    placeholder="https://exemplo.com/imagem.png"
+                    value={imageUrl}
+                    onChange={(e) => setImageUrl(e.target.value)}
+                    className="h-8 text-xs flex-1"
+                    onKeyDown={(e) => {
+                      if (e.key === "Enter") {
+                        e.preventDefault();
+                        handleImageUrlInsert();
+                      }
+                    }}
+                  />
+                  <Button
+                    type="button"
+                    size="sm"
+                    className="h-8 text-xs px-3"
+                    onClick={handleImageUrlInsert}
+                  >
+                    Inserir
                   </Button>
                 </div>
               </div>

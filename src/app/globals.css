@@ -572,3 +572,47 @@ body::-webkit-scrollbar {
   opacity: 0.5;
   font-size: 0.75rem;
 }
+
+/* Callouts / Admonitions */
+.callout {
+  margin: 1.5rem 0;
+  padding: 1rem 1.25rem;
+  border-radius: 0.75rem;
+  border-left-width: 4px;
+}
+
+.callout p {
+  margin: 0.5rem 0 !important;
+}
+
+.callout p:first-child {
+  margin-top: 0 !important;
+}
+
+.callout p:last-child {
+  margin-bottom: 0 !important;
+}
+
+.callout-info {
+  background-color: rgba(59, 130, 246, 0.08);
+  border-left-color: #3b82f6;
+  color: inherit;
+}
+
+.callout-tip {
+  background-color: rgba(16, 185, 129, 0.08);
+  border-left-color: #10b981;
+  color: inherit;
+}
+
+.callout-warning {
+  background-color: rgba(245, 158, 11, 0.08);
+  border-left-color: #f59e0b;
+  color: inherit;
+}
+
+.callout-danger {
+  background-color: rgba(239, 68, 68, 0.08);
+  border-left-color: #ef4444;
+  color: inherit;
+}

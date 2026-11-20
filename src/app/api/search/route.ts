@@ -58,8 +58,16 @@ export async function GET(req: Request) {
               OR unaccent(COALESCE(p.summary, '')) ILIKE unaccent(${pattern})
               OR unaccent(COALESCE(p.concept, '')) ILIKE unaccent(${pattern})
               OR p.slug ILIKE ${pattern}
+              OR unaccent(p.content::text) ILIKE unaccent(${pattern})
             )
-          LIMIT 8
+          ORDER BY
+            CASE
+              WHEN unaccent(p.title) ILIKE unaccent(${pattern}) THEN 1
+              WHEN unaccent(COALESCE(p.summary, '')) ILIKE unaccent(${pattern}) THEN 2
+              ELSE 3
+            END,
+            p."order" ASC
+          LIMIT 10
         `,
       ]);
 

@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { cn } from "@/lib/utils";
 import { HeadingItem } from "@/lib/toc";
+import { useReadingProgress } from "@/hooks/use-reading-progress";
 
 export interface ModuleSidebarPost {
   id: number;
@@ -12,7 +13,7 @@ export interface ModuleSidebarPost {
 
 interface ModuleSidebarProps {
   technologySlug: string;
-  technologyName: string;
+  technologyName?: string;
   moduleSlug: string;
   moduleTitle: string;
   posts: ModuleSidebarPost[];
@@ -35,6 +36,9 @@ export function ModuleSidebar({
   onHeadingClick,
   className,
 }: ModuleSidebarProps) {
+  const { isPostRead, getModuleProgress } = useReadingProgress();
+  const progress = getModuleProgress(posts.map((p) => p.slug));
+
   return (
     <div className={cn("space-y-4", className)}>
       {/* Cabeçalho do Módulo */}
@@ -53,6 +57,22 @@ export function ModuleSidebar({
           <span>
             {posts.length} {posts.length === 1 ? "post" : "posts"} disponíveis
           </span>
+        </div>
+
+        {/* Barra de Progresso do Módulo */}
+        <div className="pt-1.5">
+          <div className="flex items-center justify-between text-[11px] mb-1">
+            <span className="text-muted-foreground">Concluído</span>
+            <span className="font-semibold text-emerald-500 text-xs">
+              {progress.completed}/{progress.total} ({progress.percentage}%)
+            </span>
+          </div>
+          <div className="h-1.5 w-full rounded-full bg-muted overflow-hidden">
+            <div
+              className="h-full bg-emerald-500 rounded-full transition-all duration-300"
+              style={{ width: `${progress.percentage}%` }}
+            />
+          </div>
         </div>
       </div>
 
@@ -88,6 +108,8 @@ export function ModuleSidebar({
         <nav className="space-y-1">
           {posts.map((post, idx) => {
             const isActive = post.slug === currentPostSlug;
+            const isCompleted = isPostRead(post.slug);
+
             return (
               <Link
                 key={post.id}
@@ -103,14 +125,27 @@ export function ModuleSidebar({
                 <span
                   className={cn(
                     "flex h-4 w-4 shrink-0 items-center justify-center rounded-full text-[10px] font-mono mt-0.5",
-                    isActive
+                    isCompleted
+                      ? "bg-emerald-500/20 text-emerald-500 font-bold"
+                      : isActive
                       ? "bg-primary text-primary-foreground font-bold"
                       : "bg-muted text-muted-foreground group-hover:bg-muted-foreground/20"
                   )}
                 >
-                  {idx + 1}
+                  {isCompleted ? (
+                    <i className="bx bx-check text-xs font-bold" />
+                  ) : (
+                    idx + 1
+                  )}
                 </span>
-                <span className="flex-1 break-words">{post.title}</span>
+                <span
+                  className={cn(
+                    "flex-1 break-words",
+                    isCompleted && !isActive && "text-muted-foreground/80 line-through decoration-muted-foreground/40"
+                  )}
+                >
+                  {post.title}
+                </span>
               </Link>
             );
           })}
