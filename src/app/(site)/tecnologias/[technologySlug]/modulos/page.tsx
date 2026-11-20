@@ -1,9 +1,46 @@
 import Link from "next/link";
+import type { Metadata } from "next";
 import { Badge } from "@/components/ui/badge";
 import { prisma } from "@/lib/prisma";
 import { ModuleFolder } from "@/components/modules/module-folder";
 
 export const revalidate = 3600;
+
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ technologySlug: string }>;
+}): Promise<Metadata> {
+  const { technologySlug } = await params;
+  const tech = await prisma.technology.findUnique({
+    where: { slug: technologySlug },
+    select: { name: true, description: true, image: true, category: true },
+  });
+
+  if (!tech) {
+    return {
+      title: "Tecnologia não encontrada",
+    };
+  }
+
+  return {
+    title: `${tech.name} - Módulos e Documentação`,
+    description:
+      tech.description || `Aprenda e consulte a documentação de ${tech.name}.`,
+    openGraph: {
+      title: `${tech.name} | DevBook`,
+      description: tech.description,
+      type: "website",
+      images: tech.image ? [{ url: tech.image, alt: tech.name }] : [],
+    },
+    twitter: {
+      card: "summary_large_image",
+      title: `${tech.name} | DevBook`,
+      description: tech.description,
+      images: tech.image ? [tech.image] : [],
+    },
+  };
+}
 
 export default async function ModulosPage({
   params,

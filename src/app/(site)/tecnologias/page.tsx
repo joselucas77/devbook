@@ -1,7 +1,26 @@
+import type { Metadata } from "next";
 import { FeaturedCard } from "@/components/technologies/featured-card";
 import { prisma } from "@/lib/prisma";
 
 export const revalidate = 3600;
+
+export const metadata: Metadata = {
+  title: "Catálogo de Tecnologias",
+  description:
+    "Explore guias práticos, conceitos e documentações das principais tecnologias modernas de desenvolvimento de software.",
+  openGraph: {
+    title: "Catálogo de Tecnologias | DevBook",
+    description:
+      "Explore guias práticos, conceitos e documentações das principais tecnologias modernas de desenvolvimento de software.",
+    type: "website",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Catálogo de Tecnologias | DevBook",
+    description:
+      "Explore guias práticos, conceitos e documentações das principais tecnologias modernas.",
+  },
+};
 
 export default async function TecnologiasPage() {
   const tech = await prisma.technology.findMany({

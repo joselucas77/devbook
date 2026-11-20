@@ -1,4 +1,5 @@
 import Link from "next/link";
+import type { Metadata } from "next";
 import { Button } from "@/components/ui/button";
 import { prisma } from "@/lib/prisma";
 import { CodeBlock } from "@/components/posts/code-block";
@@ -23,6 +24,70 @@ import {
 } from "@/components/posts/post-actions";
 
 export const revalidate = 3600;
+
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{
+    technologySlug: string;
+    moduleSlug: string;
+    postSlug: string;
+  }>;
+}): Promise<Metadata> {
+  const { technologySlug, moduleSlug, postSlug } = await params;
+
+  const post = await prisma.post.findFirst({
+    where: {
+      slug: postSlug,
+      module: {
+        slug: moduleSlug,
+        technology: { slug: technologySlug },
+      },
+    },
+    select: {
+      title: true,
+      summary: true,
+      concept: true,
+      image: true,
+      publishedAt: true,
+      module: {
+        select: {
+          title: true,
+          technology: { select: { name: true } },
+        },
+      },
+    },
+  });
+
+  if (!post) {
+    return {
+      title: "Post não encontrado",
+    };
+  }
+
+  const description =
+    post.summary ||
+    post.concept ||
+    `Artigo sobre ${post.title} no módulo ${post.module.title} (${post.module.technology.name}).`;
+
+  return {
+    title: `${post.title} | ${post.module.technology.name}`,
+    description,
+    openGraph: {
+      title: `${post.title} | ${post.module.technology.name} - DevBook`,
+      description,
+      type: "article",
+      publishedTime: post.publishedAt?.toISOString(),
+      images: post.image ? [{ url: post.image, alt: post.title }] : [],
+    },
+    twitter: {
+      card: "summary_large_image",
+      title: `${post.title} | ${post.module.technology.name}`,
+      description,
+      images: post.image ? [post.image] : [],
+    },
+  };
+}
 
 export default async function PostPage({
   params,

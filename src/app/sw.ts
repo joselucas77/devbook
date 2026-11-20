@@ -64,15 +64,16 @@ const serwist = new Serwist({
       }),
     },
 
-    // 4. Imagens de Produtos e Mídia: StaleWhileRevalidate
+    // 4. Imagens locais e remotas (Neon Object Storage / S3 / CDNs): StaleWhileRevalidate
     {
-      matcher: ({ request, sameOrigin }) =>
-        sameOrigin && request.destination === "image",
+      matcher: ({ request, url }) =>
+        request.destination === "image" ||
+        /\.(?:png|jpg|jpeg|svg|webp|avif|gif)$/i.test(url.pathname),
       handler: new StaleWhileRevalidate({
         cacheName: "image-assets",
         plugins: [
           new ExpirationPlugin({
-            maxEntries: 100,
+            maxEntries: 120,
             maxAgeSeconds: 30 * 24 * 60 * 60, // 30 Dias
           }),
         ],
