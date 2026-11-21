@@ -20,8 +20,8 @@ import type { PostNavItem } from "@/components/posts/post-footer-nav";
 import {
   BookmarkButton,
   MarkAsReadCard,
-  calculateReadingTime,
 } from "@/components/posts/post-actions";
+import { calculateReadingTime } from "@/lib/reading-time";
 
 export const revalidate = 3600;
 

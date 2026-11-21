@@ -132,10 +132,4 @@ export function MarkAsReadCard({ postSlug, className }: MarkAsReadCardProps) {
   );
 }
 
-export function calculateReadingTime(htmlOrText: string): number {
-  if (!htmlOrText) return 1;
-  const clean = htmlOrText.replace(/<[^>]*>/g, " ").trim();
-  const words = clean ? clean.split(/\s+/).length : 0;
-  // Média de 200 palavras por minuto
-  return Math.max(1, Math.ceil(words / 200));
-}
+export { calculateReadingTime } from "@/lib/reading-time";

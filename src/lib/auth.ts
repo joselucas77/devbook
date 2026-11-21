@@ -5,6 +5,36 @@ import { nextCookies } from "better-auth/next-js";
 import { cookies } from "next/headers";
 import { getAuthCookieName, verifyAuthToken } from "./jwt-auth";
 
+const getBaseURL = () => {
+  if (process.env.BETTER_AUTH_URL) return process.env.BETTER_AUTH_URL;
+  if (process.env.NEXT_PUBLIC_BASE_URL) return process.env.NEXT_PUBLIC_BASE_URL;
+  if (process.env.NEXT_PUBLIC_APP_URL) return process.env.NEXT_PUBLIC_APP_URL;
+  if (process.env.VERCEL_PROJECT_PRODUCTION_URL) {
+    return `https://${process.env.VERCEL_PROJECT_PRODUCTION_URL}`;
+  }
+  if (process.env.VERCEL_URL) {
+    return `https://${process.env.VERCEL_URL}`;
+  }
+  return "http://localhost:3000";
+};
+
+const getTrustedOrigins = () => {
+  const origins = [
+    "http://localhost:3000",
+    "http://localhost:3001",
+    "https://devbook-weld.vercel.app",
+    "https://*.vercel.app",
+  ];
+
+  if (process.env.BETTER_AUTH_URL) origins.push(process.env.BETTER_AUTH_URL);
+  if (process.env.NEXT_PUBLIC_BASE_URL) origins.push(process.env.NEXT_PUBLIC_BASE_URL);
+  if (process.env.NEXT_PUBLIC_APP_URL) origins.push(process.env.NEXT_PUBLIC_APP_URL);
+  if (process.env.VERCEL_PROJECT_PRODUCTION_URL) origins.push(`https://${process.env.VERCEL_PROJECT_PRODUCTION_URL}`);
+  if (process.env.VERCEL_URL) origins.push(`https://${process.env.VERCEL_URL}`);
+
+  return Array.from(new Set(origins.map((o) => o.replace(/\/$/, ""))));
+};
+
 export const auth = betterAuth({
   database: prismaAdapter(prisma, {
     provider: "postgresql",
@@ -13,11 +43,11 @@ export const auth = betterAuth({
     process.env.BETTER_AUTH_SECRET ||
     process.env.AUTH_SECRET ||
     "devbook-auth-secret-min-32-chars-long-fallback",
-  baseURL:
-    process.env.BETTER_AUTH_URL ||
-    process.env.NEXT_PUBLIC_BASE_URL ||
-    process.env.NEXT_PUBLIC_APP_URL ||
-    "http://localhost:3000",
+  baseURL: getBaseURL(),
+  trustedOrigins: getTrustedOrigins(),
+  advanced: {
+    trustedProxyHeaders: true,
+  },
   socialProviders: {
     google: {
       clientId: process.env.GOOGLE_CLIENT_ID || "dummy-client-id",

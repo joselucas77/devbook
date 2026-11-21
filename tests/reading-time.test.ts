@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { calculateReadingTime } from "@/components/posts/post-actions";
+import { calculateReadingTime } from "@/lib/reading-time";
 
 describe("calculateReadingTime", () => {
   it("retorna no mínimo 1 minuto para textos curtos ou vazios", () => {
