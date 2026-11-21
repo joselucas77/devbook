@@ -36,57 +36,64 @@ export async function generateMetadata({
 }): Promise<Metadata> {
   const { technologySlug, moduleSlug, postSlug } = await params;
 
-  const post = await prisma.post.findFirst({
-    where: {
-      slug: postSlug,
-      module: {
-        slug: moduleSlug,
-        technology: { slug: technologySlug, isArchived: false },
-      },
-    },
-    select: {
-      title: true,
-      summary: true,
-      concept: true,
-      image: true,
-      publishedAt: true,
-      module: {
-        select: {
-          title: true,
-          technology: { select: { name: true } },
+  try {
+    const post = await prisma.post.findFirst({
+      where: {
+        slug: postSlug,
+        module: {
+          slug: moduleSlug,
+          technology: { slug: technologySlug, isArchived: false },
         },
       },
-    },
-  });
+      select: {
+        title: true,
+        summary: true,
+        concept: true,
+        image: true,
+        publishedAt: true,
+        module: {
+          select: {
+            title: true,
+            technology: { select: { name: true } },
+          },
+        },
+      },
+    });
 
-  if (!post) {
+    if (!post) {
+      return {
+        title: "Post não encontrado",
+      };
+    }
+
+    const description =
+      post.summary ||
+      post.concept ||
+      `Artigo sobre ${post.title} no módulo ${post.module.title} (${post.module.technology.name}).`;
+
     return {
-      title: "Post não encontrado",
-    };
-  }
-
-  const description =
-    post.summary ||
-    post.concept ||
-    `Artigo sobre ${post.title} no módulo ${post.module.title} (${post.module.technology.name}).`;
-
-  return {
-    title: `${post.title} | ${post.module.technology.name}`,
-    description,
-    openGraph: {
-      title: `${post.title} | ${post.module.technology.name} - DevBook`,
-      description,
-      type: "article",
-      publishedTime: post.publishedAt?.toISOString(),
-      images: post.image ? [{ url: post.image, alt: post.title }] : [],
-    },
-    twitter: {
-      card: "summary_large_image",
       title: `${post.title} | ${post.module.technology.name}`,
       description,
-      images: post.image ? [post.image] : [],
-    },
-  };
+      openGraph: {
+        title: `${post.title} | ${post.module.technology.name} - DevBook`,
+        description,
+        type: "article",
+        publishedTime: post.publishedAt?.toISOString(),
+        images: post.image ? [{ url: post.image, alt: post.title }] : [],
+      },
+      twitter: {
+        card: "summary_large_image",
+        title: `${post.title} | ${post.module.technology.name}`,
+        description,
+        images: post.image ? [post.image] : [],
+      },
+    };
+  } catch (error) {
+    console.error("Erro ao gerar metadados do post:", error);
+    return {
+      title: "Artigo | DevBook",
+    };
+  }
 }
 
 export default async function PostPage({
