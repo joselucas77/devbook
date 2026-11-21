@@ -41,7 +41,7 @@ export async function generateMetadata({
       slug: postSlug,
       module: {
         slug: moduleSlug,
-        technology: { slug: technologySlug },
+        technology: { slug: technologySlug, isArchived: false },
       },
     },
     select: {
@@ -100,8 +100,8 @@ export default async function PostPage({
 }) {
   const { technologySlug, moduleSlug, postSlug } = await params;
 
-  const technology = await prisma.technology.findUnique({
-    where: { slug: technologySlug },
+  const technology = await prisma.technology.findFirst({
+    where: { slug: technologySlug, isArchived: false },
     select: { id: true, name: true, slug: true },
   });
 

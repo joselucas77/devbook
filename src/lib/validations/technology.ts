@@ -6,6 +6,7 @@ export const CreateTechnologySchema = z.object({
   description: z.string().min(5, "Descrição obrigatória"),
   category: z.string().min(2, "Categoria obrigatória"),
   image: z.string().url("URL inválida").optional().or(z.literal("")),
+  isArchived: z.boolean().optional(),
 });
 
 export type CreateTechnologyValues = z.infer<typeof CreateTechnologySchema>;
@@ -16,6 +17,7 @@ export const UpdateTechnologySchema = z.object({
   description: z.string().min(5).optional(),
   category: z.string().min(2).optional(),
   image: z.string().url().optional().or(z.literal("")).optional(),
+  isArchived: z.boolean().optional(),
 });
 
 export type UpdateTechnologyValues = z.infer<typeof UpdateTechnologySchema>;

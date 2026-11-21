@@ -1,6 +1,10 @@
 import { describe, it, expect } from "vitest";
 import { LoginSchema, RegisterSchema } from "@/lib/validations/auth";
 import { CreatePostSchema } from "@/lib/validations/post";
+import {
+  CreateTechnologySchema,
+  UpdateTechnologySchema,
+} from "@/lib/validations/technology";
 
 describe("Validations", () => {
   describe("LoginSchema", () => {
@@ -69,6 +73,32 @@ describe("Validations", () => {
         content: { html: "<p>Conteúdo</p>" },
       });
       expect(res.success).toBe(false);
+    });
+  });
+
+  describe("TechnologySchema", () => {
+    it("valida criação de tecnologia com isArchived", () => {
+      const res = CreateTechnologySchema.safeParse({
+        name: "React",
+        slug: "react",
+        description: "Biblioteca JavaScript",
+        category: "Frameworks & Libs",
+        isArchived: true,
+      });
+      expect(res.success).toBe(true);
+      if (res.success) {
+        expect(res.data.isArchived).toBe(true);
+      }
+    });
+
+    it("valida atualização parcial de tecnologia alterando apenas isArchived", () => {
+      const res = UpdateTechnologySchema.safeParse({
+        isArchived: false,
+      });
+      expect(res.success).toBe(true);
+      if (res.success) {
+        expect(res.data.isArchived).toBe(false);
+      }
     });
   });
 });

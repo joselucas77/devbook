@@ -40,6 +40,7 @@ export async function PATCH(
         ...(data.description ? { description: data.description } : {}),
         ...(data.category ? { category: data.category } : {}),
         ...(data.image !== undefined ? { image: data.image || null } : {}),
+        ...(data.isArchived !== undefined ? { isArchived: data.isArchived } : {}),
       },
     });
 

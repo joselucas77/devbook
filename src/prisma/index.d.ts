@@ -2795,6 +2795,7 @@ export namespace Prisma {
     image: string | null
     category: string | null
     order: number | null
+    isArchived: boolean | null
     createdAt: Date | null
     updatedAt: Date | null
   }
@@ -2807,6 +2808,7 @@ export namespace Prisma {
     image: string | null
     category: string | null
     order: number | null
+    isArchived: boolean | null
     createdAt: Date | null
     updatedAt: Date | null
   }
@@ -2819,6 +2821,7 @@ export namespace Prisma {
     image: number
     category: number
     order: number
+    isArchived: number
     createdAt: number
     updatedAt: number
     _all: number
@@ -2843,6 +2846,7 @@ export namespace Prisma {
     image?: true
     category?: true
     order?: true
+    isArchived?: true
     createdAt?: true
     updatedAt?: true
   }
@@ -2855,6 +2859,7 @@ export namespace Prisma {
     image?: true
     category?: true
     order?: true
+    isArchived?: true
     createdAt?: true
     updatedAt?: true
   }
@@ -2867,6 +2872,7 @@ export namespace Prisma {
     image?: true
     category?: true
     order?: true
+    isArchived?: true
     createdAt?: true
     updatedAt?: true
     _all?: true
@@ -2966,6 +2972,7 @@ export namespace Prisma {
     image: string | null
     category: string
     order: number
+    isArchived: boolean
     createdAt: Date
     updatedAt: Date
     _count: TechnologyCountAggregateOutputType | null
@@ -2997,6 +3004,7 @@ export namespace Prisma {
     image?: boolean
     category?: boolean
     order?: boolean
+    isArchived?: boolean
     createdAt?: boolean
     updatedAt?: boolean
     modules?: boolean | Technology$modulesArgs<ExtArgs>
@@ -3011,6 +3019,7 @@ export namespace Prisma {
     image?: boolean
     category?: boolean
     order?: boolean
+    isArchived?: boolean
     createdAt?: boolean
     updatedAt?: boolean
   }, ExtArgs["result"]["technology"]>
@@ -3023,6 +3032,7 @@ export namespace Prisma {
     image?: boolean
     category?: boolean
     order?: boolean
+    isArchived?: boolean
     createdAt?: boolean
     updatedAt?: boolean
   }, ExtArgs["result"]["technology"]>
@@ -3035,11 +3045,12 @@ export namespace Prisma {
     image?: boolean
     category?: boolean
     order?: boolean
+    isArchived?: boolean
     createdAt?: boolean
     updatedAt?: boolean
   }
 
-  export type TechnologyOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "name" | "slug" | "description" | "image" | "category" | "order" | "createdAt" | "updatedAt", ExtArgs["result"]["technology"]>
+  export type TechnologyOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "name" | "slug" | "description" | "image" | "category" | "order" | "isArchived" | "createdAt" | "updatedAt", ExtArgs["result"]["technology"]>
   export type TechnologyInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     modules?: boolean | Technology$modulesArgs<ExtArgs>
     _count?: boolean | TechnologyCountOutputTypeDefaultArgs<ExtArgs>
@@ -3060,6 +3071,7 @@ export namespace Prisma {
       image: string | null
       category: string
       order: number
+      isArchived: boolean
       createdAt: Date
       updatedAt: Date
     }, ExtArgs["result"]["technology"]>
@@ -3493,6 +3505,7 @@ export namespace Prisma {
     readonly image: FieldRef<"Technology", 'String'>
     readonly category: FieldRef<"Technology", 'String'>
     readonly order: FieldRef<"Technology", 'Int'>
+    readonly isArchived: FieldRef<"Technology", 'Boolean'>
     readonly createdAt: FieldRef<"Technology", 'DateTime'>
     readonly updatedAt: FieldRef<"Technology", 'DateTime'>
   }
@@ -9681,6 +9694,7 @@ export namespace Prisma {
     image: 'image',
     category: 'category',
     order: 'order',
+    isArchived: 'isArchived',
     createdAt: 'createdAt',
     updatedAt: 'updatedAt'
   };
@@ -10013,6 +10027,7 @@ export namespace Prisma {
     image?: StringNullableFilter<"Technology"> | string | null
     category?: StringFilter<"Technology"> | string
     order?: IntFilter<"Technology"> | number
+    isArchived?: BoolFilter<"Technology"> | boolean
     createdAt?: DateTimeFilter<"Technology"> | Date | string
     updatedAt?: DateTimeFilter<"Technology"> | Date | string
     modules?: ModuleListRelationFilter
@@ -10026,6 +10041,7 @@ export namespace Prisma {
     image?: SortOrderInput | SortOrder
     category?: SortOrder
     order?: SortOrder
+    isArchived?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
     modules?: ModuleOrderByRelationAggregateInput
@@ -10042,6 +10058,7 @@ export namespace Prisma {
     image?: StringNullableFilter<"Technology"> | string | null
     category?: StringFilter<"Technology"> | string
     order?: IntFilter<"Technology"> | number
+    isArchived?: BoolFilter<"Technology"> | boolean
     createdAt?: DateTimeFilter<"Technology"> | Date | string
     updatedAt?: DateTimeFilter<"Technology"> | Date | string
     modules?: ModuleListRelationFilter
@@ -10055,6 +10072,7 @@ export namespace Prisma {
     image?: SortOrderInput | SortOrder
     category?: SortOrder
     order?: SortOrder
+    isArchived?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
     _count?: TechnologyCountOrderByAggregateInput
@@ -10075,6 +10093,7 @@ export namespace Prisma {
     image?: StringNullableWithAggregatesFilter<"Technology"> | string | null
     category?: StringWithAggregatesFilter<"Technology"> | string
     order?: IntWithAggregatesFilter<"Technology"> | number
+    isArchived?: BoolWithAggregatesFilter<"Technology"> | boolean
     createdAt?: DateTimeWithAggregatesFilter<"Technology"> | Date | string
     updatedAt?: DateTimeWithAggregatesFilter<"Technology"> | Date | string
   }
@@ -10591,6 +10610,7 @@ export namespace Prisma {
     image?: string | null
     category: string
     order?: number
+    isArchived?: boolean
     createdAt?: Date | string
     updatedAt?: Date | string
     modules?: ModuleCreateNestedManyWithoutTechnologyInput
@@ -10604,6 +10624,7 @@ export namespace Prisma {
     image?: string | null
     category: string
     order?: number
+    isArchived?: boolean
     createdAt?: Date | string
     updatedAt?: Date | string
     modules?: ModuleUncheckedCreateNestedManyWithoutTechnologyInput
@@ -10616,6 +10637,7 @@ export namespace Prisma {
     image?: NullableStringFieldUpdateOperationsInput | string | null
     category?: StringFieldUpdateOperationsInput | string
     order?: IntFieldUpdateOperationsInput | number
+    isArchived?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     modules?: ModuleUpdateManyWithoutTechnologyNestedInput
@@ -10629,6 +10651,7 @@ export namespace Prisma {
     image?: NullableStringFieldUpdateOperationsInput | string | null
     category?: StringFieldUpdateOperationsInput | string
     order?: IntFieldUpdateOperationsInput | number
+    isArchived?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     modules?: ModuleUncheckedUpdateManyWithoutTechnologyNestedInput
@@ -10642,6 +10665,7 @@ export namespace Prisma {
     image?: string | null
     category: string
     order?: number
+    isArchived?: boolean
     createdAt?: Date | string
     updatedAt?: Date | string
   }
@@ -10653,6 +10677,7 @@ export namespace Prisma {
     image?: NullableStringFieldUpdateOperationsInput | string | null
     category?: StringFieldUpdateOperationsInput | string
     order?: IntFieldUpdateOperationsInput | number
+    isArchived?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
@@ -10665,6 +10690,7 @@ export namespace Prisma {
     image?: NullableStringFieldUpdateOperationsInput | string | null
     category?: StringFieldUpdateOperationsInput | string
     order?: IntFieldUpdateOperationsInput | number
+    isArchived?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
@@ -11338,6 +11364,7 @@ export namespace Prisma {
     image?: SortOrder
     category?: SortOrder
     order?: SortOrder
+    isArchived?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
   }
@@ -11355,6 +11382,7 @@ export namespace Prisma {
     image?: SortOrder
     category?: SortOrder
     order?: SortOrder
+    isArchived?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
   }
@@ -11367,6 +11395,7 @@ export namespace Prisma {
     image?: SortOrder
     category?: SortOrder
     order?: SortOrder
+    isArchived?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
   }
@@ -12562,6 +12591,7 @@ export namespace Prisma {
     image?: string | null
     category: string
     order?: number
+    isArchived?: boolean
     createdAt?: Date | string
     updatedAt?: Date | string
   }
@@ -12574,6 +12604,7 @@ export namespace Prisma {
     image?: string | null
     category: string
     order?: number
+    isArchived?: boolean
     createdAt?: Date | string
     updatedAt?: Date | string
   }
@@ -12646,6 +12677,7 @@ export namespace Prisma {
     image?: NullableStringFieldUpdateOperationsInput | string | null
     category?: StringFieldUpdateOperationsInput | string
     order?: IntFieldUpdateOperationsInput | number
+    isArchived?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
@@ -12658,6 +12690,7 @@ export namespace Prisma {
     image?: NullableStringFieldUpdateOperationsInput | string | null
     category?: StringFieldUpdateOperationsInput | string
     order?: IntFieldUpdateOperationsInput | number
+    isArchived?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }

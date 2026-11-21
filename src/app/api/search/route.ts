@@ -22,10 +22,13 @@ export async function GET(req: Request) {
         prisma.$queryRaw<any[]>`
           SELECT id, name, slug, category, image, description
           FROM "Technology"
-          WHERE unaccent("name") ILIKE unaccent(${pattern})
-             OR unaccent("description") ILIKE unaccent(${pattern})
-             OR unaccent("category") ILIKE unaccent(${pattern})
-             OR "slug" ILIKE ${pattern}
+          WHERE "isArchived" = false
+            AND (
+              unaccent("name") ILIKE unaccent(${pattern})
+              OR unaccent("description") ILIKE unaccent(${pattern})
+              OR unaccent("category") ILIKE unaccent(${pattern})
+              OR "slug" ILIKE ${pattern}
+            )
           LIMIT 5
         `,
 
@@ -34,7 +37,7 @@ export async function GET(req: Request) {
             m.id, m.title, m.slug,
             json_build_object('name', t.name, 'slug', t.slug) as technology
           FROM "Module" m
-          JOIN "Technology" t ON t.id = m."technologyId"
+          JOIN "Technology" t ON t.id = m."technologyId" AND t."isArchived" = false
           WHERE unaccent(m.title) ILIKE unaccent(${pattern})
              OR m.slug ILIKE ${pattern}
              OR unaccent(t.name) ILIKE unaccent(${pattern})
@@ -51,7 +54,7 @@ export async function GET(req: Request) {
             ) as module
           FROM "Post" p
           JOIN "Module" m ON m.id = p."moduleId"
-          JOIN "Technology" t ON t.id = m."technologyId"
+          JOIN "Technology" t ON t.id = m."technologyId" AND t."isArchived" = false
           WHERE p.status = 'PUBLISHED' AND p."isPublic" = true
             AND (
               unaccent(p.title) ILIKE unaccent(${pattern})
@@ -83,6 +86,7 @@ export async function GET(req: Request) {
       const [technologies, modules, posts] = await Promise.all([
         prisma.technology.findMany({
           where: {
+            isArchived: false,
             OR: [
               { name: { contains: q, mode: "insensitive" } },
               { description: { contains: q, mode: "insensitive" } },
@@ -103,6 +107,7 @@ export async function GET(req: Request) {
 
         prisma.module.findMany({
           where: {
+            technology: { isArchived: false },
             OR: [
               { title: { contains: q, mode: "insensitive" } },
               { slug: { contains: q, mode: "insensitive" } },
@@ -126,6 +131,7 @@ export async function GET(req: Request) {
           where: {
             status: "PUBLISHED",
             isPublic: true,
+            module: { technology: { isArchived: false } },
             OR: [
               { title: { contains: q, mode: "insensitive" } },
               { concept: { contains: q, mode: "insensitive" } },

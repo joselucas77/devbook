@@ -68,6 +68,7 @@ export type Row = {
   description: string;
   image: string | null;
   order: number;
+  isArchived: boolean;
   modulesCount: number;
   createdAt: string;
   updatedAt: string;
@@ -162,6 +163,38 @@ export function TechnologiesTable({ data }: { data: Row[] }) {
     }
   }
 
+  async function handleToggleArchive(row: Row) {
+    const nextArchived = !row.isArchived;
+    try {
+      const res = await fetch(`/api/admin/technologies/${row.id}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ isArchived: nextArchived }),
+      });
+
+      if (!res.ok) {
+        const err = await res.json().catch(() => ({}));
+        throw new Error(err?.message ?? "Falha ao alterar status de arquivamento");
+      }
+
+      setItems((prev) =>
+        prev.map((item) =>
+          item.id === row.id ? { ...item, isArchived: nextArchived } : item
+        )
+      );
+
+      toast.success(
+        nextArchived
+          ? "Tecnologia arquivada com sucesso"
+          : "Tecnologia desarquivada com sucesso"
+      );
+      router.refresh();
+    } catch (e: any) {
+      toast.error("Erro ao alterar status", { description: e?.message });
+      console.error(e);
+    }
+  }
+
   const columns = useMemo<ColumnDef<Row>[]>(
     () => [
       {
@@ -225,7 +258,17 @@ export function TechnologiesTable({ data }: { data: Row[] }) {
         ),
         cell: ({ row }) => (
           <div className="space-y-0.5">
-            <div className="font-medium text-foreground">{row.original.name}</div>
+            <div className="flex items-center gap-2">
+              <span className="font-medium text-foreground">{row.original.name}</span>
+              {row.original.isArchived && (
+                <Badge
+                  variant="outline"
+                  className="border-amber-500/30 text-amber-500 bg-amber-500/10 text-[10px] px-1.5 py-0 h-4 font-mono font-normal"
+                >
+                  Arquivada
+                </Badge>
+              )}
+            </div>
             <div className="text-xs text-muted-foreground">{row.original.slug}</div>
           </div>
         ),
@@ -315,6 +358,20 @@ export function TechnologiesTable({ data }: { data: Row[] }) {
 
                   <DropdownMenuItem
                     className="gap-2 cursor-pointer"
+                    onSelect={() => handleToggleArchive(t)}
+                  >
+                    <i
+                      className={`bx ${
+                        t.isArchived
+                          ? "bx-archive-out text-emerald-400"
+                          : "bx-archive-in text-amber-400"
+                      } text-base mr-1.5`}
+                    />
+                    {t.isArchived ? "Desarquivar" : "Arquivar"}
+                  </DropdownMenuItem>
+
+                  <DropdownMenuItem
+                    className="gap-2 cursor-pointer"
                     onSelect={() => {
                       setEditing({
                         id: t.id,
@@ -323,6 +380,7 @@ export function TechnologiesTable({ data }: { data: Row[] }) {
                         category: t.category,
                         description: t.description,
                         image: t.image,
+                        isArchived: t.isArchived,
                       });
                       setOpenModal(true);
                     }}
@@ -354,9 +412,20 @@ export function TechnologiesTable({ data }: { data: Row[] }) {
   const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({});
   const [rowSelection, setRowSelection] = useState({});
   const [categoryFilter, setCategoryFilter] = useState<string>("all");
+  const [statusFilter, setStatusFilter] = useState<"all" | "active" | "archived">("all");
+
+  const filteredItems = useMemo(() => {
+    if (statusFilter === "active") {
+      return items.filter((it) => !it.isArchived);
+    }
+    if (statusFilter === "archived") {
+      return items.filter((it) => it.isArchived);
+    }
+    return items;
+  }, [items, statusFilter]);
 
   const table = useReactTable({
-    data: items,
+    data: filteredItems,
     columns,
     state: {
       sorting,
@@ -414,6 +483,23 @@ export function TechnologiesTable({ data }: { data: Row[] }) {
                     {cat}
                   </SelectItem>
                 ))}
+              </SelectContent>
+            </Select>
+
+            <Select
+              value={statusFilter}
+              onValueChange={(value) =>
+                setStatusFilter(value as "all" | "active" | "archived")
+              }
+            >
+              <SelectTrigger className="w-44">
+                <SelectValue placeholder="Status" />
+              </SelectTrigger>
+
+              <SelectContent>
+                <SelectItem value="all">Todos os status</SelectItem>
+                <SelectItem value="active">Apenas ativas</SelectItem>
+                <SelectItem value="archived">Apenas arquivadas</SelectItem>
               </SelectContent>
             </Select>
 

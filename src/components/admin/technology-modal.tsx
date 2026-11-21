@@ -29,6 +29,7 @@ import {
   HoverCardContent,
   HoverCardTrigger,
 } from "@/components/ui/hover-card";
+import { Switch } from "@/components/ui/switch";
 
 import { slugifySmart } from "@/lib/slugify";
 import {
@@ -76,6 +77,7 @@ export type TechnologyRow = {
   description: string;
   category: string;
   image: string | null;
+  isArchived?: boolean;
 };
 
 export function TechnologyModal({
@@ -106,6 +108,7 @@ export function TechnologyModal({
       description: initial?.description ?? "",
       category: initial?.category ?? "",
       image: initial?.image ?? "",
+      isArchived: initial?.isArchived ?? false,
     },
     mode: "onChange",
   });
@@ -144,6 +147,7 @@ export function TechnologyModal({
       description: initial?.description ?? "",
       category: initial?.category ?? "",
       image: initial?.image ?? "",
+      isArchived: initial?.isArchived ?? false,
     });
     setSelectedFile(null);
     setPreviewUrl(initial?.image ?? "");
@@ -426,7 +430,7 @@ export function TechnologyModal({
             )}
 
             {hasImage && displayImageSrc && (
-              <div className="flex items-center gap-3 p-2.5 rounded-lg border border-border bg-muted/30 w-full min-w-0 max-w-full overflow-hidden">
+                <div className="flex items-center gap-3 p-2.5 rounded-lg border border-border bg-muted/30 w-full min-w-0 max-w-full overflow-hidden">
                 <img
                   src={displayImageSrc}
                   alt="Prévia"
@@ -469,6 +473,26 @@ export function TechnologyModal({
                 </Button>
               </div>
             )}
+          </div>
+
+          {/* Arquivamento da tecnologia */}
+          <div className="flex items-center justify-between rounded-lg border border-border p-3.5 bg-muted/20 gap-3">
+            <div className="space-y-0.5">
+              <Label className="text-sm font-medium">Arquivar tecnologia</Label>
+              <p className="text-xs text-muted-foreground">
+                Tecnologias arquivadas ficam ocultas do catálogo público e das buscas, mas continuam acessíveis no painel administrativo.
+              </p>
+            </div>
+            <Controller
+              control={form.control}
+              name="isArchived"
+              render={({ field }) => (
+                <Switch
+                  checked={field.value ?? false}
+                  onCheckedChange={field.onChange}
+                />
+              )}
+            />
           </div>
 
           <DialogFooter className="gap-2 pt-2">

@@ -140,6 +140,7 @@ exports.Prisma.TechnologyScalarFieldEnum = {
   image: 'image',
   category: 'category',
   order: 'order',
+  isArchived: 'isArchived',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 };

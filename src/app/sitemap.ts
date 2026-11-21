@@ -20,6 +20,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
 
   try {
     const technologies = await prisma.technology.findMany({
+      where: { isArchived: false },
       select: {
         slug: true,
         updatedAt: true,

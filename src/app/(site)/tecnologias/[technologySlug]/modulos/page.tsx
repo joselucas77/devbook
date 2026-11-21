@@ -12,8 +12,8 @@ export async function generateMetadata({
   params: Promise<{ technologySlug: string }>;
 }): Promise<Metadata> {
   const { technologySlug } = await params;
-  const tech = await prisma.technology.findUnique({
-    where: { slug: technologySlug },
+  const tech = await prisma.technology.findFirst({
+    where: { slug: technologySlug, isArchived: false },
     select: { name: true, description: true, image: true, category: true },
   });
 
@@ -49,8 +49,8 @@ export default async function ModulosPage({
 }) {
   const { technologySlug: slug } = await params;
 
-  const technology = await prisma.technology.findUnique({
-    where: { slug },
+  const technology = await prisma.technology.findFirst({
+    where: { slug, isArchived: false },
     select: {
       id: true,
       slug: true,

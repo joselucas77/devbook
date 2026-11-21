@@ -32,6 +32,7 @@ export async function POST(req: Request) {
         category: data.category,
         image: data.image || null,
         order: nextOrder,
+        isArchived: data.isArchived ?? false,
       },
     });
 

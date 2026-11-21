@@ -46,6 +46,7 @@ model Technology {
   image       String?
   category    String
   order       Int      @default(0)
+  isArchived  Boolean  @default(false)
   modules     Module[]
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt

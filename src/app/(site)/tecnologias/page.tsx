@@ -24,6 +24,7 @@ export const metadata: Metadata = {
 
 export default async function TecnologiasPage() {
   const tech = await prisma.technology.findMany({
+    where: { isArchived: false },
     orderBy: [{ order: "asc" }, { createdAt: "asc" }],
     select: {
       id: true,
