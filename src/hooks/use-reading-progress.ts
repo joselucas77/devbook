@@ -15,6 +15,16 @@ export interface FavoritePost {
 const READ_POSTS_KEY = "devbook:read_posts";
 const FAVORITES_KEY = "devbook:favorites";
 
+const EMPTY_READ_POSTS: string[] = [];
+const EMPTY_FAVORITES: FavoritePost[] = [];
+
+// Cache referencial para useSyncExternalStore (evita loop infinito de renderização no React 19)
+let cachedReadPostsRaw: string | null = null;
+let cachedReadPosts: string[] = EMPTY_READ_POSTS;
+
+let cachedFavoritesRaw: string | null = null;
+let cachedFavorites: FavoritePost[] = EMPTY_FAVORITES;
+
 // Store local em memória e listeners para reatividade instantânea
 let listeners: Array<() => void> = [];
 
@@ -40,36 +50,49 @@ function subscribe(callback: () => void) {
 }
 
 function getReadPostsSnapshot(): string[] {
-  if (typeof window === "undefined") return [];
+  if (typeof window === "undefined") return EMPTY_READ_POSTS;
   try {
     const raw = localStorage.getItem(READ_POSTS_KEY);
-    return raw ? JSON.parse(raw) : [];
+    if (raw === cachedReadPostsRaw) {
+      return cachedReadPosts;
+    }
+    cachedReadPostsRaw = raw;
+    cachedReadPosts = raw ? JSON.parse(raw) : EMPTY_READ_POSTS;
+    return cachedReadPosts;
   } catch {
-    return [];
+    return EMPTY_READ_POSTS;
   }
 }
 
 function getFavoritesSnapshot(): FavoritePost[] {
-  if (typeof window === "undefined") return [];
+  if (typeof window === "undefined") return EMPTY_FAVORITES;
   try {
     const raw = localStorage.getItem(FAVORITES_KEY);
-    return raw ? JSON.parse(raw) : [];
+    if (raw === cachedFavoritesRaw) {
+      return cachedFavorites;
+    }
+    cachedFavoritesRaw = raw;
+    cachedFavorites = raw ? JSON.parse(raw) : EMPTY_FAVORITES;
+    return cachedFavorites;
   } catch {
-    return [];
+    return EMPTY_FAVORITES;
   }
 }
+
+const getServerReadPostsSnapshot = () => EMPTY_READ_POSTS;
+const getServerFavoritesSnapshot = () => EMPTY_FAVORITES;
 
 export function useReadingProgress() {
   const readPosts = useSyncExternalStore(
     subscribe,
     getReadPostsSnapshot,
-    () => [] as string[]
+    getServerReadPostsSnapshot
   );
 
   const favorites = useSyncExternalStore(
     subscribe,
     getFavoritesSnapshot,
-    () => [] as FavoritePost[]
+    getServerFavoritesSnapshot
   );
 
   const isPostRead = useCallback(
@@ -87,7 +110,10 @@ export function useReadingProgress() {
           ? current.filter((s) => s !== postSlug)
           : [...current, postSlug];
 
-        localStorage.setItem(READ_POSTS_KEY, JSON.stringify(next));
+        const nextRaw = JSON.stringify(next);
+        cachedReadPostsRaw = nextRaw;
+        cachedReadPosts = next;
+        localStorage.setItem(READ_POSTS_KEY, nextRaw);
         emitChange();
         return !exists;
       } catch {
@@ -118,7 +144,10 @@ export function useReadingProgress() {
               },
             ];
 
-        localStorage.setItem(FAVORITES_KEY, JSON.stringify(next));
+        const nextRaw = JSON.stringify(next);
+        cachedFavoritesRaw = nextRaw;
+        cachedFavorites = next;
+        localStorage.setItem(FAVORITES_KEY, nextRaw);
         emitChange();
         return !exists;
       } catch {
