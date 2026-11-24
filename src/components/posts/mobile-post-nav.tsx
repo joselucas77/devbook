@@ -6,6 +6,7 @@ import { ModuleSidebar, ModuleSidebarPost } from "./module-sidebar";
 import {
   Sheet,
   SheetContent,
+  SheetDescription,
   SheetHeader,
   SheetTitle,
   SheetTrigger,
@@ -73,22 +74,39 @@ export function MobilePostNav({
                   Módulo • {moduleTitle}
                 </p>
                 <p className="text-xs font-bold text-foreground truncate">
-                  Post {currentPostNumber} de {posts.length} • Ver sumário
+                  Post {currentPostNumber} de {posts.length} • Ver tópicos e posts
                 </p>
               </div>
             </div>
 
             <div className="flex items-center gap-1 shrink-0">
-              <i className="bx bx-chevron-right text-lg text-muted-foreground" />
+              <i className="bx bx-list-ul text-lg text-muted-foreground" />
             </div>
           </button>
         </SheetTrigger>
 
-        <SheetContent side="left" className="w-[300px] sm:w-[350px] p-5 overflow-y-auto">
+        {/* Botão de atalho flutuante na direita para abrir a navegação do post a qualquer momento */}
+        <button
+          type="button"
+          onClick={() => setSheetOpen(true)}
+          aria-label="Abrir navegação do post"
+          title="Tópicos e posts do módulo"
+          className="lg:hidden fixed bottom-20 right-3 sm:right-4 z-30 h-11 w-11 rounded-full bg-card/95 dark:bg-zinc-900/95 backdrop-blur-xl border border-border/80 text-foreground shadow-xl flex items-center justify-center hover:bg-muted active:scale-95 transition-all cursor-pointer"
+        >
+          <i className="bx bx-list-ul text-xl text-blue-500" />
+        </button>
+
+        <SheetContent
+          side="right"
+          className="w-[85vw] max-w-[360px] p-5 overflow-y-auto"
+        >
           <SheetHeader className="mb-4">
             <SheetTitle className="text-sm font-semibold">
-              Navegação
+              Navegação do Post
             </SheetTitle>
+            <SheetDescription className="sr-only">
+              Tópicos do artigo atual e lista de posts do módulo
+            </SheetDescription>
           </SheetHeader>
 
           <ModuleSidebar

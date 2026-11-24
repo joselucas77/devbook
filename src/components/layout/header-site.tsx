@@ -17,6 +17,7 @@ import {
 } from "@/components/ui/sheet";
 import { ThemeToggle } from "./theme-toggle";
 import { GlobalSearch } from "./global-search";
+import { ReadingProgressBar } from "@/components/posts/reading-progress-bar";
 import {
   syncSavedPostsForUser,
   useReadingProgress,
@@ -60,9 +61,6 @@ export function HeaderSite({ user }: HeaderSiteProps) {
     const handleScroll = () => {
       const scrolled = window.scrollY > 120;
       setIsScrolled(scrolled);
-      if (!scrolled) {
-        setIsSearchExpanded(false);
-      }
     };
 
     window.addEventListener("scroll", handleScroll, { passive: true });
@@ -95,9 +93,9 @@ export function HeaderSite({ user }: HeaderSiteProps) {
 
   return (
     <>
-      <header className="py-3 sm:py-3.5 border-b border-border/40 bg-background/95 backdrop-blur-sm sticky top-0 z-40">
-        <div className="container mx-auto px-4 sm:px-6 flex items-center justify-between gap-3 sm:gap-4">
-          {/* Esquerda: Botão Hambúrguer (Sidebar) + Logo oficial + Nome DevBook */}
+      <header className="border-b border-border/40 bg-background/95 backdrop-blur-sm sticky top-0 z-40">
+        <div className="py-3 sm:py-3.5 container mx-auto px-4 sm:px-6 flex items-center justify-between gap-3 sm:gap-4">
+          {/* Esquerda: Botão Hambúrguer (Sidebar) + Nome DevBook */}
           <div className="flex items-center gap-2 sm:gap-3 shrink-0 min-w-0">
             <Sheet open={sidebarOpen} onOpenChange={setSidebarOpen}>
               <SheetTrigger asChild>
@@ -268,19 +266,12 @@ export function HeaderSite({ user }: HeaderSiteProps) {
 
             <Link
               href="/"
-              className="flex items-center gap-2 sm:gap-2.5 hover:opacity-90 transition-opacity min-w-0"
+              className="flex items-center hover:opacity-90 transition-opacity min-w-0"
               title="Ir para o início"
             >
-              <Image
-                src="/devbook-logo.svg"
-                alt="DevBook Logo"
-                width={32}
-                height={32}
-                priority
-                className="h-8 w-8 rounded-lg object-contain shadow-sm shrink-0"
-              />
-              <span className="text-lg sm:text-xl font-bold tracking-tight text-foreground font-mono truncate">
-                DevBook
+              <span className="text-lg sm:text-xl font-bold tracking-tight font-mono truncate">
+                <span className="text-blue-500">Dev</span>
+                <span className="text-foreground">Book</span>
               </span>
             </Link>
           </div>
@@ -294,6 +285,9 @@ export function HeaderSite({ user }: HeaderSiteProps) {
             <ThemeToggle />
           </div>
         </div>
+
+        {/* Barra de Progresso de Leitura colada na base do Header (somente na página do post) */}
+        {isPostReadingPage && <ReadingProgressBar />}
       </header>
 
       {/* Barra de Pesquisa / Ações Flutuantes no Canto Inferior (Mobile) */}

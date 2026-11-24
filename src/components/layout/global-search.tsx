@@ -221,6 +221,7 @@ export function GlobalSearch({
                 }
               }}
               onFocus={() => {
+                onExpand?.();
                 if (query.trim().length >= 2) setIsOpen(true);
               }}
               placeholder="Pesquisar tecnologia, módulo ou post..."
