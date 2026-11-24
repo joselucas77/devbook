@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { HeadingItem } from "@/lib/toc";
 import { ModuleSidebar, ModuleSidebarPost } from "./module-sidebar";
 import {
@@ -32,6 +32,23 @@ export function MobilePostNav({
   headings,
 }: MobilePostNavProps) {
   const [sheetOpen, setSheetOpen] = useState(false);
+  const [isTopButtonVisible, setIsTopButtonVisible] = useState(true);
+  const topTriggerRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const el = topTriggerRef.current;
+    if (!el || typeof IntersectionObserver === "undefined") return;
+
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        setIsTopButtonVisible(entry.isIntersecting);
+      },
+      { threshold: 0 }
+    );
+
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, []);
 
   const currentPostIndex = posts.findIndex((p) => p.slug === currentPostSlug);
   const currentPostNumber =
@@ -58,7 +75,7 @@ export function MobilePostNav({
   };
 
   return (
-    <div className="lg:hidden mb-5 w-full max-w-full">
+    <div ref={topTriggerRef} className="lg:hidden mb-5 w-full max-w-full">
       <Sheet open={sheetOpen} onOpenChange={setSheetOpen}>
         <SheetTrigger asChild>
           <button
@@ -74,24 +91,29 @@ export function MobilePostNav({
                   Módulo • {moduleTitle}
                 </p>
                 <p className="text-xs font-bold text-foreground truncate">
-                  Post {currentPostNumber} de {posts.length} • Ver tópicos e posts
+                  Post {currentPostNumber} de {posts.length} • Ver sumário
                 </p>
               </div>
             </div>
 
             <div className="flex items-center gap-1 shrink-0">
-              <i className="bx bx-list-ul text-lg text-muted-foreground" />
+              <i className="bx bx-chevron-right text-lg text-muted-foreground" />
             </div>
           </button>
         </SheetTrigger>
 
-        {/* Botão de atalho flutuante na direita para abrir a navegação do post a qualquer momento */}
+        {/* Botão de atalho flutuante na direita: aparece somente quando o botão do topo sai da tela */}
         <button
           type="button"
           onClick={() => setSheetOpen(true)}
           aria-label="Abrir navegação do post"
           title="Tópicos e posts do módulo"
-          className="lg:hidden fixed bottom-20 right-3 sm:right-4 z-30 h-11 w-11 rounded-full bg-card/95 dark:bg-zinc-900/95 backdrop-blur-xl border border-border/80 text-foreground shadow-xl flex items-center justify-center hover:bg-muted active:scale-95 transition-all cursor-pointer"
+          tabIndex={isTopButtonVisible ? -1 : 0}
+          className={`lg:hidden fixed bottom-20 right-3 sm:right-4 z-30 h-11 w-11 rounded-full bg-card/95 dark:bg-zinc-900/95 backdrop-blur-xl border border-border/80 text-foreground shadow-xl flex items-center justify-center hover:bg-muted active:scale-95 transition-all duration-300 ease-[cubic-bezier(0.16,1,0.3,1)] cursor-pointer ${
+            isTopButtonVisible
+              ? "pointer-events-none opacity-0 scale-50 translate-y-4"
+              : "pointer-events-auto opacity-100 scale-100 translate-y-0"
+          }`}
         >
           <i className="bx bx-list-ul text-xl text-blue-500" />
         </button>
