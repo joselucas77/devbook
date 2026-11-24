@@ -29,7 +29,7 @@ export function FeaturedCard({
     >
       <Card className="gap-0 overflow-hidden transition-all duration-200 border border-border/60 group-hover:border-blue-500/50 group-hover:shadow-lg bg-card">
         {/* Imagem (mesmo tamanho original mantido) */}
-        <div className="relative h-56 w-full p-0 bg-muted/20 overflow-hidden">
+        <div className="relative h-44 sm:h-56 w-full p-0 bg-muted/20 overflow-hidden">
           <Image
             src={image || "/placeholder.svg"}
             alt={title}

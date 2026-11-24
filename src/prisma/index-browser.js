@@ -174,6 +174,13 @@ exports.Prisma.PostScalarFieldEnum = {
   updatedAt: 'updatedAt'
 };
 
+exports.Prisma.SavedPostScalarFieldEnum = {
+  id: 'id',
+  userId: 'userId',
+  postId: 'postId',
+  createdAt: 'createdAt'
+};
+
 exports.Prisma.SessionScalarFieldEnum = {
   id: 'id',
   expiresAt: 'expiresAt',
@@ -252,6 +259,7 @@ exports.Prisma.ModelName = {
   Technology: 'Technology',
   Module: 'Module',
   Post: 'Post',
+  SavedPost: 'SavedPost',
   Session: 'Session',
   Account: 'Account',
   Verification: 'Verification'

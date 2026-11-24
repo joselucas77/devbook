@@ -22,18 +22,19 @@ enum UserRole {
 }
 
 model User {
-  id            String    @id
+  id            String      @id
   name          String
-  email         String    @unique
+  email         String      @unique
   password      String?
-  emailVerified Boolean   @default(false)
+  emailVerified Boolean     @default(false)
   image         String?
-  role          UserRole  @default(VIEWER)
-  createdAt     DateTime  @default(now())
-  updatedAt     DateTime  @updatedAt
+  role          UserRole    @default(VIEWER)
+  createdAt     DateTime    @default(now())
+  updatedAt     DateTime    @updatedAt
   sessions      Session[]
   accounts      Account[]
-  posts         Post[]    @relation("UserPosts")
+  posts         Post[]      @relation("UserPosts")
+  savedPosts    SavedPost[]
 
   @@map("user")
 }
@@ -68,28 +69,42 @@ model Module {
 }
 
 model Post {
-  id           Int        @id @default(autoincrement())
+  id           Int         @id @default(autoincrement())
   title        String
   slug         String
-  concept      String?    @default("")
-  summary      String     @default("")
+  concept      String?     @default("")
+  summary      String      @default("")
   image        String?
   content      Json
-  isPublic     Boolean    @default(true)
-  status       PostStatus @default(DRAFT)
-  order        Int        @default(0)
+  isPublic     Boolean     @default(true)
+  status       PostStatus  @default(DRAFT)
+  order        Int         @default(0)
   scheduledFor DateTime?
   authorId     String?
-  author       User?      @relation("UserPosts", fields: [authorId], references: [id])
+  author       User?       @relation("UserPosts", fields: [authorId], references: [id])
   publishedAt  DateTime?
   moduleId     Int
-  module       Module     @relation(fields: [moduleId], references: [id], onDelete: Cascade)
-  createdAt    DateTime   @default(now())
-  updatedAt    DateTime   @updatedAt
+  module       Module      @relation(fields: [moduleId], references: [id], onDelete: Cascade)
+  savedBy      SavedPost[]
+  createdAt    DateTime    @default(now())
+  updatedAt    DateTime    @updatedAt
 
   @@unique([moduleId, slug])
   @@index([moduleId])
   @@index([authorId])
+}
+
+model SavedPost {
+  id        Int      @id @default(autoincrement())
+  userId    String
+  postId    Int
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  post      Post     @relation(fields: [postId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+
+  @@unique([userId, postId])
+  @@index([userId])
+  @@index([postId])
 }
 
 model Session {

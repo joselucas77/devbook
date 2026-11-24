@@ -33,7 +33,8 @@ model User {
   updatedAt     DateTime  @updatedAt
   sessions      Session[]
   accounts      Account[]
-  posts         Post[]    @relation("UserPosts")
+  posts         Post[]      @relation("UserPosts")
+  savedPosts    SavedPost[]
 
   @@map("user")
 }
@@ -83,13 +84,27 @@ model Post {
   author      User?      @relation("UserPosts", fields: [authorId], references: [id])
   publishedAt DateTime?
   moduleId    Int
-  module      Module     @relation(fields: [moduleId], references: [id], onDelete: Cascade)
-  createdAt   DateTime   @default(now())
-  updatedAt   DateTime   @updatedAt
+  module      Module      @relation(fields: [moduleId], references: [id], onDelete: Cascade)
+  savedBy     SavedPost[]
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
 
   @@unique([moduleId, slug])
   @@index([moduleId])
   @@index([authorId])
+}
+
+model SavedPost {
+  id        Int      @id @default(autoincrement())
+  userId    String
+  postId    Int
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  post      Post     @relation(fields: [postId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+
+  @@unique([userId, postId])
+  @@index([userId])
+  @@index([postId])
 }
 
 model Session {

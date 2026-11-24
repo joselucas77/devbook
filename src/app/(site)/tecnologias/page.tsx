@@ -38,9 +38,9 @@ export default async function TecnologiasPage() {
 
   return (
     <section className="mb-20 max-w-6xl mx-auto">
-      <div className="flex items-center justify-between mb-8">
+      <div className="flex items-center justify-between mb-6 sm:mb-8">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight">Tecnologias</h1>
+          <h1 className="text-2xl sm:text-3xl font-bold tracking-tight">Tecnologias</h1>
           <p className="text-muted-foreground mt-1 text-sm">
             Explore documentações, conceitos e referências por tecnologia.
           </p>

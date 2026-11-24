@@ -1,12 +1,13 @@
 "use client";
 
-import { useReadingProgress, FavoritePost } from "@/hooks/use-reading-progress";
+import { useReadingProgress } from "@/hooks/use-reading-progress";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 
 interface BookmarkButtonProps {
   post: {
+    postId?: number;
     slug: string;
     title: string;
     technologySlug: string;
@@ -19,7 +20,11 @@ interface BookmarkButtonProps {
 
 export function BookmarkButton({ post, className }: BookmarkButtonProps) {
   const { isFavorite, toggleFavorite } = useReadingProgress();
-  const favorited = isFavorite(post.slug);
+  const favorited = isFavorite(
+    post.slug,
+    post.moduleSlug,
+    post.technologySlug
+  );
 
   const handleClick = () => {
     const isNowFavorite = toggleFavorite(post);

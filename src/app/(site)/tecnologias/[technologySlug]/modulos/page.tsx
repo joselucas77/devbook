@@ -104,14 +104,14 @@ export default async function ModulosPage({
 
   return (
     <section className="max-w-3xl mx-auto mb-20">
-      <div className="mb-10">
-        <div className="flex items-center gap-4 mb-4">
-          <h1 className="text-3xl md:text-4xl lg:text-5xl font-bold leading-tight">
+      <div className="mb-8 sm:mb-10">
+        <div className="flex items-center gap-4 mb-3 sm:mb-4">
+          <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold leading-tight break-words">
             {technology.name}
           </h1>
         </div>
 
-        <p className="text-muted-foreground max-w-2xl mb-6 leading-relaxed">
+        <p className="text-sm sm:text-base text-muted-foreground max-w-2xl mb-5 sm:mb-6 leading-relaxed">
           {technology.description}
         </p>
 

@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, useRef } from "react";
+import { useEffect, useState } from "react";
 import { useEditor, EditorContent } from "@tiptap/react";
 import StarterKit from "@tiptap/starter-kit";
 import Underline from "@tiptap/extension-underline";
@@ -55,10 +55,6 @@ export function PostEditor({
   const [tableRows, setTableRows] = useState(3);
   const [tableCols, setTableCols] = useState(3);
   const [calloutOpen, setCalloutOpen] = useState(false);
-  const [imageOpen, setImageOpen] = useState(false);
-  const [imageUrl, setImageUrl] = useState("");
-  const [isUploadingImage, setIsUploadingImage] = useState(false);
-  const fileInputRef = useRef<HTMLInputElement>(null);
   const [, setTick] = useState(0);
 
   const editor = useEditor({
@@ -228,54 +224,6 @@ export function PostEditor({
       .insertTable({ rows, cols, withHeaderRow: true })
       .run();
     setTableOpen(false);
-  };
-
-  const handleImageFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-
-    if (!file.type.startsWith("image/")) {
-      toast.error("Formato inválido", {
-        description: "Selecione um arquivo de imagem válido.",
-      });
-      return;
-    }
-
-    setIsUploadingImage(true);
-    try {
-      const formData = new FormData();
-      formData.append("file", file);
-
-      const res = await fetch("/api/admin/upload", {
-        method: "POST",
-        body: formData,
-      });
-
-      if (!res.ok) {
-        const err = await res.json().catch(() => ({}));
-        throw new Error(err?.message || "Falha ao enviar imagem");
-      }
-
-      const data = await res.json();
-      editor.chain().focus().setImage({ src: data.url, alt: file.name }).run();
-      toast.success("Imagem inserida com sucesso!");
-      setImageOpen(false);
-    } catch (err: unknown) {
-      toast.error("Erro no envio", {
-        description: err instanceof Error ? err.message : "Falha ao processar imagem",
-      });
-    } finally {
-      setIsUploadingImage(false);
-      if (fileInputRef.current) fileInputRef.current.value = "";
-    }
-  };
-
-  const handleImageUrlInsert = () => {
-    if (!imageUrl.trim()) return;
-    editor.chain().focus().setImage({ src: imageUrl.trim() }).run();
-    setImageUrl("");
-    setImageOpen(false);
-    toast.success("Imagem inserida!");
   };
 
   const toggleCallout = (type: CalloutType) => {
@@ -751,100 +699,6 @@ export function PostEditor({
                   <i className="bx bx-shield-x text-base" />
                   <span>Atenção / Perigo</span>
                 </Button>
-              </div>
-            </PopoverContent>
-          </Popover>
-
-          {/* Inserir Imagem no Artigo */}
-          <Popover open={imageOpen} onOpenChange={setImageOpen}>
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <PopoverTrigger asChild>
-                  <Button
-                    type="button"
-                    variant="ghost"
-                    size="icon"
-                    className="h-8 w-8 rounded text-muted-foreground transition-colors hover:text-foreground hover:bg-muted"
-                    onMouseDown={(e) => e.preventDefault()}
-                  >
-                    <i className="bx bx-image-add text-base" />
-                  </Button>
-                </PopoverTrigger>
-              </TooltipTrigger>
-              <TooltipContent side="bottom" sideOffset={6}>
-                Inserir imagem no corpo do post
-              </TooltipContent>
-            </Tooltip>
-            <PopoverContent className="w-80 p-3" align="start">
-              <div className="space-y-3">
-                <p className="text-xs font-semibold text-foreground">
-                  Inserir Imagem no Artigo
-                </p>
-
-                <div>
-                  <input
-                    ref={fileInputRef}
-                    type="file"
-                    accept="image/*"
-                    onChange={handleImageFileUpload}
-                    className="hidden"
-                  />
-                  <Button
-                    type="button"
-                    variant="outline"
-                    size="sm"
-                    disabled={isUploadingImage}
-                    onClick={() => fileInputRef.current?.click()}
-                    className="w-full text-xs gap-2 h-9 border-dashed cursor-pointer"
-                  >
-                    <i
-                      className={cn(
-                        "bx",
-                        isUploadingImage
-                          ? "bx-loader-alt animate-spin"
-                          : "bx-upload",
-                        "text-base"
-                      )}
-                    />
-                    <span>
-                      {isUploadingImage
-                        ? "Otimizando e enviando..."
-                        : "Upload do computador"}
-                    </span>
-                  </Button>
-                </div>
-
-                <div className="relative flex items-center justify-center">
-                  <div className="absolute inset-0 flex items-center">
-                    <span className="w-full border-t border-border/60" />
-                  </div>
-                  <span className="relative bg-popover px-2 text-[10px] uppercase text-muted-foreground">
-                    ou por link
-                  </span>
-                </div>
-
-                <div className="flex gap-2">
-                  <Input
-                    placeholder="https://exemplo.com/imagem.png"
-                    value={imageUrl}
-                    onChange={(e) => setImageUrl(e.target.value)}
-                    className="h-8 text-xs flex-1"
-                    onKeyDown={(e) => {
-                      if (e.key === "Enter") {
-                        e.preventDefault();
-                        handleImageUrlInsert();
-                      }
-                    }}
-                  />
-                  <Button
-                    type="button"
-                    size="sm"
-                    className="h-8 text-xs px-3"
-                    onClick={handleImageUrlInsert}
-                  >
-                    Inserir
-                  </Button>
-                </div>
               </div>
             </PopoverContent>
           </Popover>

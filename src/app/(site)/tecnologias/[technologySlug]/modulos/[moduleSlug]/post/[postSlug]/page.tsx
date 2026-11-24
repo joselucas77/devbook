@@ -359,7 +359,7 @@ export default async function PostPage({
         {/* COLUNA 2 (Centro - Conteúdo Principal do Artigo) */}
         <main className="min-w-0 flex-1 max-w-3xl mx-auto px-0 sm:px-3 w-full">
           {/* Breadcrumb discreto */}
-          <div className="flex items-center gap-1.5 text-xs text-muted-foreground mb-4">
+          <div className="flex flex-wrap items-center gap-1.5 text-xs text-muted-foreground mb-4 min-w-0">
             <Link
               href="/tecnologias"
               className="hover:text-primary transition-colors"
@@ -380,12 +380,13 @@ export default async function PostPage({
           </div>
 
           {/* Título do Post & Ações */}
-          <div className="flex items-start justify-between gap-4 mb-3">
-            <h1 className="text-2xl sm:text-3xl md:text-4xl font-extrabold tracking-tight leading-tight text-foreground break-words flex-1">
+          <div className="flex items-start justify-between gap-3 sm:gap-4 mb-3 min-w-0">
+            <h1 className="text-2xl sm:text-3xl md:text-4xl font-extrabold tracking-tight leading-tight text-foreground break-words min-w-0 flex-1">
               {data.title}
             </h1>
             <BookmarkButton
               post={{
+                postId: data.id,
                 slug: data.slug,
                 title: data.title,
                 technologySlug: technology.slug,

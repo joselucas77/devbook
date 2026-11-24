@@ -21,11 +21,19 @@ export async function GET(req: Request) {
         email: true,
         name: true,
         role: true,
+        image: true,
       },
     });
 
     if (!dbUser) {
       return NextResponse.redirect(new URL("/login", req.url));
+    }
+
+    if (session.user.image && dbUser.image !== session.user.image) {
+      await prisma.user.update({
+        where: { id: dbUser.id },
+        data: { image: session.user.image },
+      });
     }
 
     const token = await signAuthToken({
