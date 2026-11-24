@@ -1,9 +1,6 @@
 import { redirect } from "next/navigation";
 import { getCurrentUser } from "@/lib/auth";
-import { AppSidebar } from "@/components/layout/sidebar";
 import { SiteHeader } from "@/components/layout/site-header";
-import { BottomNavigation } from "@/components/layout/bottom-navigation";
-import { SidebarProvider, SidebarInset } from "@/components/ui/sidebar";
 
 export const dynamic = "force-dynamic";
 
@@ -22,21 +19,19 @@ export default async function AuthLayout({
   }
 
   return (
-    <SidebarProvider defaultOpen={true}>
-      <AppSidebar variant="inset" />
-      <SidebarInset className="bg-background min-h-screen flex flex-col">
-        <SiteHeader
-          user={{
-            name: user.name,
-            email: user.email,
-            role: user.role,
-          }}
-        />
-        <div className="flex flex-1 flex-col pb-24 md:pb-6 px-4 md:px-8 py-6">
-          {children}
-        </div>
-        <BottomNavigation />
-      </SidebarInset>
-    </SidebarProvider>
+    <div className="min-h-screen flex flex-col bg-background text-foreground overflow-x-clip">
+      <SiteHeader
+        user={{
+          id: user.id,
+          name: user.name,
+          email: user.email,
+          role: user.role,
+          image: user.image,
+        }}
+      />
+      <main className="flex-1 w-full max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-6 pb-12">
+        {children}
+      </main>
+    </div>
   );
 }
