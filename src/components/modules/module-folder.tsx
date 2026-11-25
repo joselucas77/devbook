@@ -8,6 +8,7 @@ import {
   CollapsibleTrigger,
 } from "@/components/ui/collapsible";
 import { Card } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 
@@ -53,12 +54,23 @@ export function ModuleFolder({
               </div>
             </div>
 
-            <i
-              className={cn(
-                "bx bx-chevron-right text-xl text-muted-foreground transition-transform duration-200 shrink-0",
-                isOpen && "rotate-90"
+            <div className="flex items-center gap-2 shrink-0">
+              {posts.length > 0 && (
+                <Badge
+                  variant="secondary"
+                  className="h-5 min-w-5 px-1.5 rounded-full text-[11px] font-medium justify-center tabular-nums"
+                >
+                  {posts.length}
+                </Badge>
               )}
-            />
+
+              <i
+                className={cn(
+                  "bx bx-chevron-right text-xl text-muted-foreground transition-transform duration-200 shrink-0",
+                  isOpen && "rotate-90"
+                )}
+              />
+            </div>
           </div>
         </CollapsibleTrigger>
 
