@@ -296,6 +296,22 @@ body::-webkit-scrollbar {
   text-decoration: line-through !important;
 }
 
+.ProseMirror sup,
+.tiptap-content sup {
+  font-size: 0.75em;
+  line-height: 0;
+  position: relative;
+  vertical-align: super;
+}
+
+.ProseMirror sub,
+.tiptap-content sub {
+  font-size: 0.75em;
+  line-height: 0;
+  position: relative;
+  vertical-align: sub;
+}
+
 .ProseMirror p.is-editor-empty:first-child::before {
   content: attr(data-placeholder);
   float: left;
@@ -436,6 +452,7 @@ body::-webkit-scrollbar {
   background-color: rgba(39, 39, 42, 0.45);
   font-weight: 600;
   text-align: left;
+  vertical-align: top;
   padding: 0.65rem 0.85rem;
   border: 1px solid var(--color-border);
   color: var(--color-foreground);
@@ -462,6 +479,25 @@ body::-webkit-scrollbar {
   font-size: 0.875rem;
   color: var(--color-foreground);
   min-width: 110px;
+}
+
+.table-wrapper td p,
+.table-wrapper th p,
+.tiptap-content table td p,
+.tiptap-content table th p,
+.ProseMirror table td p,
+.ProseMirror table th p {
+  margin-top: 0 !important;
+  margin-bottom: 0 !important;
+}
+
+.table-wrapper td p + p,
+.table-wrapper th p + p,
+.tiptap-content table td p + p,
+.tiptap-content table th p + p,
+.ProseMirror table td p + p,
+.ProseMirror table th p + p {
+  margin-top: 0.35rem !important;
 }
 
 .table-wrapper tr:hover,

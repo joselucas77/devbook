@@ -9,8 +9,15 @@ import Placeholder from "@tiptap/extension-placeholder";
 import ImageExtension from "@tiptap/extension-image";
 import { Table } from "@tiptap/extension-table";
 import { TableRow } from "@tiptap/extension-table-row";
-import { TableCell } from "@tiptap/extension-table-cell";
-import { TableHeader } from "@tiptap/extension-table-header";
+import {
+  TextAlign,
+  CustomTableCell,
+  CustomTableHeader,
+  Superscript,
+  Subscript,
+  type TextAlignment,
+  type VerticalAlignment,
+} from "./text-align-extension";
 import { Callout, CalloutType } from "./callout-extension";
 import { toast } from "sonner";
 
@@ -90,9 +97,14 @@ export function PostEditor({
         resizable: true,
       }),
       TableRow,
-      TableHeader,
-      TableCell,
+      CustomTableHeader,
+      CustomTableCell,
       Underline,
+      Superscript,
+      Subscript,
+      TextAlign.configure({
+        types: ["heading", "paragraph", "tableCell", "tableHeader"],
+      }),
       ImageExtension.configure({
         allowBase64: true,
         HTMLAttributes: {
@@ -231,6 +243,33 @@ export function PostEditor({
     setCalloutOpen(false);
   };
 
+  const isInTable = editor.isActive("table");
+
+  const isAlignActive = (align: TextAlignment) => {
+    if (align === "left") {
+      return (
+        editor.isActive({ textAlign: "left" }) ||
+        (!editor.isActive({ textAlign: "center" }) &&
+          !editor.isActive({ textAlign: "right" }) &&
+          !editor.isActive({ textAlign: "justify" }))
+      );
+    }
+    return editor.isActive({ textAlign: align });
+  };
+
+  const isVerticalAlignActive = (align: VerticalAlignment) => {
+    if (!isInTable) return false;
+    const cellAttr = editor.getAttributes("tableCell").verticalAlign;
+    const headerAttr = editor.getAttributes("tableHeader").verticalAlign;
+    const current = cellAttr || headerAttr || "top";
+    return current === align;
+  };
+
+  const setVerticalAlign = (align: VerticalAlignment) => {
+    if (!isInTable) return;
+    editor.chain().focus().setCellAttribute("verticalAlign", align).run();
+  };
+
   const textContent = editor.getText();
   const wordCount = textContent.trim()
     ? textContent.trim().split(/\s+/).length
@@ -318,6 +357,101 @@ export function PostEditor({
             tooltip="Tachado (Ctrl+Shift+X)"
           >
             <i className="bx bx-strikethrough text-base" />
+          </ToolbarButton>
+
+          <ToolbarButton
+            active={editor.isActive("superscript")}
+            onClick={() => editor.chain().focus().toggleSuperscript().run()}
+            tooltip="Sobrescrito (texto acima)"
+          >
+            <span className="text-xs font-semibold leading-none font-sans">
+              x<sup className="text-[9px] ml-0.5">2</sup>
+            </span>
+          </ToolbarButton>
+
+          <ToolbarButton
+            active={editor.isActive("subscript")}
+            onClick={() => editor.chain().focus().toggleSubscript().run()}
+            tooltip="Subscrito (texto abaixo)"
+          >
+            <span className="text-xs font-semibold leading-none font-sans">
+              x<sub className="text-[9px] ml-0.5">2</sub>
+            </span>
+          </ToolbarButton>
+
+          <div className="w-[1px] h-5 bg-border/60 mx-1" />
+
+          {/* Alinhamento Horizontal de Texto */}
+          <ToolbarButton
+            active={isAlignActive("left")}
+            onClick={() => editor.chain().focus().setTextAlign("left").run()}
+            tooltip="Alinhar à esquerda (Ctrl+Shift+L)"
+          >
+            <i className="bx bx-align-left text-base" />
+          </ToolbarButton>
+
+          <ToolbarButton
+            active={isAlignActive("center")}
+            onClick={() => editor.chain().focus().setTextAlign("center").run()}
+            tooltip="Centralizar texto (Ctrl+Shift+E)"
+          >
+            <i className="bx bx-align-middle text-base" />
+          </ToolbarButton>
+
+          <ToolbarButton
+            active={isAlignActive("right")}
+            onClick={() => editor.chain().focus().setTextAlign("right").run()}
+            tooltip="Alinhar à direita (Ctrl+Shift+R)"
+          >
+            <i className="bx bx-align-right text-base" />
+          </ToolbarButton>
+
+          <ToolbarButton
+            active={isAlignActive("justify")}
+            onClick={() => editor.chain().focus().setTextAlign("justify").run()}
+            tooltip="Justificar texto (Ctrl+Shift+J)"
+          >
+            <i className="bx bx-align-justify text-base" />
+          </ToolbarButton>
+
+          {/* Alinhamento Vertical (Tabelas) */}
+          <ToolbarButton
+            active={isVerticalAlignActive("top")}
+            disabled={!isInTable}
+            onClick={() => setVerticalAlign("top")}
+            tooltip={
+              isInTable
+                ? "Alinhar acima na célula"
+                : "Alinhar acima (disponível em tabelas)"
+            }
+          >
+            <i className="bx bx-vertical-top text-base" />
+          </ToolbarButton>
+
+          <ToolbarButton
+            active={isVerticalAlignActive("middle")}
+            disabled={!isInTable}
+            onClick={() => setVerticalAlign("middle")}
+            tooltip={
+              isInTable
+                ? "Centralizar verticalmente na célula"
+                : "Centralizar verticalmente (disponível em tabelas)"
+            }
+          >
+            <i className="bx bx-vertical-center text-base" />
+          </ToolbarButton>
+
+          <ToolbarButton
+            active={isVerticalAlignActive("bottom")}
+            disabled={!isInTable}
+            onClick={() => setVerticalAlign("bottom")}
+            tooltip={
+              isInTable
+                ? "Alinhar abaixo na célula"
+                : "Alinhar abaixo (disponível em tabelas)"
+            }
+          >
+            <i className="bx bx-vertical-bottom text-base" />
           </ToolbarButton>
 
           <div className="w-[1px] h-5 bg-border/60 mx-1" />
@@ -457,6 +591,89 @@ export function PostEditor({
                     >
                       <i className="bx bx-trash mr-1.5" /> Excluir coluna
                     </Button>
+                  </div>
+
+                  <div className="space-y-1.5 pt-1 border-t border-border/40">
+                    <p className="text-[11px] font-medium text-muted-foreground uppercase tracking-wider">
+                      Alinhamento da célula
+                    </p>
+                    <div className="grid grid-cols-3 gap-1">
+                      <Button
+                        type="button"
+                        variant={isAlignActive("left") ? "secondary" : "outline"}
+                        size="sm"
+                        className="h-7 text-xs px-1.5"
+                        onClick={() =>
+                          editor.chain().focus().setTextAlign("left").run()
+                        }
+                        title="Alinhar à esquerda"
+                      >
+                        <i className="bx bx-align-left text-sm" />
+                      </Button>
+                      <Button
+                        type="button"
+                        variant={isAlignActive("center") ? "secondary" : "outline"}
+                        size="sm"
+                        className="h-7 text-xs px-1.5"
+                        onClick={() =>
+                          editor.chain().focus().setTextAlign("center").run()
+                        }
+                        title="Centralizar"
+                      >
+                        <i className="bx bx-align-middle text-sm" />
+                      </Button>
+                      <Button
+                        type="button"
+                        variant={isAlignActive("right") ? "secondary" : "outline"}
+                        size="sm"
+                        className="h-7 text-xs px-1.5"
+                        onClick={() =>
+                          editor.chain().focus().setTextAlign("right").run()
+                        }
+                        title="Alinhar à direita"
+                      >
+                        <i className="bx bx-align-right text-sm" />
+                      </Button>
+                    </div>
+                    <div className="grid grid-cols-3 gap-1">
+                      <Button
+                        type="button"
+                        variant={isVerticalAlignActive("top") ? "secondary" : "outline"}
+                        size="sm"
+                        className="h-7 text-xs px-1.5 gap-1"
+                        onClick={() => setVerticalAlign("top")}
+                        title="Alinhar acima"
+                      >
+                        <i className="bx bx-vertical-top text-sm" />
+                        <span className="text-[10px]">Acima</span>
+                      </Button>
+                      <Button
+                        type="button"
+                        variant={
+                          isVerticalAlignActive("middle") ? "secondary" : "outline"
+                        }
+                        size="sm"
+                        className="h-7 text-xs px-1.5 gap-1"
+                        onClick={() => setVerticalAlign("middle")}
+                        title="Alinhar ao meio"
+                      >
+                        <i className="bx bx-vertical-center text-sm" />
+                        <span className="text-[10px]">Meio</span>
+                      </Button>
+                      <Button
+                        type="button"
+                        variant={
+                          isVerticalAlignActive("bottom") ? "secondary" : "outline"
+                        }
+                        size="sm"
+                        className="h-7 text-xs px-1.5 gap-1"
+                        onClick={() => setVerticalAlign("bottom")}
+                        title="Alinhar abaixo"
+                      >
+                        <i className="bx bx-vertical-bottom text-sm" />
+                        <span className="text-[10px]">Abaixo</span>
+                      </Button>
+                    </div>
                   </div>
 
                   <div className="pt-1.5 border-t border-border/60">
@@ -724,7 +941,13 @@ export function PostEditor({
 
           <ToolbarButton
             onClick={() =>
-              editor.chain().focus().unsetAllMarks().clearNodes().run()
+              editor
+                .chain()
+                .focus()
+                .unsetAllMarks()
+                .clearNodes()
+                .unsetTextAlign()
+                .run()
             }
             tooltip="Limpar formatação do texto"
           >

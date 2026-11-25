@@ -7,7 +7,6 @@ import { usePathname, useRouter } from "next/navigation";
 import { cn } from "@/lib/utils";
 import { ThemeToggle } from "./theme-toggle";
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
 import {
   Sheet,
   SheetContent,
@@ -105,12 +104,6 @@ export function SiteHeader({
                   <span className="text-lg font-bold tracking-tight text-foreground font-mono">
                     DevBook
                   </span>
-                  <Badge
-                    variant="secondary"
-                    className="text-[10px] font-mono uppercase px-1.5 py-0"
-                  >
-                    Admin
-                  </Badge>
                 </SheetTitle>
                 <SheetDescription className="sr-only">
                   Navegação administrativa e dados da conta
@@ -207,12 +200,6 @@ export function SiteHeader({
               <span className="text-blue-500">Dev</span>
               <span className="text-foreground">Book</span>
             </span>
-            <Badge
-              variant="outline"
-              className="hidden sm:inline-flex text-[10px] font-mono uppercase px-1.5 py-0 border-blue-500/30 text-blue-500"
-            >
-              Admin
-            </Badge>
           </Link>
         </div>
 

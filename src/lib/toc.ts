@@ -39,11 +39,22 @@ export function extractHeadingsAndInjectIds(html: string): {
       });
 
       const existingAttrs = attrsStr || "";
-      const cleanAttrs = existingAttrs
+      const attrsWithoutId = existingAttrs
         .replace(/\s*id=(["'][^"']*["']|[^\s>]+)/gi, "")
         .trim();
 
-      return `<h${level} id="${uniqueId}" class="scroll-mt-24 ${cleanAttrs}">${innerHtml}</h${level}>`;
+      let finalAttrs = attrsWithoutId;
+      if (/\bclass=(["'])([^"']*)\1/i.test(finalAttrs)) {
+        finalAttrs = finalAttrs.replace(
+          /\bclass=(["'])([^"']*)\1/i,
+          (_: string, quote: string, cls: string) =>
+            `class=${quote}scroll-mt-24 ${cls}${quote}`
+        );
+      } else {
+        finalAttrs = `class="scroll-mt-24"${finalAttrs ? ` ${finalAttrs}` : ""}`;
+      }
+
+      return `<h${level} id="${uniqueId}" ${finalAttrs}>${innerHtml}</h${level}>`;
     }
   );
 
