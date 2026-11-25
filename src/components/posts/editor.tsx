@@ -129,7 +129,7 @@ export function PostEditor({
     editorProps: {
       attributes: {
         class:
-          "prose dark:prose-invert prose-blue max-w-none focus:outline-none min-h-[420px] p-5 text-foreground text-sm font-sans leading-relaxed",
+          "prose dark:prose-invert prose-blue max-w-none focus:outline-none min-h-[280px] sm:min-h-[420px] p-3.5 sm:p-5 text-foreground text-sm font-sans leading-relaxed",
       },
     },
     onUpdate: ({ editor }) => {
@@ -285,9 +285,9 @@ export function PostEditor({
     >
       {/* Barra de Ferramentas / Toolbar */}
       <TooltipProvider delayDuration={150}>
-        <div className="sticky top-0 z-10 flex flex-wrap items-center gap-1 p-2 bg-card/95 backdrop-blur-sm border-b border-border/70 select-none">
+        <div className="relative z-10 flex flex-wrap items-center gap-0.5 sm:gap-1 p-1.5 sm:p-2 bg-card/95 backdrop-blur-sm border-b border-border/70 select-none">
           {/* Nível de Texto / Peso do Texto */}
-          <div className="mr-1">
+          <div className="mr-0.5 sm:mr-1">
             <Tooltip>
               <TooltipTrigger asChild>
                 <div>
@@ -296,7 +296,7 @@ export function PostEditor({
                     onValueChange={handleHeadingChange}
                   >
                     <SelectTrigger
-                      className="h-8 w-[130px] text-xs font-medium bg-muted/40 border-border/60 hover:bg-muted/70"
+                      className="h-8 w-[116px] sm:w-[130px] text-xs font-medium bg-muted/40 border-border/60 hover:bg-muted/70"
                       onMouseDown={(e) => e.stopPropagation()}
                     >
                       <SelectValue />
@@ -513,7 +513,7 @@ export function PostEditor({
                 {editor.isActive("table") ? "Gerenciar tabela" : "Inserir tabela"}
               </TooltipContent>
             </Tooltip>
-            <PopoverContent className="w-64 p-3" align="start">
+            <PopoverContent className="w-[min(calc(100vw-2rem),16rem)] p-3" align="start">
               {editor.isActive("table") ? (
                 <div className="space-y-2.5">
                   <div className="flex items-center justify-between pb-1 border-b border-border/60">
@@ -804,7 +804,7 @@ export function PostEditor({
                 Inserir ou editar link
               </TooltipContent>
             </Tooltip>
-            <PopoverContent className="w-80 p-3" align="start">
+            <PopoverContent className="w-[min(calc(100vw-2rem),20rem)] p-3" align="start">
               <div className="space-y-2">
                 <p className="text-xs font-medium text-foreground">
                   Inserir Link
@@ -871,7 +871,7 @@ export function PostEditor({
                 Inserir caixa de destaque (Callout)
               </TooltipContent>
             </Tooltip>
-            <PopoverContent className="w-56 p-2" align="start">
+            <PopoverContent className="w-[min(calc(100vw-2rem),14rem)] p-2" align="start">
               <p className="text-xs font-semibold px-2 py-1 text-muted-foreground">
                 Caixa de Destaque
               </p>
@@ -978,7 +978,7 @@ export function PostEditor({
 
       {/* Área de Conteúdo TipTap */}
       <div
-        className="min-h-[420px] max-h-[750px] overflow-y-auto cursor-text bg-background/50 focus-within:bg-background/80 transition-colors"
+        className="min-h-[280px] sm:min-h-[420px] max-h-[60vh] sm:max-h-[750px] overflow-y-auto cursor-text bg-background/50 focus-within:bg-background/80 transition-colors"
         onClick={() => {
           if (!editor.isFocused) {
             editor.commands.focus();
@@ -989,14 +989,14 @@ export function PostEditor({
       </div>
 
       {/* Barra de Rodapé / Informações */}
-      <div className="flex flex-wrap items-center justify-between gap-2 px-4 py-2 border-t border-border/60 bg-muted/20 text-xs text-muted-foreground select-none">
-        <div className="flex items-center gap-1.5">
+      <div className="flex flex-wrap items-center justify-between gap-2 px-3 sm:px-4 py-2 border-t border-border/60 bg-muted/20 text-xs text-muted-foreground select-none">
+        <div className="hidden sm:flex items-center gap-1.5">
           <i className="bx bx-info-circle text-sm text-primary/70" />
           <span>
             Selecione qualquer parte do texto ou palavras para aplicar estilizações.
           </span>
         </div>
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-3 ml-auto sm:ml-0">
           <span>{wordCount} palavras</span>
           <span className="opacity-40">•</span>
           <span>{charCount} caracteres</span>

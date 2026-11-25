@@ -158,6 +158,7 @@ export function ModulesTable({
       {
         accessorKey: "order",
         header: "Ordem",
+        meta: { className: "hidden md:table-cell" },
         cell: ({ row }) => {
           const index = items.findIndex((it) => it.id === row.original.id);
           const isFirst = index <= 0;
@@ -214,18 +215,33 @@ export function ModulesTable({
             Título <i className="bx bx-sort text-sm ml-1" />
           </Button>
         ),
-        cell: ({ row }) => (
-          <div className="space-y-0.5">
-            <div className="font-medium text-foreground">
-              {row.original.title}
+        cell: ({ row }) => {
+          const index = items.findIndex((it) => it.id === row.original.id);
+          return (
+            <div className="space-y-1 min-w-0">
+              <div className="flex items-center gap-1.5 flex-wrap">
+                <span className="md:hidden text-[11px] font-mono text-muted-foreground">
+                  #{index + 1}
+                </span>
+                <span className="font-medium text-foreground break-words">
+                  {row.original.title}
+                </span>
+              </div>
+              <div className="text-xs text-muted-foreground truncate max-w-[200px] sm:max-w-none">
+                {row.original.slug}
+              </div>
+              <div className="text-[11px] font-mono text-muted-foreground md:hidden">
+                {row.original.postsCount}{" "}
+                {row.original.postsCount === 1 ? "post" : "posts"}
+              </div>
             </div>
-            <div className="text-xs text-muted-foreground">{row.original.slug}</div>
-          </div>
-        ),
+          );
+        },
       },
       {
         accessorKey: "postsCount",
         header: "Posts",
+        meta: { className: "hidden md:table-cell" },
         cell: ({ row }) => (
           <span className="text-sm font-mono text-muted-foreground">
             {row.original.postsCount}
@@ -235,6 +251,7 @@ export function ModulesTable({
       {
         accessorKey: "updatedAt",
         header: "Atualizado",
+        meta: { className: "hidden md:table-cell" },
         cell: ({ row }) => {
           return (
             <span className="text-sm text-muted-foreground">
@@ -274,7 +291,35 @@ export function ModulesTable({
                     </Link>
                   </DropdownMenuItem>
 
+                  <DropdownMenuItem asChild>
+                    <Link
+                      href={`/admin/tecnologias/${technologySlug}/modulos/${m.slug}/posts/novo?moduleId=${m.id}`}
+                      className="gap-2 cursor-pointer"
+                    >
+                      <i className="bx bx-plus-circle text-base mr-1.5 text-blue-500" />
+                      Novo post
+                    </Link>
+                  </DropdownMenuItem>
+
                   <DropdownMenuSeparator />
+
+                  <DropdownMenuItem
+                    disabled={isFirst || isReordering}
+                    onSelect={() => moveItem(index, index - 1)}
+                    className="gap-2 cursor-pointer md:hidden"
+                  >
+                    <i className="bx bx-chevron-up text-base mr-1.5" />
+                    Mover para cima
+                  </DropdownMenuItem>
+
+                  <DropdownMenuItem
+                    disabled={isLast || isReordering}
+                    onSelect={() => moveItem(index, index + 1)}
+                    className="gap-2 cursor-pointer md:hidden"
+                  >
+                    <i className="bx bx-chevron-down text-base mr-1.5" />
+                    Mover para baixo
+                  </DropdownMenuItem>
 
                   <DropdownMenuItem
                     disabled={isFirst || isReordering}
@@ -356,8 +401,8 @@ export function ModulesTable({
     <>
       <div className="space-y-4">
         {/* Toolbar */}
-        <div className="flex flex-col md:flex-row md:items-center justify-between gap-3 mb-4">
-          <div className="flex items-center gap-2">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-4">
+          <div className="flex items-center gap-2 w-full sm:w-auto">
             <Input
               placeholder="Buscar por título..."
               value={
@@ -366,12 +411,12 @@ export function ModulesTable({
               onChange={(event) =>
                 table.getColumn("title")?.setFilterValue(event.target.value)
               }
-              className="w-full md:w-80"
+              className="flex-1 min-w-0 sm:w-72 md:w-80 sm:flex-none"
             />
 
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <Button variant="secondary" className="gap-2">
+                <Button variant="secondary" className="hidden md:inline-flex gap-2">
                   <i className="bx bx-slider-alt text-base" />
                   Colunas
                 </Button>
@@ -405,7 +450,7 @@ export function ModulesTable({
           </div>
 
           <Button
-            className="gap-2 bg-blue-600 hover:bg-blue-600/90 text-white shrink-0"
+            className="w-full sm:w-auto gap-2 bg-blue-600 hover:bg-blue-600/90 text-white shrink-0"
             onClick={() => {
               setEditing(null);
               setOpenModal(true);
@@ -422,16 +467,24 @@ export function ModulesTable({
             <TableHeader>
               {table.getHeaderGroups().map((headerGroup) => (
                 <TableRow key={headerGroup.id} className="border-border">
-                  {headerGroup.headers.map((header) => (
-                    <TableHead key={header.id} className="text-muted-foreground font-semibold">
-                      {header.isPlaceholder
-                        ? null
-                        : flexRender(
-                            header.column.columnDef.header,
-                            header.getContext()
-                          )}
-                    </TableHead>
-                  ))}
+                  {headerGroup.headers.map((header) => {
+                    const metaClass = (
+                      header.column.columnDef.meta as { className?: string } | undefined
+                    )?.className;
+                    return (
+                      <TableHead
+                        key={header.id}
+                        className={`text-muted-foreground font-semibold ${metaClass ?? ""}`}
+                      >
+                        {header.isPlaceholder
+                          ? null
+                          : flexRender(
+                              header.column.columnDef.header,
+                              header.getContext()
+                            )}
+                      </TableHead>
+                    );
+                  })}
                 </TableRow>
               ))}
             </TableHeader>
@@ -440,14 +493,22 @@ export function ModulesTable({
               {table.getRowModel().rows?.length ? (
                 table.getRowModel().rows.map((row) => (
                   <TableRow key={row.id} className="border-border hover:bg-muted/30">
-                    {row.getVisibleCells().map((cell) => (
-                      <TableCell key={cell.id} className="align-middle">
-                        {flexRender(
-                          cell.column.columnDef.cell,
-                          cell.getContext()
-                        )}
-                      </TableCell>
-                    ))}
+                    {row.getVisibleCells().map((cell) => {
+                      const metaClass = (
+                        cell.column.columnDef.meta as { className?: string } | undefined
+                      )?.className;
+                      return (
+                        <TableCell
+                          key={cell.id}
+                          className={`align-middle ${metaClass ?? ""}`}
+                        >
+                          {flexRender(
+                            cell.column.columnDef.cell,
+                            cell.getContext()
+                          )}
+                        </TableCell>
+                      );
+                    })}
                   </TableRow>
                 ))
               ) : (

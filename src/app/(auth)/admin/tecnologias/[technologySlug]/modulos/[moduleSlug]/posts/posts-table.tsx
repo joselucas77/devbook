@@ -98,6 +98,7 @@ export function PostsTable({
       {
         accessorKey: "order",
         header: "Ordem",
+        meta: { className: "hidden md:table-cell" },
         cell: ({ row }) => {
           const index = items.findIndex((it) => it.id === row.original.id);
           const isFirst = index <= 0;
@@ -154,16 +155,63 @@ export function PostsTable({
             Título <i className="bx bx-sort text-sm ml-1" />
           </Button>
         ),
-        cell: ({ row }) => (
-          <div className="font-medium">
-            <div className="text-foreground">{row.original.title}</div>
-            <div className="text-xs text-muted-foreground">{row.original.slug}</div>
-          </div>
-        ),
+        cell: ({ row }) => {
+          const index = items.findIndex((it) => it.id === row.original.id);
+          const status = row.original.status;
+          const statusLabel =
+            status === "PUBLISHED"
+              ? "Publicado"
+              : status === "DRAFT"
+              ? "Rascunho"
+              : status === "SCHEDULED"
+              ? "Agendado"
+              : "Arquivado";
+
+          return (
+            <div className="font-medium space-y-1 min-w-0">
+              <div className="flex items-start gap-1.5">
+                <span className="md:hidden text-[11px] font-mono text-muted-foreground mt-0.5 shrink-0">
+                  #{index + 1}
+                </span>
+                <span className="text-foreground break-words">
+                  {row.original.title}
+                </span>
+              </div>
+              <div className="text-xs text-muted-foreground truncate max-w-[200px] sm:max-w-none">
+                {row.original.slug}
+              </div>
+              <div className="flex items-center gap-1.5 flex-wrap md:hidden pt-0.5">
+                <Badge
+                  variant={
+                    status === "PUBLISHED"
+                      ? "default"
+                      : status === "DRAFT"
+                      ? "secondary"
+                      : "outline"
+                  }
+                  className={
+                    status === "SCHEDULED"
+                      ? "text-[10px] px-1.5 py-0 h-4 bg-amber-500/10 text-amber-600 dark:text-amber-400 border-amber-500/30"
+                      : "text-[10px] px-1.5 py-0 h-4"
+                  }
+                >
+                  {statusLabel}
+                </Badge>
+                <span className="text-[11px] text-muted-foreground">
+                  • {row.original.isPublic ? "Público" : "Privado"}
+                </span>
+              </div>
+            </div>
+          );
+        },
       },
       {
         accessorKey: "status",
         header: "Status",
+        meta: { className: "hidden md:table-cell" },
+        filterFn: (row, columnId, filterValue) => {
+          return row.getValue(columnId) === filterValue;
+        },
         cell: ({ row }) => {
           const status = row.original.status;
           const scheduledFor = row.original.scheduledFor;
@@ -210,6 +258,7 @@ export function PostsTable({
       {
         accessorKey: "isPublic",
         header: "Público",
+        meta: { className: "hidden md:table-cell" },
         cell: ({ row }) => (
           <span className="text-sm text-muted-foreground">
             {row.original.isPublic ? "Sim" : "Não"}
@@ -257,6 +306,24 @@ export function PostsTable({
                   </DropdownMenuItem>
 
                   <DropdownMenuSeparator />
+
+                  <DropdownMenuItem
+                    disabled={isFirst || isReordering}
+                    onSelect={() => moveItem(index, index - 1)}
+                    className="gap-2 cursor-pointer md:hidden"
+                  >
+                    <i className="bx bx-chevron-up text-base mr-1.5" />
+                    Mover para cima
+                  </DropdownMenuItem>
+
+                  <DropdownMenuItem
+                    disabled={isLast || isReordering}
+                    onSelect={() => moveItem(index, index + 1)}
+                    className="gap-2 cursor-pointer md:hidden"
+                  >
+                    <i className="bx bx-chevron-down text-base mr-1.5" />
+                    Mover para baixo
+                  </DropdownMenuItem>
 
                   <DropdownMenuItem
                     disabled={isFirst || isReordering}
@@ -315,6 +382,14 @@ export function PostsTable({
       moduleSlug={moduleSlug}
       searchColumnId="title"
       searchPlaceholder="Pesquisar por título..."
+      filterColumnId="status"
+      filterPlaceholder="Todos os status"
+      filterOptions={[
+        { label: "Publicado", value: "PUBLISHED" },
+        { label: "Rascunho", value: "DRAFT" },
+        { label: "Agendado", value: "SCHEDULED" },
+        { label: "Arquivado", value: "ARCHIVED" },
+      ]}
     />
   );
 }

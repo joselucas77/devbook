@@ -64,6 +64,31 @@ export function AdminDashboard({ data }: { data: AdminDashboardData }) {
   const [hoveredStatus, setHoveredStatus] = React.useState<string | null>(null);
   const [hoveredMonth, setHoveredMonth] = React.useState<string | null>(null);
   const [hoveredTechId, setHoveredTechId] = React.useState<number | null>(null);
+  const [activeKpiSlide, setActiveKpiSlide] = React.useState(0);
+  const kpiCarouselRef = React.useRef<HTMLDivElement>(null);
+
+  const handleKpiScroll = React.useCallback(() => {
+    const el = kpiCarouselRef.current;
+    if (!el) return;
+    const firstCard = el.firstElementChild as HTMLElement | null;
+    if (!firstCard) return;
+    const step = firstCard.offsetWidth + 12; // card width + gap-3 (12px)
+    if (step <= 0) return;
+    const index = Math.min(3, Math.max(0, Math.round(el.scrollLeft / step)));
+    setActiveKpiSlide(index);
+  }, []);
+
+  const scrollToKpiSlide = (index: number) => {
+    const el = kpiCarouselRef.current;
+    if (!el) return;
+    const child = el.children[index] as HTMLElement | undefined;
+    if (!child) return;
+    el.scrollTo({
+      left: child.offsetLeft - el.offsetLeft,
+      behavior: "smooth",
+    });
+    setActiveKpiSlide(index);
+  };
 
   const statusItems = React.useMemo(
     () => [
@@ -144,103 +169,127 @@ export function AdminDashboard({ data }: { data: AdminDashboardData }) {
 
   return (
     <section aria-label="Dashboard do sistema" className="space-y-4">
-      {/* KPIs Principais */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        <Card className="py-4 gap-2">
-          <CardHeader className="px-5 flex flex-row items-center justify-between space-y-0 pb-0">
-            <CardTitle className="text-xs font-medium text-muted-foreground uppercase tracking-wider">
-              Total de Posts
-            </CardTitle>
-            <div className="h-8 w-8 rounded-lg bg-blue-500/10 text-blue-500 flex items-center justify-center shrink-0">
-              <i className="bx bx-file text-lg" />
-            </div>
-          </CardHeader>
-          <CardContent className="px-5">
-            <div className="flex items-baseline gap-2">
-              <span className="text-2xl sm:text-3xl font-bold tabular-nums">
-                {metrics.totalPosts}
-              </span>
-              <span className="text-xs font-medium text-emerald-500">
-                {publicationRate}% publicados
-              </span>
-            </div>
-            <p className="text-xs text-muted-foreground mt-1">
-              {metrics.publishedPosts} publicados · {metrics.draftPosts} rascunhos
-              {metrics.scheduledPosts > 0
-                ? ` · ${metrics.scheduledPosts} agendados`
-                : ""}
-            </p>
-          </CardContent>
-        </Card>
+      {/* KPIs Principais: Slide horizontal no celular, grid no tablet/desktop */}
+      <div className="space-y-2">
+        <div
+          ref={kpiCarouselRef}
+          onScroll={handleKpiScroll}
+          className="flex overflow-x-auto snap-x snap-mandatory gap-3 pb-1 -mx-4 px-4 no-scrollbar sm:mx-0 sm:px-0 sm:pb-0 sm:grid sm:grid-cols-2 lg:grid-cols-4 sm:gap-4 sm:overflow-visible"
+        >
+          <Card className="py-4 gap-2 snap-start shrink-0 w-[80%] max-w-[300px] sm:w-auto sm:max-w-none">
+            <CardHeader className="px-5 flex flex-row items-center justify-between space-y-0 pb-0">
+              <CardTitle className="text-xs font-medium text-muted-foreground uppercase tracking-wider">
+                Total de Posts
+              </CardTitle>
+              <div className="h-8 w-8 rounded-lg bg-blue-500/10 text-blue-500 flex items-center justify-center shrink-0">
+                <i className="bx bx-file text-lg" />
+              </div>
+            </CardHeader>
+            <CardContent className="px-5">
+              <div className="flex items-baseline gap-2">
+                <span className="text-2xl sm:text-3xl font-bold tabular-nums">
+                  {metrics.totalPosts}
+                </span>
+                <span className="text-xs font-medium text-emerald-500">
+                  {publicationRate}% publicados
+                </span>
+              </div>
+              <p className="text-xs text-muted-foreground mt-1">
+                {metrics.publishedPosts} publicados · {metrics.draftPosts} rascunhos
+                {metrics.scheduledPosts > 0
+                  ? ` · ${metrics.scheduledPosts} agendados`
+                  : ""}
+              </p>
+            </CardContent>
+          </Card>
 
-        <Card className="py-4 gap-2">
-          <CardHeader className="px-5 flex flex-row items-center justify-between space-y-0 pb-0">
-            <CardTitle className="text-xs font-medium text-muted-foreground uppercase tracking-wider">
-              Favoritos (Salvos)
-            </CardTitle>
-            <div className="h-8 w-8 rounded-lg bg-amber-500/10 text-amber-500 flex items-center justify-center shrink-0">
-              <i className="bx bxs-bookmark text-lg" />
-            </div>
-          </CardHeader>
-          <CardContent className="px-5">
-            <div className="flex items-baseline gap-2">
-              <span className="text-2xl sm:text-3xl font-bold tabular-nums">
-                {metrics.totalFavorites}
-              </span>
-              <span className="text-xs text-muted-foreground">marcações</span>
-            </div>
-            <p className="text-xs text-muted-foreground mt-1">
-              {metrics.uniqueFavoritedPosts} post(s) distintos favoritados
-            </p>
-          </CardContent>
-        </Card>
+          <Card className="py-4 gap-2 snap-start shrink-0 w-[80%] max-w-[300px] sm:w-auto sm:max-w-none">
+            <CardHeader className="px-5 flex flex-row items-center justify-between space-y-0 pb-0">
+              <CardTitle className="text-xs font-medium text-muted-foreground uppercase tracking-wider">
+                Favoritos (Salvos)
+              </CardTitle>
+              <div className="h-8 w-8 rounded-lg bg-amber-500/10 text-amber-500 flex items-center justify-center shrink-0">
+                <i className="bx bxs-bookmark text-lg" />
+              </div>
+            </CardHeader>
+            <CardContent className="px-5">
+              <div className="flex items-baseline gap-2">
+                <span className="text-2xl sm:text-3xl font-bold tabular-nums">
+                  {metrics.totalFavorites}
+                </span>
+                <span className="text-xs text-muted-foreground">marcações</span>
+              </div>
+              <p className="text-xs text-muted-foreground mt-1">
+                {metrics.uniqueFavoritedPosts} post(s) distintos favoritados
+              </p>
+            </CardContent>
+          </Card>
 
-        <Card className="py-4 gap-2">
-          <CardHeader className="px-5 flex flex-row items-center justify-between space-y-0 pb-0">
-            <CardTitle className="text-xs font-medium text-muted-foreground uppercase tracking-wider">
-              Catálogo
-            </CardTitle>
-            <div className="h-8 w-8 rounded-lg bg-emerald-500/10 text-emerald-500 flex items-center justify-center shrink-0">
-              <i className="bx bx-layer text-lg" />
-            </div>
-          </CardHeader>
-          <CardContent className="px-5">
-            <div className="flex items-baseline gap-2">
-              <span className="text-2xl sm:text-3xl font-bold tabular-nums">
-                {metrics.activeTechnologies}
-              </span>
-              <span className="text-xs text-muted-foreground">
-                de {metrics.totalTechnologies} tecnologias
-              </span>
-            </div>
-            <p className="text-xs text-muted-foreground mt-1">
-              {metrics.totalModules} módulos cadastrados
-            </p>
-          </CardContent>
-        </Card>
+          <Card className="py-4 gap-2 snap-start shrink-0 w-[80%] max-w-[300px] sm:w-auto sm:max-w-none">
+            <CardHeader className="px-5 flex flex-row items-center justify-between space-y-0 pb-0">
+              <CardTitle className="text-xs font-medium text-muted-foreground uppercase tracking-wider">
+                Catálogo
+              </CardTitle>
+              <div className="h-8 w-8 rounded-lg bg-emerald-500/10 text-emerald-500 flex items-center justify-center shrink-0">
+                <i className="bx bx-layer text-lg" />
+              </div>
+            </CardHeader>
+            <CardContent className="px-5">
+              <div className="flex items-baseline gap-2">
+                <span className="text-2xl sm:text-3xl font-bold tabular-nums">
+                  {metrics.activeTechnologies}
+                </span>
+                <span className="text-xs text-muted-foreground">
+                  de {metrics.totalTechnologies} tecnologias
+                </span>
+              </div>
+              <p className="text-xs text-muted-foreground mt-1">
+                {metrics.totalModules} módulos cadastrados
+              </p>
+            </CardContent>
+          </Card>
 
-        <Card className="py-4 gap-2">
-          <CardHeader className="px-5 flex flex-row items-center justify-between space-y-0 pb-0">
-            <CardTitle className="text-xs font-medium text-muted-foreground uppercase tracking-wider">
-              Usuários
-            </CardTitle>
-            <div className="h-8 w-8 rounded-lg bg-violet-500/10 text-violet-500 flex items-center justify-center shrink-0">
-              <i className="bx bx-group text-lg" />
-            </div>
-          </CardHeader>
-          <CardContent className="px-5">
-            <div className="flex items-baseline gap-2">
-              <span className="text-2xl sm:text-3xl font-bold tabular-nums">
-                {metrics.totalUsers}
-              </span>
-              <span className="text-xs text-muted-foreground">cadastrados</span>
-            </div>
-            <p className="text-xs text-muted-foreground mt-1">
-              {metrics.viewerUsers} leitores ·{" "}
-              {metrics.totalUsers - metrics.viewerUsers} equipe
-            </p>
-          </CardContent>
-        </Card>
+          <Card className="py-4 gap-2 snap-start shrink-0 w-[80%] max-w-[300px] sm:w-auto sm:max-w-none">
+            <CardHeader className="px-5 flex flex-row items-center justify-between space-y-0 pb-0">
+              <CardTitle className="text-xs font-medium text-muted-foreground uppercase tracking-wider">
+                Usuários
+              </CardTitle>
+              <div className="h-8 w-8 rounded-lg bg-violet-500/10 text-violet-500 flex items-center justify-center shrink-0">
+                <i className="bx bx-group text-lg" />
+              </div>
+            </CardHeader>
+            <CardContent className="px-5">
+              <div className="flex items-baseline gap-2">
+                <span className="text-2xl sm:text-3xl font-bold tabular-nums">
+                  {metrics.totalUsers}
+                </span>
+                <span className="text-xs text-muted-foreground">cadastrados</span>
+              </div>
+              <p className="text-xs text-muted-foreground mt-1">
+                {metrics.viewerUsers} leitores ·{" "}
+                {metrics.totalUsers - metrics.viewerUsers} equipe
+              </p>
+            </CardContent>
+          </Card>
+        </div>
+
+        {/* Indicadores de slide apenas no celular */}
+        <div className="flex items-center justify-center gap-1.5 sm:hidden">
+          {[0, 1, 2, 3].map((idx) => (
+            <button
+              key={idx}
+              type="button"
+              onClick={() => scrollToKpiSlide(idx)}
+              aria-label={`Ir para métrica ${idx + 1}`}
+              className={cn(
+                "h-1.5 rounded-full transition-all duration-200",
+                activeKpiSlide === idx
+                  ? "w-5 bg-blue-500"
+                  : "w-1.5 bg-muted-foreground/30"
+              )}
+            />
+          ))}
+        </div>
       </div>
 
       {/* Linha 1 de Gráficos: Posts por Tecnologia + Status dos Posts */}

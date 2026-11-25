@@ -86,7 +86,7 @@ export default async function AdminPostsPage({
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <div className="flex items-center gap-2 text-xs text-muted-foreground mb-1">
+          <div className="flex flex-wrap items-center gap-x-2 gap-y-1 text-xs text-muted-foreground mb-1">
             <Link href="/admin" className="hover:text-blue-500 transition-colors">
               Tecnologias
             </Link>

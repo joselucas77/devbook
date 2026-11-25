@@ -558,8 +558,12 @@ export function PostForm({
 
           <div className="space-y-1">
             <Label className="text-xs font-medium">Slug</Label>
-            <div className="flex gap-2">
-              <Input placeholder="ex: variaveis-php" className="h-9" {...register("slug")} />
+            <div className="flex gap-2 min-w-0">
+              <Input
+                placeholder="ex: variaveis-php"
+                className="h-9 min-w-0 flex-1"
+                {...register("slug")}
+              />
               <Button
                 type="button"
                 variant="secondary"
@@ -596,7 +600,7 @@ export function PostForm({
 
           {/* Imagem de Capa do Post */}
           <div className="space-y-1.5">
-            <div className="flex items-center justify-between">
+            <div className="flex flex-wrap items-center justify-between gap-2">
               <Label className="text-xs font-medium">Imagem de Capa (Opcional)</Label>
               <div className="flex items-center gap-1">
                 <Button
@@ -701,7 +705,7 @@ export function PostForm({
             )}
           </div>
 
-          <div className="flex items-center justify-between gap-4 pt-2">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pt-2">
             <div className="flex items-center gap-3">
               <Switch
                 checked={watch("isPublic")}
@@ -725,7 +729,7 @@ export function PostForm({
               control={control}
               name="status"
               render={({ field }) => (
-                <div className="w-[190px] space-y-1">
+                <div className="w-full sm:w-[200px] space-y-1">
                   <Label className="text-xs font-medium">Status do Post</Label>
                   <Select
                     value={field.value}
@@ -754,7 +758,7 @@ export function PostForm({
                       }
                     }}
                   >
-                    <SelectTrigger className="h-9">
+                    <SelectTrigger className="h-9 w-full">
                       <SelectValue placeholder="Selecione" />
                     </SelectTrigger>
                     <SelectContent>
@@ -829,8 +833,8 @@ export function PostForm({
           )}
         </div>
 
-        <div className="flex items-center justify-between gap-3 pt-2">
-          <Button type="button" variant="secondary" asChild>
+        <div className="flex flex-col-reverse sm:flex-row sm:items-center justify-between gap-3 pt-2">
+          <Button type="button" variant="secondary" asChild className="w-full sm:w-auto">
             <Link
               href={`/admin/tecnologias/${technologySlug}/modulos/${moduleSlug}/posts`}
             >
@@ -841,7 +845,7 @@ export function PostForm({
           <Button
             type="submit"
             disabled={isSubmitting || !isValid || isUploadingImage}
-            className="gap-2"
+            className="w-full sm:w-auto gap-2"
           >
             {isSubmitting || isUploadingImage ? (
               <>

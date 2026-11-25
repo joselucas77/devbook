@@ -24,6 +24,18 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import {
   Table,
   TableBody,
   TableCell,
@@ -42,6 +54,9 @@ type DataTableProps<TData, TValue> = {
   moduleSlug?: string;
   searchPlaceholder?: string;
   searchColumnId?: string;
+  filterColumnId?: string;
+  filterPlaceholder?: string;
+  filterOptions?: { label: string; value: string }[];
 };
 
 export function DataTable<TData, TValue>({
@@ -53,6 +68,9 @@ export function DataTable<TData, TValue>({
   moduleSlug,
   searchPlaceholder = "Pesquisar...",
   searchColumnId,
+  filterColumnId,
+  filterPlaceholder = "Todos os status",
+  filterOptions,
 }: DataTableProps<TData, TValue>) {
   const [sorting, setSorting] = React.useState<SortingState>([]);
   const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>(
@@ -80,11 +98,18 @@ export function DataTable<TData, TValue>({
     ? (table.getColumn(searchColumnId)?.getFilterValue() as string) ?? ""
     : "";
 
+  const filterValue = filterColumnId
+    ? ((table.getColumn(filterColumnId)?.getFilterValue() as string) ?? "all")
+    : "all";
+
+  const hasFilter = Boolean(filterColumnId && filterOptions?.length);
+  const hasActiveFilter = hasFilter && filterValue !== "all";
+
   return (
     <div className="space-y-4">
       {/* Toolbar */}
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-3 mb-4">
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2 w-full md:w-auto">
           {searchColumnId ? (
             <Input
               placeholder={searchPlaceholder}
@@ -94,13 +119,101 @@ export function DataTable<TData, TValue>({
                   .getColumn(searchColumnId)
                   ?.setFilterValue(event.target.value)
               }
-              className="w-full md:w-[320px]"
+              className="flex-1 min-w-0 md:w-[300px] md:flex-none"
             />
           ) : null}
 
+          {hasFilter && (
+            <>
+              {/* Filtro somente ícone no celular */}
+              <Popover>
+                <PopoverTrigger asChild>
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="icon"
+                    className="md:hidden h-9 w-9 shrink-0 relative"
+                    aria-label="Filtrar"
+                    title="Filtrar"
+                  >
+                    <i className="bx bx-filter-alt text-lg" />
+                    {hasActiveFilter && (
+                      <span className="absolute top-1.5 right-1.5 h-2 w-2 rounded-full bg-blue-500" />
+                    )}
+                  </Button>
+                </PopoverTrigger>
+                <PopoverContent
+                  align="end"
+                  className="w-[min(calc(100vw-2rem),16rem)] p-3 space-y-2.5"
+                >
+                  <div className="flex items-center justify-between">
+                    <span className="text-xs font-semibold">Filtrar por status</span>
+                    {hasActiveFilter && (
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        size="sm"
+                        className="h-6 px-2 text-xs text-muted-foreground"
+                        onClick={() =>
+                          table.getColumn(filterColumnId!)?.setFilterValue(undefined)
+                        }
+                      >
+                        Limpar
+                      </Button>
+                    )}
+                  </div>
+                  <Select
+                    value={filterValue}
+                    onValueChange={(value) =>
+                      table
+                        .getColumn(filterColumnId!)
+                        ?.setFilterValue(value === "all" ? undefined : value)
+                    }
+                  >
+                    <SelectTrigger className="w-full h-8 text-xs">
+                      <SelectValue placeholder={filterPlaceholder} />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="all">{filterPlaceholder}</SelectItem>
+                      {filterOptions!.map((opt) => (
+                        <SelectItem key={opt.value} value={opt.value}>
+                          {opt.label}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </PopoverContent>
+              </Popover>
+
+              {/* Select completo no Desktop */}
+              <div className="hidden md:block">
+                <Select
+                  value={filterValue}
+                  onValueChange={(value) =>
+                    table
+                      .getColumn(filterColumnId!)
+                      ?.setFilterValue(value === "all" ? undefined : value)
+                  }
+                >
+                  <SelectTrigger className="w-44">
+                    <SelectValue placeholder={filterPlaceholder} />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">{filterPlaceholder}</SelectItem>
+                    {filterOptions!.map((opt) => (
+                      <SelectItem key={opt.value} value={opt.value}>
+                        {opt.label}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+            </>
+          )}
+
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <Button variant="secondary" className="gap-2">
+              <Button variant="secondary" className="hidden md:inline-flex gap-2">
                 <i className="bx bx-slider-alt text-base" />
                 Colunas
               </Button>
@@ -138,7 +251,11 @@ export function DataTable<TData, TValue>({
         </div>
 
         {((technologySlug && moduleSlug) || (technologyId && moduleId)) ? (
-          <Button asChild className="gap-2 bg-blue-600 hover:bg-blue-600/90 text-white" title="Criar novo post">
+          <Button
+            asChild
+            className="w-full md:w-auto gap-2 bg-blue-600 hover:bg-blue-600/90 text-white shrink-0"
+            title="Criar novo post"
+          >
             <Link
               href={
                 technologySlug && moduleSlug
@@ -159,16 +276,24 @@ export function DataTable<TData, TValue>({
           <TableHeader>
             {table.getHeaderGroups().map((headerGroup) => (
               <TableRow key={headerGroup.id} className="border-border">
-                {headerGroup.headers.map((header) => (
-                  <TableHead key={header.id} className="text-muted-foreground font-semibold">
-                    {header.isPlaceholder
-                      ? null
-                      : flexRender(
-                          header.column.columnDef.header,
-                          header.getContext()
-                        )}
-                  </TableHead>
-                ))}
+                {headerGroup.headers.map((header) => {
+                  const metaClass = (
+                    header.column.columnDef.meta as { className?: string } | undefined
+                  )?.className;
+                  return (
+                    <TableHead
+                      key={header.id}
+                      className={`text-muted-foreground font-semibold ${metaClass ?? ""}`}
+                    >
+                      {header.isPlaceholder
+                        ? null
+                        : flexRender(
+                            header.column.columnDef.header,
+                            header.getContext()
+                          )}
+                    </TableHead>
+                  );
+                })}
               </TableRow>
             ))}
           </TableHeader>
@@ -181,14 +306,22 @@ export function DataTable<TData, TValue>({
                   data-state={row.getIsSelected() && "selected"}
                   className="border-border hover:bg-muted/30 transition-colors"
                 >
-                  {row.getVisibleCells().map((cell) => (
-                    <TableCell key={cell.id} className="text-foreground">
-                      {flexRender(
-                        cell.column.columnDef.cell,
-                        cell.getContext()
-                      )}
-                    </TableCell>
-                  ))}
+                  {row.getVisibleCells().map((cell) => {
+                    const metaClass = (
+                      cell.column.columnDef.meta as { className?: string } | undefined
+                    )?.className;
+                    return (
+                      <TableCell
+                        key={cell.id}
+                        className={`text-foreground align-middle ${metaClass ?? ""}`}
+                      >
+                        {flexRender(
+                          cell.column.columnDef.cell,
+                          cell.getContext()
+                        )}
+                      </TableCell>
+                    );
+                  })}
                 </TableRow>
               ))
             ) : (

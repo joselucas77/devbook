@@ -117,7 +117,7 @@ export default async function AdminNewPostPage({
   }
 
   return (
-    <div className="py-6">
+    <div className="py-2 sm:py-6">
       <PostForm
         moduleId={moduleData.id}
         technologyId={moduleData.technologyId}

@@ -220,18 +220,18 @@ export function PostSchedulePicker({
   }, [selectedDate, selectedTime]);
 
   return (
-    <div className="rounded-lg border border-border/80 bg-muted/20 p-4 space-y-4">
-      <div className="flex items-center gap-2 text-foreground font-semibold text-sm">
-        <i className="bx bx-calendar-event text-blue-500 text-lg" />
+    <div className="rounded-lg border border-border/80 bg-muted/20 p-3.5 sm:p-4 space-y-4">
+      <div className="flex flex-wrap items-center gap-2 text-foreground font-semibold text-sm">
+        <i className="bx bx-calendar-event text-blue-500 text-lg shrink-0" />
         <span>Agendamento de Publicação</span>
-        <span className="text-xs font-normal text-muted-foreground ml-auto">
+        <span className="text-[11px] sm:text-xs font-normal text-muted-foreground sm:ml-auto">
           Fuso: Horário de Brasília (UTC-3)
         </span>
       </div>
 
-      <FieldGroup className="flex-row items-end gap-3 flex-wrap">
+      <FieldGroup className="flex-col sm:flex-row items-stretch sm:items-end gap-3">
         {/* Campo de Data (com Shadcn Popover e Calendar pt-BR) */}
-        <Field className="flex-1 min-w-[200px]">
+        <Field className="flex-1 min-w-0 sm:min-w-[200px]">
           <FieldLabel htmlFor="date-picker-schedule" className="text-xs font-medium">
             Data
           </FieldLabel>
@@ -275,7 +275,7 @@ export function PostSchedulePicker({
         </Field>
 
         {/* Campo de Horário (Shadcn Field com Input type="time" step="1") */}
-        <Field className="w-36">
+        <Field className="w-full sm:w-36">
           <FieldLabel htmlFor="time-picker-schedule" className="text-xs font-medium">
             Horário
           </FieldLabel>

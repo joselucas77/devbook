@@ -321,7 +321,7 @@ export function TechnologyModal({
                 <HoverCardTrigger asChild>
                   <i className="bx bx-help-circle text-base text-muted-foreground cursor-pointer hover:text-foreground" />
                 </HoverCardTrigger>
-                <HoverCardContent className="flex w-80 flex-col gap-1 text-xs">
+                <HoverCardContent className="flex w-[min(calc(100vw-2rem),20rem)] flex-col gap-1 text-xs">
                   {TechnologyCategories.map((cat, index) => (
                     <div key={index} className="text-muted-foreground mt-1">
                       <strong className="text-foreground">{cat.label}</strong>: {cat.description}
@@ -490,6 +490,7 @@ export function TechnologyModal({
                 <Switch
                   checked={field.value ?? false}
                   onCheckedChange={field.onChange}
+                  className="shrink-0"
                 />
               )}
             />
@@ -500,6 +501,7 @@ export function TechnologyModal({
               type="button"
               variant="outline"
               disabled={isSubmitting || isUploading}
+              className="w-full sm:w-auto"
               onClick={() => {
                 handleRemoveImage();
                 onOpenChange(false);
@@ -510,7 +512,7 @@ export function TechnologyModal({
             <Button
               type="submit"
               disabled={isSubmitting || isUploading || !isValid}
-              className="gap-2 bg-blue-600 hover:bg-blue-600/90 text-white"
+              className="w-full sm:w-auto gap-2 bg-blue-600 hover:bg-blue-600/90 text-white"
             >
               {isUploading ? (
                 <>

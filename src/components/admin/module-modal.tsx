@@ -153,6 +153,7 @@ export function ModuleModal({
             <Button
               type="button"
               variant="outline"
+              className="w-full sm:w-auto"
               onClick={() => onOpenChange(false)}
             >
               Cancelar
@@ -160,7 +161,7 @@ export function ModuleModal({
             <Button
               type="submit"
               disabled={isSubmitting || !isValid}
-              className="gap-2 bg-blue-600 hover:bg-blue-600/90 text-white"
+              className="w-full sm:w-auto gap-2 bg-blue-600 hover:bg-blue-600/90 text-white"
             >
               <i className="bx bx-save text-base" />
               Salvar
