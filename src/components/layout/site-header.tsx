@@ -28,7 +28,8 @@ interface SiteHeaderProps extends React.ComponentProps<"header"> {
 }
 
 const navItems = [
-  { label: "Tecnologias", href: "/admin", icon: "bx-code-alt", external: false },
+  { label: "Dashboard", href: "/admin", icon: "bx-bar-chart-square", external: false },
+  { label: "Tecnologias", href: "/admin/tecnologias", icon: "bx-code-alt", external: false },
   { label: "Ver Site", href: "/tecnologias", icon: "bx-globe", external: true },
 ];
 
@@ -118,7 +119,10 @@ export function SiteHeader({
                 {navItems.map((item) => {
                   const active =
                     item.href === "/admin"
-                      ? pathname === "/admin" || pathname.startsWith("/admin/")
+                      ? pathname === "/admin"
+                      : item.href === "/admin/tecnologias"
+                      ? pathname === "/admin/tecnologias" ||
+                        pathname.startsWith("/admin/tecnologias/")
                       : pathname === item.href;
 
                   return (

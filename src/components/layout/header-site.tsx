@@ -36,6 +36,11 @@ interface HeaderSiteProps {
 export function HeaderSite({ user }: HeaderSiteProps) {
   const pathname = usePathname();
   const router = useRouter();
+  const isAuthPage =
+    pathname === "/login" ||
+    pathname === "/cadastro" ||
+    pathname?.startsWith("/login/") ||
+    pathname?.startsWith("/cadastro/");
   const isPostReadingPage = Boolean(pathname && pathname.includes("/post/"));
   const { favorites } = useReadingProgress();
 
@@ -97,7 +102,8 @@ export function HeaderSite({ user }: HeaderSiteProps) {
         <div className="py-3 sm:py-3.5 container mx-auto px-4 sm:px-6 flex items-center justify-between gap-3 sm:gap-4">
           {/* Esquerda: Botão Hambúrguer (Sidebar) + Nome DevBook */}
           <div className="flex items-center gap-2 sm:gap-3 shrink-0 min-w-0">
-            <Sheet open={sidebarOpen} onOpenChange={setSidebarOpen}>
+            {!isAuthPage && (
+              <Sheet open={sidebarOpen} onOpenChange={setSidebarOpen}>
               <SheetTrigger asChild>
                 <Button
                   type="button"
@@ -263,6 +269,7 @@ export function HeaderSite({ user }: HeaderSiteProps) {
                 </div>
               </SheetContent>
             </Sheet>
+            )}
 
             <Link
               href="/"
@@ -278,9 +285,11 @@ export function HeaderSite({ user }: HeaderSiteProps) {
 
           {/* Direita: Campo de Pesquisa (Desktop) e Switch de Tema */}
           <div className="flex items-center gap-2 sm:gap-3 shrink-0">
-            <div className="hidden md:block w-48 sm:w-60 lg:w-72">
-              <GlobalSearch variant="header" />
-            </div>
+            {!isAuthPage && (
+              <div className="hidden md:block w-48 sm:w-60 lg:w-72">
+                <GlobalSearch variant="header" />
+              </div>
+            )}
 
             <ThemeToggle />
           </div>
@@ -291,6 +300,7 @@ export function HeaderSite({ user }: HeaderSiteProps) {
       </header>
 
       {/* Barra de Pesquisa / Ações Flutuantes no Canto Inferior (Mobile) */}
+      {!isAuthPage && (
       <div className="md:hidden fixed bottom-4 inset-x-0 z-40 px-3 sm:px-4 flex justify-center pointer-events-none max-w-full">
         {!isPostReadingPage ? (
           /* Comportamento padrão em outras páginas: barra de busca completa */
@@ -352,6 +362,7 @@ export function HeaderSite({ user }: HeaderSiteProps) {
           </div>
         )}
       </div>
+      )}
     </>
   );
 }

@@ -10,13 +10,12 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogDescription,
-  DialogFooter,
-} from "@/components/ui/dialog";
+  Sheet,
+  SheetContent,
+  SheetHeader,
+  SheetTitle,
+  SheetDescription,
+} from "@/components/ui/sheet";
 import {
   Select,
   SelectContent,
@@ -267,18 +266,27 @@ export function TechnologyModal({
   }
 
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-xl z-200 w-full max-h-[90vh] overflow-y-auto overflow-x-hidden">
-        <DialogHeader>
-          <DialogTitle className="text-xl font-bold">
-            {isEdit ? "Editar Tecnologia" : "Nova Tecnologia"}
-          </DialogTitle>
-          <DialogDescription className="text-muted-foreground">
-            Preencha as informações básicas da tecnologia.
-          </DialogDescription>
-        </DialogHeader>
+    <Sheet open={open} onOpenChange={onOpenChange}>
+      <SheetContent
+        side="bottom"
+        className="z-200 rounded-t-2xl max-h-[90vh] flex flex-col p-0 gap-0 overflow-hidden"
+      >
+        <div className="mx-auto mt-2.5 h-1.5 w-12 rounded-full bg-muted-foreground/25 shrink-0" />
 
-        <form onSubmit={handleSubmit(onSubmit)} className="space-y-4 w-full min-w-0 max-w-full">
+        <SheetHeader className="px-5 sm:px-6 pt-3 pb-4 border-b border-border/60 shrink-0 max-w-2xl w-full mx-auto pr-12">
+          <SheetTitle className="text-xl font-bold">
+            {isEdit ? "Editar Tecnologia" : "Nova Tecnologia"}
+          </SheetTitle>
+          <SheetDescription className="text-muted-foreground">
+            Preencha as informações básicas da tecnologia.
+          </SheetDescription>
+        </SheetHeader>
+
+        <div className="overflow-y-auto px-5 sm:px-6 py-4 flex-1">
+          <form
+            onSubmit={handleSubmit(onSubmit)}
+            className="space-y-4 w-full min-w-0 max-w-2xl mx-auto pb-2"
+          >
           <div className="space-y-2 min-w-0">
             <Label>Nome</Label>
             <Input placeholder="Ex: PHP" {...register("name")} />
@@ -321,7 +329,7 @@ export function TechnologyModal({
                 <HoverCardTrigger asChild>
                   <i className="bx bx-help-circle text-base text-muted-foreground cursor-pointer hover:text-foreground" />
                 </HoverCardTrigger>
-                <HoverCardContent className="flex w-[min(calc(100vw-2rem),20rem)] flex-col gap-1 text-xs">
+                <HoverCardContent className="z-300 flex w-[min(calc(100vw-2rem),20rem)] flex-col gap-1 text-xs">
                   {TechnologyCategories.map((cat, index) => (
                     <div key={index} className="text-muted-foreground mt-1">
                       <strong className="text-foreground">{cat.label}</strong>: {cat.description}
@@ -496,7 +504,7 @@ export function TechnologyModal({
             />
           </div>
 
-          <DialogFooter className="gap-2 pt-2">
+          <div className="flex flex-col-reverse sm:flex-row sm:justify-end gap-2 pt-2">
             <Button
               type="button"
               variant="outline"
@@ -531,9 +539,10 @@ export function TechnologyModal({
                 </>
               )}
             </Button>
-          </DialogFooter>
-        </form>
-      </DialogContent>
-    </Dialog>
+          </div>
+          </form>
+        </div>
+      </SheetContent>
+    </Sheet>
   );
 }

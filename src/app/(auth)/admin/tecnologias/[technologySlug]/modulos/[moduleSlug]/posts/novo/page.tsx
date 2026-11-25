@@ -98,7 +98,7 @@ export default async function AdminNewPostPage({
           Módulo não encontrado ou não informado.
         </p>
         <Button asChild variant="outline">
-          <Link href="/admin">Voltar para Tecnologias</Link>
+          <Link href="/admin/tecnologias">Voltar para Tecnologias</Link>
         </Button>
       </div>
     );

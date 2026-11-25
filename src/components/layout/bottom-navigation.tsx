@@ -6,7 +6,8 @@ import { usePathname } from "next/navigation";
 import { cn } from "@/lib/utils";
 
 const navItems = [
-  { label: "Admin", href: "/admin", icon: "bx-code-alt" },
+  { label: "Dashboard", href: "/admin", icon: "bx-bar-chart-square" },
+  { label: "Tecnologias", href: "/admin/tecnologias", icon: "bx-code-alt" },
   { label: "Ver Site", href: "/tecnologias", icon: "bx-globe" },
 ];
 
@@ -27,7 +28,10 @@ export function BottomNavigation({
       {navItems.map((item) => {
         const active =
           item.href === "/admin"
-            ? pathname === "/admin" || pathname.startsWith("/admin/")
+            ? pathname === "/admin"
+            : item.href === "/admin/tecnologias"
+            ? pathname === "/admin/tecnologias" ||
+              pathname.startsWith("/admin/tecnologias/")
             : pathname === item.href;
         return (
           <Link

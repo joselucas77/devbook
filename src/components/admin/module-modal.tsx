@@ -9,13 +9,12 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogDescription,
-  DialogFooter,
-} from "@/components/ui/dialog";
+  Sheet,
+  SheetContent,
+  SheetHeader,
+  SheetTitle,
+  SheetDescription,
+} from "@/components/ui/sheet";
 
 import { slugifySmart } from "@/lib/slugify";
 import {
@@ -102,73 +101,83 @@ export function ModuleModal({
   }
 
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-md z-200 w-full max-h-[90vh] overflow-y-auto overflow-x-hidden">
-        <DialogHeader>
-          <DialogTitle className="text-xl font-bold">
+    <Sheet open={open} onOpenChange={onOpenChange}>
+      <SheetContent
+        side="bottom"
+        className="z-200 rounded-t-2xl max-h-[90vh] flex flex-col p-0 gap-0 overflow-hidden"
+      >
+        <div className="mx-auto mt-2.5 h-1.5 w-12 rounded-full bg-muted-foreground/25 shrink-0" />
+
+        <SheetHeader className="px-5 sm:px-6 pt-3 pb-4 border-b border-border/60 shrink-0 max-w-xl w-full mx-auto pr-12">
+          <SheetTitle className="text-xl font-bold">
             {isEdit ? "Editar Módulo" : "Novo Módulo"}
-          </DialogTitle>
-          <DialogDescription className="text-muted-foreground">
+          </SheetTitle>
+          <SheetDescription className="text-muted-foreground">
             Tecnologia: <span className="font-semibold text-foreground">{technologyName}</span>
-          </DialogDescription>
-        </DialogHeader>
+          </SheetDescription>
+        </SheetHeader>
 
-        <form onSubmit={handleSubmit(onSubmit)} className="space-y-4 w-full min-w-0 max-w-full">
-          <div className="space-y-2 min-w-0">
-            <Label>Título</Label>
-            <Input placeholder="Ex: Começando com PHP" {...register("title")} />
-            {errors.title?.message && (
-              <p className="text-xs text-destructive">{errors.title.message}</p>
-            )}
-          </div>
+        <div className="overflow-y-auto px-5 sm:px-6 py-4 flex-1">
+          <form
+            onSubmit={handleSubmit(onSubmit)}
+            className="space-y-4 w-full min-w-0 max-w-xl mx-auto pb-2"
+          >
+            <div className="space-y-2 min-w-0">
+              <Label>Título</Label>
+              <Input placeholder="Ex: Começando com PHP" {...register("title")} />
+              {errors.title?.message && (
+                <p className="text-xs text-destructive">{errors.title.message}</p>
+              )}
+            </div>
 
-          <div className="space-y-2 min-w-0">
-            <Label>Slug</Label>
-            <div className="flex gap-2 min-w-0 w-full">
-              <Input
-                placeholder="ex: comecando-com-php"
-                className="min-w-0 flex-1"
-                {...register("slug")}
-              />
+            <div className="space-y-2 min-w-0">
+              <Label>Slug</Label>
+              <div className="flex gap-2 min-w-0 w-full">
+                <Input
+                  placeholder="ex: comecando-com-php"
+                  className="min-w-0 flex-1"
+                  {...register("slug")}
+                />
+                <Button
+                  type="button"
+                  variant="secondary"
+                  onClick={() =>
+                    setValue("slug", slugifySmart(getValues("title")), {
+                      shouldValidate: true,
+                    })
+                  }
+                  className="gap-2 shrink-0"
+                >
+                  <i className="bx bx-sparkles text-base" />
+                  Gerar
+                </Button>
+              </div>
+              {errors.slug?.message && (
+                <p className="text-xs text-destructive">{errors.slug.message}</p>
+              )}
+            </div>
+
+            <div className="flex flex-col-reverse sm:flex-row sm:justify-end gap-2 pt-2">
               <Button
                 type="button"
-                variant="secondary"
-                onClick={() =>
-                  setValue("slug", slugifySmart(getValues("title")), {
-                    shouldValidate: true,
-                  })
-                }
-                className="gap-2 shrink-0"
+                variant="outline"
+                className="w-full sm:w-auto"
+                onClick={() => onOpenChange(false)}
               >
-                <i className="bx bx-sparkles text-base" />
-                Gerar
+                Cancelar
+              </Button>
+              <Button
+                type="submit"
+                disabled={isSubmitting || !isValid}
+                className="w-full sm:w-auto gap-2 bg-blue-600 hover:bg-blue-600/90 text-white"
+              >
+                <i className="bx bx-save text-base" />
+                Salvar
               </Button>
             </div>
-            {errors.slug?.message && (
-              <p className="text-xs text-destructive">{errors.slug.message}</p>
-            )}
-          </div>
-
-          <DialogFooter className="gap-2 pt-2">
-            <Button
-              type="button"
-              variant="outline"
-              className="w-full sm:w-auto"
-              onClick={() => onOpenChange(false)}
-            >
-              Cancelar
-            </Button>
-            <Button
-              type="submit"
-              disabled={isSubmitting || !isValid}
-              className="w-full sm:w-auto gap-2 bg-blue-600 hover:bg-blue-600/90 text-white"
-            >
-              <i className="bx bx-save text-base" />
-              Salvar
-            </Button>
-          </DialogFooter>
-        </form>
-      </DialogContent>
-    </Dialog>
+          </form>
+        </div>
+      </SheetContent>
+    </Sheet>
   );
 }

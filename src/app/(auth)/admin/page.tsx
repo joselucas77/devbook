@@ -1,10 +1,11 @@
+import Link from "next/link";
 import { prisma } from "@/lib/prisma";
 import { publishDueScheduledPosts } from "@/lib/publish-scheduled";
 import { AdminDashboard } from "@/components/admin/admin-dashboard";
-import { TechnologiesTable } from "./technologies-table";
+import { Button } from "@/components/ui/button";
 
 export const metadata = {
-  title: "Painel Administrativo | DevBook",
+  title: "Dashboard | Painel DevBook",
 };
 
 export default async function AdminPage() {
@@ -14,7 +15,8 @@ export default async function AdminPage() {
   const sixMonthsStart = new Date(now.getFullYear(), now.getMonth() - 5, 1);
 
   const [
-    technologies,
+    totalTechnologies,
+    activeTechnologies,
     totalModules,
     postStatusCounts,
     publicPostsCount,
@@ -25,22 +27,8 @@ export default async function AdminPage() {
     recentPosts,
     techPostStats,
   ] = await Promise.all([
-    prisma.technology.findMany({
-      orderBy: [{ order: "asc" }, { createdAt: "asc" }],
-      select: {
-        id: true,
-        name: true,
-        slug: true,
-        category: true,
-        description: true,
-        image: true,
-        order: true,
-        isArchived: true,
-        createdAt: true,
-        updatedAt: true,
-        _count: { select: { modules: true } },
-      },
-    }),
+    prisma.technology.count(),
+    prisma.technology.count({ where: { isArchived: false } }),
     prisma.module.count(),
     prisma.post.groupBy({
       by: ["status"],
@@ -88,7 +76,6 @@ export default async function AdminPage() {
   const totalPosts =
     publishedPosts + draftPosts + scheduledPosts + archivedPosts;
 
-  // Posts por tecnologia (top 8 ordenados por total de posts)
   const postsByTechnology = techPostStats
     .map((tech) => {
       let published = 0;
@@ -120,7 +107,6 @@ export default async function AdminPage() {
     .sort((a, b) => b.total - a.total)
     .slice(0, 8);
 
-  // Atividade mensal nos últimos 6 meses
   const monthBuckets = Array.from({ length: 6 }, (_, idx) => {
     const d = new Date(now.getFullYear(), now.getMonth() - (5 - idx), 1);
     const key = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}`;
@@ -143,7 +129,6 @@ export default async function AdminPage() {
     }
   }
 
-  // Top 5 posts mais favoritados
   const topGroups = favoritedGroups.slice(0, 5);
   const topPostIds = topGroups.map((g) => g.postId);
   const topPostsRaw =
@@ -189,17 +174,24 @@ export default async function AdminPage() {
     })
     .filter((item): item is NonNullable<typeof item> => item !== null);
 
-  const activeTechnologies = technologies.filter((t) => !t.isArchived).length;
-
   return (
-    <div className="space-y-8">
-      <div>
-        <h1 className="text-2xl md:text-3xl font-bold tracking-tight">
-          Painel Administrativo
-        </h1>
-        <p className="text-sm text-muted-foreground mt-1">
-          Acompanhe métricas do sistema, favoritos e gerencie tecnologias, módulos e posts.
-        </p>
+    <div className="space-y-6">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+        <div>
+          <h1 className="text-2xl md:text-3xl font-bold tracking-tight">
+            Dashboard
+          </h1>
+          <p className="text-sm text-muted-foreground mt-1">
+            Visão geral das métricas do sistema, publicações e favoritos.
+          </p>
+        </div>
+
+        <Button asChild className="w-full sm:w-auto gap-2 bg-blue-600 hover:bg-blue-600/90 text-white shrink-0">
+          <Link href="/admin/tecnologias">
+            <i className="bx bx-code-alt text-base" />
+            Gerenciar Tecnologias
+          </Link>
+        </Button>
       </div>
 
       <AdminDashboard
@@ -213,7 +205,7 @@ export default async function AdminPage() {
             publicPosts: publicPostsCount,
             totalFavorites,
             uniqueFavoritedPosts: favoritedGroups.length,
-            totalTechnologies: technologies.length,
+            totalTechnologies,
             activeTechnologies,
             totalModules,
             totalUsers,
@@ -224,33 +216,6 @@ export default async function AdminPage() {
           topFavoritedPosts,
         }}
       />
-
-      <section className="space-y-4 pt-2 border-t border-border/60">
-        <div>
-          <h2 className="text-xl md:text-2xl font-bold tracking-tight">
-            Tecnologias
-          </h2>
-          <p className="text-sm text-muted-foreground mt-1">
-            Visualize, crie e edite tecnologias e acesse seus módulos e posts.
-          </p>
-        </div>
-
-        <TechnologiesTable
-          data={technologies.map((t) => ({
-            id: t.id,
-            name: t.name,
-            slug: t.slug,
-            category: t.category,
-            description: t.description,
-            image: t.image,
-            order: t.order,
-            isArchived: t.isArchived,
-            modulesCount: t._count.modules,
-            createdAt: t.createdAt.toISOString(),
-            updatedAt: t.updatedAt.toISOString(),
-          }))}
-        />
-      </section>
     </div>
   );
 }
