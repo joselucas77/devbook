@@ -143,6 +143,60 @@
   animation: cloud-drift-slow 5s ease-in-out infinite 1s;
 }
 
+/* DevBook Universal Loading Animations */
+@keyframes devbook-float {
+  0%,
+  100% {
+    transform: translateY(0px);
+  }
+  50% {
+    transform: translateY(-4px);
+  }
+}
+
+@keyframes devbook-progress {
+  0% {
+    transform: translateX(-100%);
+  }
+  100% {
+    transform: translateX(250%);
+  }
+}
+
+@keyframes devbook-spin-slow {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes devbook-spin-reverse {
+  from {
+    transform: rotate(360deg);
+  }
+  to {
+    transform: rotate(0deg);
+  }
+}
+
+.animate-devbook-float {
+  animation: devbook-float 2.4s ease-in-out infinite;
+}
+
+.animate-devbook-progress {
+  animation: devbook-progress 1.5s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+}
+
+.animate-devbook-spin-slow {
+  animation: devbook-spin-slow 3.5s linear infinite;
+}
+
+.animate-devbook-spin-reverse {
+  animation: devbook-spin-reverse 5.5s linear infinite;
+}
+
 :root {
   --radius: 0.625rem;
   --background: oklch(1 0 0);
