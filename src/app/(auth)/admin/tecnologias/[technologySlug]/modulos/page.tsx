@@ -66,7 +66,7 @@ export default async function AdminModulesPage({
           <h1 className="text-2xl md:text-3xl font-bold tracking-tight">
             {technology.name}
           </h1>
-          <p className="text-sm text-muted-foreground mt-1">
+          <p className="hidden md:block text-sm text-muted-foreground mt-1">
             Gerencie os módulos e os artigos vinculados a esta tecnologia.
           </p>
         </div>

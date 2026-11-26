@@ -168,16 +168,19 @@ export function PostsTable({
               : "Arquivado";
 
           return (
-            <div className="font-medium space-y-1 min-w-0">
-              <div className="flex items-start gap-1.5">
-                <span className="md:hidden text-[11px] font-mono text-muted-foreground mt-0.5 shrink-0">
+            <div className="font-medium space-y-1 min-w-0 max-w-full overflow-hidden">
+              <div className="flex items-center gap-1.5 min-w-0">
+                <span className="md:hidden text-[11px] font-mono text-muted-foreground shrink-0">
                   #{index + 1}
                 </span>
-                <span className="text-foreground break-words">
+                <span
+                  className="text-foreground truncate block min-w-0 flex-1"
+                  title={row.original.title}
+                >
                   {row.original.title}
                 </span>
               </div>
-              <div className="text-xs text-muted-foreground truncate max-w-[200px] sm:max-w-none">
+              <div className="text-xs text-muted-foreground truncate">
                 {row.original.slug}
               </div>
               <div className="flex items-center gap-1.5 flex-wrap md:hidden pt-0.5">
@@ -268,6 +271,7 @@ export function PostsTable({
       {
         id: "actions",
         header: "",
+        meta: { className: "w-12 text-right" },
         cell: ({ row }) => {
           const p = row.original;
           const index = items.findIndex((it) => it.id === p.id);
@@ -279,7 +283,7 @@ export function PostsTable({
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
                   <Button variant="ghost" size="icon" className="h-8 w-8">
-                    <i className="bx bx-dots-horizontal-rounded text-lg" />
+                    <i className="bx bx-dots-vertical-rounded text-lg" />
                   </Button>
                 </DropdownMenuTrigger>
 
@@ -390,6 +394,7 @@ export function PostsTable({
         { label: "Agendado", value: "SCHEDULED" },
         { label: "Arquivado", value: "ARCHIVED" },
       ]}
+      itemLabel="posts"
     />
   );
 }

@@ -52,6 +52,7 @@ import {
 } from "@/components/admin/module-modal";
 import { formatDateBR } from "@/lib/format-date";
 import { Badge } from "@/components/ui/badge";
+import { TablePaginationBar } from "@/components/admin/table-pagination-bar";
 
 type Row = {
   id: number;
@@ -218,16 +219,19 @@ export function ModulesTable({
         cell: ({ row }) => {
           const index = items.findIndex((it) => it.id === row.original.id);
           return (
-            <div className="space-y-1 min-w-0">
-              <div className="flex items-center gap-1.5 flex-wrap">
-                <span className="md:hidden text-[11px] font-mono text-muted-foreground">
+            <div className="space-y-1 min-w-0 max-w-full overflow-hidden">
+              <div className="flex items-center gap-1.5 min-w-0">
+                <span className="md:hidden text-[11px] font-mono text-muted-foreground shrink-0">
                   #{index + 1}
                 </span>
-                <span className="font-medium text-foreground break-words">
+                <span
+                  className="font-medium text-foreground truncate block min-w-0 flex-1"
+                  title={row.original.title}
+                >
                   {row.original.title}
                 </span>
               </div>
-              <div className="text-xs text-muted-foreground truncate max-w-[200px] sm:max-w-none">
+              <div className="text-xs text-muted-foreground truncate">
                 {row.original.slug}
               </div>
               <div className="text-[11px] font-mono text-muted-foreground md:hidden">
@@ -263,6 +267,7 @@ export function ModulesTable({
       {
         id: "actions",
         header: "",
+        meta: { className: "w-12 text-right" },
         cell: ({ row }) => {
           const m = row.original;
           const index = items.findIndex((it) => it.id === m.id);
@@ -274,7 +279,7 @@ export function ModulesTable({
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
                   <Button variant="ghost" size="icon" className="h-8 w-8">
-                    <i className="bx bx-dots-horizontal-rounded text-lg" />
+                    <i className="bx bx-dots-vertical-rounded text-lg" />
                   </Button>
                 </DropdownMenuTrigger>
 
@@ -399,9 +404,9 @@ export function ModulesTable({
 
   return (
     <>
-      <div className="space-y-4">
+      <div className="space-y-3 pb-20 md:pb-0">
         {/* Toolbar */}
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-4">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
           <div className="flex items-center gap-2 w-full sm:w-auto">
             <Input
               placeholder="Buscar por título..."
@@ -450,7 +455,7 @@ export function ModulesTable({
           </div>
 
           <Button
-            className="w-full sm:w-auto gap-2 bg-blue-600 hover:bg-blue-600/90 text-white shrink-0"
+            className="hidden md:inline-flex gap-2 bg-blue-600 hover:bg-blue-600/90 text-white shrink-0"
             onClick={() => {
               setEditing(null);
               setOpenModal(true);
@@ -461,9 +466,12 @@ export function ModulesTable({
           </Button>
         </div>
 
+        {/* Paginação acima da tabela */}
+        <TablePaginationBar table={table} itemLabel="módulos" />
+
         {/* Table */}
         <div className="rounded-md border border-border bg-card overflow-hidden">
-          <Table>
+          <Table className="table-fixed md:table-auto">
             <TableHeader>
               {table.getHeaderGroups().map((headerGroup) => (
                 <TableRow key={headerGroup.id} className="border-border">
@@ -524,37 +532,24 @@ export function ModulesTable({
             </TableBody>
           </Table>
         </div>
-
-        {/* Pagination */}
-        <div className="flex items-center justify-between gap-3 mt-4">
-          <div className="text-sm text-muted-foreground">
-            {table.getFilteredRowModel().rows.length} resultado(s)
-          </div>
-
-          <div className="flex items-center gap-2">
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => table.previousPage()}
-              disabled={!table.getCanPreviousPage()}
-            >
-              <i className="bx bx-chevron-left text-base mr-1" />
-              Anterior
-            </Button>
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => table.nextPage()}
-              disabled={!table.getCanNextPage()}
-            >
-              Próxima
-              <i className="bx bx-chevron-right text-base ml-1" />
-            </Button>
-          </div>
-        </div>
       </div>
 
-      {/* Create/Edit Modal */}
+      {/* Botão flutuante (Somente Mobile) */}
+      <Button
+        type="button"
+        size="icon"
+        onClick={() => {
+          setEditing(null);
+          setOpenModal(true);
+        }}
+        className="md:hidden fixed bottom-5 right-5 z-30 h-14 w-14 rounded-full bg-blue-600 hover:bg-blue-600/90 text-white shadow-xl shadow-blue-600/30"
+        aria-label="Novo Módulo"
+        title="Novo Módulo"
+      >
+        <i className="bx bx-plus text-2xl" />
+      </Button>
+
+      {/* Create/Edit Sheet */}
       <ModuleModal
         open={openModal}
         onOpenChange={setOpenModal}

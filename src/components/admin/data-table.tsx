@@ -43,7 +43,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { DataTablePagination } from "./data-table-pagination";
+import { TablePaginationBar } from "./table-pagination-bar";
 
 type DataTableProps<TData, TValue> = {
   columns: ColumnDef<TData, TValue>[];
@@ -57,6 +57,7 @@ type DataTableProps<TData, TValue> = {
   filterColumnId?: string;
   filterPlaceholder?: string;
   filterOptions?: { label: string; value: string }[];
+  itemLabel?: string;
 };
 
 export function DataTable<TData, TValue>({
@@ -71,6 +72,7 @@ export function DataTable<TData, TValue>({
   filterColumnId,
   filterPlaceholder = "Todos os status",
   filterOptions,
+  itemLabel,
 }: DataTableProps<TData, TValue>) {
   const [sorting, setSorting] = React.useState<SortingState>([]);
   const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>(
@@ -105,10 +107,17 @@ export function DataTable<TData, TValue>({
   const hasFilter = Boolean(filterColumnId && filterOptions?.length);
   const hasActiveFilter = hasFilter && filterValue !== "all";
 
+  const newPostHref =
+    (technologySlug && moduleSlug) || (technologyId && moduleId)
+      ? technologySlug && moduleSlug
+        ? `/admin/tecnologias/${technologySlug}/modulos/${moduleSlug}/posts/novo?moduleId=${moduleId}`
+        : `/admin/tecnologias/${technologyId}/modulos/${moduleId}/posts/novo?moduleId=${moduleId}`
+      : null;
+
   return (
-    <div className="space-y-4">
+    <div className="space-y-3 pb-20 md:pb-0">
       {/* Toolbar */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-3 mb-4">
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-3">
         <div className="flex items-center gap-2 w-full md:w-auto">
           {searchColumnId ? (
             <Input
@@ -250,19 +259,13 @@ export function DataTable<TData, TValue>({
           </DropdownMenu>
         </div>
 
-        {((technologySlug && moduleSlug) || (technologyId && moduleId)) ? (
+        {newPostHref ? (
           <Button
             asChild
-            className="w-full md:w-auto gap-2 bg-blue-600 hover:bg-blue-600/90 text-white shrink-0"
+            className="hidden md:inline-flex gap-2 bg-blue-600 hover:bg-blue-600/90 text-white shrink-0"
             title="Criar novo post"
           >
-            <Link
-              href={
-                technologySlug && moduleSlug
-                  ? `/admin/tecnologias/${technologySlug}/modulos/${moduleSlug}/posts/novo?moduleId=${moduleId}`
-                  : `/admin/tecnologias/${technologyId}/modulos/${moduleId}/posts/novo?moduleId=${moduleId}`
-              }
-            >
+            <Link href={newPostHref}>
               <i className="bx bx-plus text-base" />
               Novo Post
             </Link>
@@ -270,9 +273,12 @@ export function DataTable<TData, TValue>({
         ) : null}
       </div>
 
+      {/* Paginação acima da tabela */}
+      <TablePaginationBar table={table} itemLabel={itemLabel} />
+
       {/* Table */}
       <div className="rounded-md border border-border bg-card overflow-hidden">
-        <Table>
+        <Table className="table-fixed md:table-auto">
           <TableHeader>
             {table.getHeaderGroups().map((headerGroup) => (
               <TableRow key={headerGroup.id} className="border-border">
@@ -338,7 +344,20 @@ export function DataTable<TData, TValue>({
         </Table>
       </div>
 
-      <DataTablePagination table={table} />
+      {/* Botão flutuante (Somente Mobile) */}
+      {newPostHref ? (
+        <Button
+          asChild
+          size="icon"
+          className="md:hidden fixed bottom-5 right-5 z-30 h-14 w-14 rounded-full bg-blue-600 hover:bg-blue-600/90 text-white shadow-xl shadow-blue-600/30"
+          aria-label="Novo Post"
+          title="Novo Post"
+        >
+          <Link href={newPostHref}>
+            <i className="bx bx-plus text-2xl" />
+          </Link>
+        </Button>
+      ) : null}
     </div>
   );
 }

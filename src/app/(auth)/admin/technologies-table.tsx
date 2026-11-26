@@ -64,6 +64,7 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
+import { TablePaginationBar } from "@/components/admin/table-pagination-bar";
 
 export type Row = {
   id: number;
@@ -265,30 +266,33 @@ export function TechnologiesTable({ data }: { data: Row[] }) {
         cell: ({ row }) => {
           const index = items.findIndex((it) => it.id === row.original.id);
           return (
-            <div className="space-y-1 min-w-0">
-              <div className="flex items-center gap-1.5 flex-wrap">
-                <span className="md:hidden text-[11px] font-mono text-muted-foreground">
+            <div className="space-y-1 min-w-0 max-w-full overflow-hidden">
+              <div className="flex items-center gap-1.5 min-w-0">
+                <span className="md:hidden text-[11px] font-mono text-muted-foreground shrink-0">
                   #{index + 1}
                 </span>
-                <span className="font-medium text-foreground break-words">
+                <span
+                  className="font-medium text-foreground truncate block min-w-0 flex-1"
+                  title={row.original.name}
+                >
                   {row.original.name}
                 </span>
                 {row.original.isArchived && (
                   <Badge
                     variant="outline"
-                    className="border-amber-500/30 text-amber-500 bg-amber-500/10 text-[10px] px-1.5 py-0 h-4 font-mono font-normal"
+                    className="border-amber-500/30 text-amber-500 bg-amber-500/10 text-[10px] px-1.5 py-0 h-4 font-mono font-normal shrink-0"
                   >
                     Arquivada
                   </Badge>
                 )}
               </div>
-              <div className="text-xs text-muted-foreground truncate max-w-[200px] sm:max-w-none">
+              <div className="text-xs text-muted-foreground truncate">
                 {row.original.slug}
               </div>
-              <div className="flex items-center gap-2 text-[11px] text-muted-foreground md:hidden flex-wrap">
-                <span>{row.original.category}</span>
-                <span>•</span>
-                <span className="font-mono">
+              <div className="flex items-center gap-2 text-[11px] text-muted-foreground md:hidden truncate">
+                <span className="truncate">{row.original.category}</span>
+                <span className="shrink-0">•</span>
+                <span className="font-mono shrink-0">
                   {row.original.modulesCount}{" "}
                   {row.original.modulesCount === 1 ? "módulo" : "módulos"}
                 </span>
@@ -333,6 +337,7 @@ export function TechnologiesTable({ data }: { data: Row[] }) {
       {
         id: "actions",
         header: "",
+        meta: { className: "w-12 text-right" },
         cell: ({ row }) => {
           const t = row.original;
           const index = items.findIndex((it) => it.id === t.id);
@@ -344,7 +349,7 @@ export function TechnologiesTable({ data }: { data: Row[] }) {
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
                   <Button variant="ghost" size="icon" className="h-8 w-8">
-                    <i className="bx bx-dots-horizontal-rounded text-lg" />
+                    <i className="bx bx-dots-vertical-rounded text-lg" />
                   </Button>
                 </DropdownMenuTrigger>
 
@@ -492,9 +497,9 @@ export function TechnologiesTable({ data }: { data: Row[] }) {
 
   return (
     <>
-      <div className="space-y-4">
+      <div className="space-y-3 pb-20 md:pb-0">
         {/* Toolbar */}
-        <div className="flex flex-col md:flex-row md:items-center justify-between gap-3 mb-4">
+        <div className="flex flex-col md:flex-row md:items-center justify-between gap-3">
           <div className="flex flex-wrap items-center gap-2 w-full md:w-auto">
             <Input
               placeholder="Buscar por nome..."
@@ -680,7 +685,7 @@ export function TechnologiesTable({ data }: { data: Row[] }) {
           </div>
 
           <Button
-            className="w-full md:w-auto gap-2 bg-blue-600 hover:bg-blue-600/90 text-white shrink-0"
+            className="hidden md:inline-flex gap-2 bg-blue-600 hover:bg-blue-600/90 text-white shrink-0"
             onClick={() => {
               setEditing(null);
               setOpenModal(true);
@@ -691,9 +696,12 @@ export function TechnologiesTable({ data }: { data: Row[] }) {
           </Button>
         </div>
 
+        {/* Paginação acima da tabela */}
+        <TablePaginationBar table={table} itemLabel="tecnologias" />
+
         {/* Table */}
         <div className="rounded-md border border-border bg-card overflow-hidden">
-          <Table>
+          <Table className="table-fixed md:table-auto">
             <TableHeader>
               {table.getHeaderGroups().map((headerGroup) => (
                 <TableRow key={headerGroup.id} className="border-border">
@@ -754,37 +762,24 @@ export function TechnologiesTable({ data }: { data: Row[] }) {
             </TableBody>
           </Table>
         </div>
-
-        {/* Pagination */}
-        <div className="flex items-center justify-between gap-3 mt-4">
-          <div className="text-sm text-muted-foreground">
-            {table.getFilteredRowModel().rows.length} resultado(s)
-          </div>
-
-          <div className="flex items-center gap-2">
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => table.previousPage()}
-              disabled={!table.getCanPreviousPage()}
-            >
-              <i className="bx bx-chevron-left text-base mr-1" />
-              Anterior
-            </Button>
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => table.nextPage()}
-              disabled={!table.getCanNextPage()}
-            >
-              Próxima
-              <i className="bx bx-chevron-right text-base ml-1" />
-            </Button>
-          </div>
-        </div>
       </div>
 
-      {/* Create/Edit Modal */}
+      {/* Botão flutuante (Somente Mobile) */}
+      <Button
+        type="button"
+        size="icon"
+        onClick={() => {
+          setEditing(null);
+          setOpenModal(true);
+        }}
+        className="md:hidden fixed bottom-5 right-5 z-30 h-14 w-14 rounded-full bg-blue-600 hover:bg-blue-600/90 text-white shadow-xl shadow-blue-600/30"
+        aria-label="Nova Tecnologia"
+        title="Nova Tecnologia"
+      >
+        <i className="bx bx-plus text-2xl" />
+      </Button>
+
+      {/* Create/Edit Sheet */}
       <TechnologyModal
         open={openModal}
         onOpenChange={setOpenModal}

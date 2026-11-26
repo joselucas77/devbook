@@ -499,7 +499,7 @@ export function PostForm({
   const hasAnyError = useMemo(() => Object.keys(errors).length > 0, [errors]);
 
   return (
-    <section className="max-w-3xl mx-auto mb-20">
+    <section className="max-w-3xl mx-auto mb-24 md:mb-20">
       <div className="mb-6 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
         <div>
           <h1 className="text-2xl sm:text-3xl font-bold leading-tight mb-1">
@@ -534,7 +534,7 @@ export function PostForm({
         </div>
       )}
 
-      <form onSubmit={handleSubmit(onSubmit, onInvalid)} className="space-y-5">
+      <form id="post-form" onSubmit={handleSubmit(onSubmit, onInvalid)} className="space-y-5">
         <Card className="p-4 sm:p-5 space-y-3">
           <div className="space-y-1">
             <Label className="text-xs font-medium">Módulo</Label>
@@ -833,8 +833,9 @@ export function PostForm({
           )}
         </div>
 
-        <div className="flex flex-col-reverse sm:flex-row sm:items-center justify-between gap-3 pt-2">
-          <Button type="button" variant="secondary" asChild className="w-full sm:w-auto">
+        {/* Botões padrão (Desktop) */}
+        <div className="hidden md:flex items-center justify-between gap-3 pt-2">
+          <Button type="button" variant="secondary" asChild>
             <Link
               href={`/admin/tecnologias/${technologySlug}/modulos/${moduleSlug}/posts`}
             >
@@ -845,7 +846,7 @@ export function PostForm({
           <Button
             type="submit"
             disabled={isSubmitting || !isValid || isUploadingImage}
-            className="w-full sm:w-auto gap-2"
+            className="gap-2"
           >
             {isSubmitting || isUploadingImage ? (
               <>
@@ -866,6 +867,58 @@ export function PostForm({
           </Button>
         </div>
       </form>
+
+      {/* Botões flutuantes (Somente Mobile) */}
+      <div className="md:hidden fixed bottom-5 right-5 z-30 flex items-center gap-2.5">
+        <Button
+          type="button"
+          variant="outline"
+          size="icon"
+          asChild
+          className="h-12 w-12 rounded-full bg-card/95 backdrop-blur-md border-border shadow-lg"
+          aria-label="Cancelar"
+          title="Cancelar"
+        >
+          <Link
+            href={`/admin/tecnologias/${technologySlug}/modulos/${moduleSlug}/posts`}
+          >
+            <i className="bx bx-x text-2xl" />
+          </Link>
+        </Button>
+
+        <Button
+          type="submit"
+          form="post-form"
+          disabled={isSubmitting || !isValid || isUploadingImage}
+          className="h-12 px-5 rounded-full bg-blue-600 hover:bg-blue-600/90 text-white shadow-xl shadow-blue-600/30 gap-2"
+          aria-label={
+            watchedStatus === "SCHEDULED"
+              ? isEdit
+                ? "Atualizar Agendamento"
+                : "Agendar Post"
+              : isEdit
+              ? "Atualizar Post"
+              : "Salvar Post"
+          }
+        >
+          {isSubmitting || isUploadingImage ? (
+            <>
+              <i className="bx bx-loader-alt animate-spin text-lg" />
+              <span>Salvando...</span>
+            </>
+          ) : watchedStatus === "SCHEDULED" ? (
+            <>
+              <i className="bx bx-calendar-event text-lg" />
+              <span>{isEdit ? "Atualizar" : "Agendar"}</span>
+            </>
+          ) : (
+            <>
+              <i className="bx bx-save text-lg" />
+              <span>{isEdit ? "Atualizar" : "Salvar"}</span>
+            </>
+          )}
+        </Button>
+      </div>
     </section>
   );
 }
