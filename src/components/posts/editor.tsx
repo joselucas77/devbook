@@ -166,8 +166,9 @@ export function PostEditor({
 
   if (!editor) {
     return (
-      <div className="w-full h-80 rounded-xl border border-border bg-card/50 animate-pulse flex items-center justify-center text-muted-foreground text-sm">
-        Carregando editor...
+      <div className="w-full h-80 rounded-xl border border-border bg-card/50 flex items-center justify-center gap-2 text-muted-foreground text-sm">
+        <i className="bx bx-loader-alt animate-spin text-lg text-blue-500" />
+        <span>Carregando editor...</span>
       </div>
     );
   }

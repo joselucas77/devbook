@@ -12,7 +12,7 @@ export function PageLoading({
       role="status"
       aria-live="polite"
       aria-label={message}
-      className="min-h-[55vh] sm:min-h-[60vh] w-full flex flex-col items-center justify-center px-4 py-12 select-none"
+      className="min-h-[calc(100dvh-11rem)] sm:min-h-[calc(100dvh-12rem)] w-full flex flex-col items-center justify-center px-4 py-8 select-none"
     >
       <div className="flex flex-col items-center gap-5 max-w-xs w-full text-center">
         {/* Ícone DevBook com anéis orbitais animados */}

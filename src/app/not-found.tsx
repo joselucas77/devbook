@@ -39,23 +39,15 @@ export default function NotFound() {
           temporariamente indisponível no DevBook.
         </p>
 
-        {/* Botões de Ação */}
-        <div className="flex flex-col sm:flex-row items-center justify-center gap-3 w-full sm:w-auto">
-          <Button asChild size="lg" className="w-full sm:w-auto rounded-xl gap-2 font-mono">
-            <Link href="/tecnologias">
-              <i className="bx bx-home-alt text-lg" />
-              Explorar Tecnologias
-            </Link>
-          </Button>
-
+        {/* Botão de Ação */}
+        <div className="flex items-center justify-center w-full sm:w-auto">
           <Button
             asChild
-            variant="outline"
             size="lg"
             className="w-full sm:w-auto rounded-xl gap-2 font-mono"
           >
             <Link href="/">
-              <i className="bx bx-grid-alt text-lg" />
+              <i className="bx bx-home-alt text-lg" />
               Ir para o Início
             </Link>
           </Button>
