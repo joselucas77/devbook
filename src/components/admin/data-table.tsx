@@ -349,7 +349,7 @@ export function DataTable<TData, TValue>({
         <Button
           asChild
           size="icon"
-          className="md:hidden fixed bottom-5 right-5 z-30 h-14 w-14 rounded-full bg-blue-600 hover:bg-blue-600/90 text-white shadow-xl shadow-blue-600/30"
+          className="md:hidden fixed bottom-5 right-5 z-30 h-14 w-14 rounded-full bg-blue-600 hover:bg-blue-600/90 text-white shadow-md"
           aria-label="Novo Post"
           title="Novo Post"
         >

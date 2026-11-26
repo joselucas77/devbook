@@ -84,27 +84,22 @@ export default async function AdminPostsPage({
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <div>
-          <div className="flex flex-wrap items-center gap-x-2 gap-y-1 text-xs text-muted-foreground mb-1">
-            <Link href="/admin" className="hover:text-blue-500 transition-colors">
-              Dashboard
-            </Link>
-            <span>/</span>
-            <Link href="/admin/tecnologias" className="hover:text-blue-500 transition-colors">
-              Tecnologias
-            </Link>
-            <span>/</span>
-            <Link
-              href={`/admin/tecnologias/${technology.slug}/modulos`}
-              className="hover:text-blue-500 transition-colors"
-            >
-              {technology.name}
-            </Link>
-            <span>/</span>
-            <span>{module.title}</span>
-          </div>
-          <h1 className="text-2xl md:text-3xl font-bold tracking-tight">
+      <div className="flex items-start gap-3">
+        <Button
+          asChild
+          variant="outline"
+          size="icon"
+          className="h-9 w-9 rounded-full shrink-0 mt-0.5"
+          aria-label="Voltar para Módulos"
+          title="Voltar para Módulos"
+        >
+          <Link href={`/admin/tecnologias/${technology.slug}/modulos`}>
+            <i className="bx bx-arrow-back text-lg" />
+          </Link>
+        </Button>
+
+        <div className="min-w-0">
+          <h1 className="text-2xl md:text-3xl font-bold tracking-tight break-words">
             {module.title}
           </h1>
           <p className="hidden md:block text-sm text-muted-foreground mt-1">

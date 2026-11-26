@@ -68,6 +68,7 @@ export function PostForm({
   const router = useRouter();
   void _technologyId;
   const isEdit = !!initialPost?.id;
+  const [fabOpen, setFabOpen] = useState(false);
   const [imageMode, setImageMode] = useState<"file" | "url">(
     initialPost?.image ? "url" : "file"
   );
@@ -502,12 +503,9 @@ export function PostForm({
     <section className="max-w-3xl mx-auto mb-24 md:mb-20">
       <div className="mb-6 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
         <div>
-          <h1 className="text-2xl sm:text-3xl font-bold leading-tight mb-1">
+          <h1 className="text-2xl sm:text-3xl font-bold leading-tight">
             {isEdit ? "Editar Post" : "Criar Post"}
           </h1>
-          <p className="text-xs sm:text-sm text-muted-foreground">
-            {technologyName} / {moduleTitle}
-          </p>
         </div>
 
         {lastSavedDraft && (
@@ -868,56 +866,85 @@ export function PostForm({
         </div>
       </form>
 
-      {/* Botões flutuantes (Somente Mobile) */}
-      <div className="md:hidden fixed bottom-5 right-5 z-30 flex items-center gap-2.5">
-        <Button
-          type="button"
-          variant="outline"
-          size="icon"
-          asChild
-          className="h-12 w-12 rounded-full bg-card/95 backdrop-blur-md border-border shadow-lg"
-          aria-label="Cancelar"
-          title="Cancelar"
+      {/* Botão flutuante expansível (Somente Mobile) */}
+      {fabOpen && (
+        <div
+          className="md:hidden fixed inset-0 z-30 bg-black/40 backdrop-blur-[1px] animate-in fade-in duration-200"
+          onClick={() => setFabOpen(false)}
+          aria-hidden="true"
+        />
+      )}
+
+      <div className="md:hidden fixed bottom-5 right-5 z-40 flex flex-col items-end gap-2.5">
+        {/* Opções acima do FAB */}
+        <div
+          className={`flex flex-col items-end gap-2.5 transition-all duration-200 ease-out origin-bottom ${
+            fabOpen
+              ? "opacity-100 translate-y-0 scale-100 pointer-events-auto"
+              : "opacity-0 translate-y-4 scale-95 pointer-events-none"
+          }`}
         >
           <Link
             href={`/admin/tecnologias/${technologySlug}/modulos/${moduleSlug}/posts`}
+            onClick={() => setFabOpen(false)}
+            className="flex items-center gap-3 rounded-full bg-card border border-border/80 pl-2 pr-4 py-1.5 shadow-md hover:bg-muted/80 active:scale-95 transition-all"
           >
-            <i className="bx bx-x text-2xl" />
+            <span className="h-9 w-9 rounded-full bg-muted flex items-center justify-center text-muted-foreground shrink-0">
+              <i className="bx bx-x text-xl" />
+            </span>
+            <span className="text-sm font-semibold text-foreground whitespace-nowrap">
+              Cancelar
+            </span>
           </Link>
-        </Button>
 
-        <Button
-          type="submit"
-          form="post-form"
-          disabled={isSubmitting || !isValid || isUploadingImage}
-          className="h-12 px-5 rounded-full bg-blue-600 hover:bg-blue-600/90 text-white shadow-xl shadow-blue-600/30 gap-2"
-          aria-label={
-            watchedStatus === "SCHEDULED"
-              ? isEdit
-                ? "Atualizar Agendamento"
-                : "Agendar Post"
-              : isEdit
-              ? "Atualizar Post"
-              : "Salvar Post"
-          }
+          <button
+            type="submit"
+            form="post-form"
+            disabled={isSubmitting || isUploadingImage}
+            onClick={() => setFabOpen(false)}
+            className="flex items-center gap-3 rounded-full bg-card border border-border/80 pl-2 pr-4 py-1.5 shadow-md hover:bg-muted/80 active:scale-95 transition-all disabled:opacity-50 cursor-pointer"
+          >
+            <span className="h-9 w-9 rounded-full bg-blue-600/15 text-blue-500 flex items-center justify-center shrink-0">
+              {isSubmitting || isUploadingImage ? (
+                <i className="bx bx-loader-alt animate-spin text-lg" />
+              ) : watchedStatus === "SCHEDULED" ? (
+                <i className="bx bx-calendar-event text-lg" />
+              ) : (
+                <i className="bx bx-save text-lg" />
+              )}
+            </span>
+            <span className="text-sm font-semibold text-foreground whitespace-nowrap">
+              {isSubmitting || isUploadingImage
+                ? "Salvando..."
+                : watchedStatus === "SCHEDULED"
+                ? isEdit
+                  ? "Atualizar Agendamento"
+                  : "Agendar"
+                : isEdit
+                ? "Atualizar"
+                : "Salvar"}
+            </span>
+          </button>
+        </div>
+
+        {/* Botão circular principal: + azul -> gira e vira X vermelho */}
+        <button
+          type="button"
+          onClick={() => setFabOpen((prev) => !prev)}
+          aria-label={fabOpen ? "Fechar ações" : "Abrir ações do post"}
+          aria-expanded={fabOpen}
+          className={`h-14 w-14 rounded-full flex items-center justify-center text-white shadow-md transition-all duration-300 active:scale-95 cursor-pointer ${
+            fabOpen
+              ? "bg-rose-600 hover:bg-rose-600/90"
+              : "bg-blue-600 hover:bg-blue-600/90"
+          }`}
         >
-          {isSubmitting || isUploadingImage ? (
-            <>
-              <i className="bx bx-loader-alt animate-spin text-lg" />
-              <span>Salvando...</span>
-            </>
-          ) : watchedStatus === "SCHEDULED" ? (
-            <>
-              <i className="bx bx-calendar-event text-lg" />
-              <span>{isEdit ? "Atualizar" : "Agendar"}</span>
-            </>
-          ) : (
-            <>
-              <i className="bx bx-save text-lg" />
-              <span>{isEdit ? "Atualizar" : "Salvar"}</span>
-            </>
-          )}
-        </Button>
+          <i
+            className={`bx bx-plus text-2xl transition-transform duration-300 ${
+              fabOpen ? "rotate-45" : "rotate-0"
+            }`}
+          />
+        </button>
       </div>
     </section>
   );

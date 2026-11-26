@@ -1,4 +1,3 @@
-import Link from "next/link";
 import { prisma } from "@/lib/prisma";
 import { TechnologiesTable } from "../technologies-table";
 
@@ -27,13 +26,6 @@ export default async function AdminTechnologiesPage() {
   return (
     <div className="space-y-6">
       <div>
-        <div className="flex flex-wrap items-center gap-x-2 gap-y-1 text-xs text-muted-foreground mb-1">
-          <Link href="/admin" className="hover:text-blue-500 transition-colors">
-            Dashboard
-          </Link>
-          <span>/</span>
-          <span>Tecnologias</span>
-        </div>
         <h1 className="text-2xl md:text-3xl font-bold tracking-tight">
           Tecnologias
         </h1>
